@@ -1,6 +1,6 @@
 {
 	"name": "guidant",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "An AI-powered task management system with discovery workflows, MCP integration, and intelligent project planning.",
 	"main": "index.js",
 	"type": "module",

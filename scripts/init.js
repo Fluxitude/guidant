@@ -51,8 +51,8 @@ const LOG_LEVELS = {
 };
 
 // Determine log level from environment variable or default to 'info'
-const LOG_LEVEL = process.env.TASKMASTER_LOG_LEVEL
-	? LOG_LEVELS[process.env.TASKMASTER_LOG_LEVEL.toLowerCase()]
+const LOG_LEVEL = process.env.GUIDANT_LOG_LEVEL
+	? LOG_LEVELS[process.env.GUIDANT_LOG_LEVEL.toLowerCase()]
 	: LOG_LEVELS.info; // Default to info
 
 // Create a color gradient for the banner
@@ -165,13 +165,13 @@ function addShellAliases() {
 
 		// Add aliases to the shell config file
 		const aliasBlock = `
-# Task Master aliases added on ${new Date().toLocaleDateString()}
-alias tm='task-master'
-alias taskmaster='task-master'
+# Guidant aliases added on ${new Date().toLocaleDateString()}
+alias gd='guidant'
+alias guidant='guidant'
 `;
 
 		fs.appendFileSync(shellConfigFile, aliasBlock);
-		log('success', `Added Task Master aliases to ${shellConfigFile}`);
+		log('success', `Added Guidant aliases to ${shellConfigFile}`);
 		log(
 			'info',
 			`To use the aliases in your current terminal, run: source ${shellConfigFile}`
@@ -230,13 +230,13 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 				'dev_workflow.mdc'
 			);
 			break;
-		case 'taskmaster.mdc':
+		case 'guidant.mdc':
 			sourcePath = path.join(
 				__dirname,
 				'..',
 				'.cursor',
 				'rules',
-				'taskmaster.mdc'
+				'guidant.mdc'
 			);
 			break;
 		case 'cursor_rules.mdc':
@@ -558,10 +558,10 @@ function createProjectStructure(addAliases, dryRun, options) {
 		path.join(targetDir, '.cursor/rules/dev_workflow.mdc')
 	);
 
-	// Copy taskmaster.mdc
+	// Copy guidant.mdc
 	copyTemplateFile(
-		'taskmaster.mdc',
-		path.join(targetDir, '.cursor/rules/taskmaster.mdc')
+		'guidant.mdc',
+		path.join(targetDir, '.cursor/rules/guidant.mdc')
 	);
 
 	// Copy cursor_rules.mdc

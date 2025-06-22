@@ -1,6 +1,6 @@
 /**
  * tools/index.js
- * Export all Task Master CLI tools for MCP server
+ * Export all Guidant CLI tools for MCP server
  */
 
 import { registerListTasksTool } from './get-tasks.js';
@@ -64,10 +64,10 @@ import { registerGenerateDashboardTool } from './reporting/generate-dashboard.js
 import { registerTrackPerformanceTool } from './reporting/track-performance.js';
 
 /**
- * Register all Task Master tools with the MCP server
+ * Register all Guidant tools with the MCP server
  * @param {Object} server - FastMCP server instance
  */
-export function registerTaskMasterTools(server) {
+export function registerGuidantTools(server) {
 	try {
 		// Register each tool in a logical workflow order
 
@@ -145,11 +145,11 @@ export function registerTaskMasterTools(server) {
 		registerGenerateDashboardTool(server);
 		registerTrackPerformanceTool(server);
 	} catch (error) {
-		logger.error(`Error registering Task Master tools: ${error.message}`);
+		logger.error(`Error registering Guidant tools: ${error.message}`);
 		throw error;
 	}
 }
 
 export default {
-	registerTaskMasterTools
+	registerGuidantTools
 };

@@ -1,35 +1,35 @@
 /**
- * Path constants for Task Master application
+ * Path constants for Guidant application
  */
 
-// .taskmaster directory structure paths
-export const TASKMASTER_DIR = '.taskmaster';
-export const TASKMASTER_TASKS_DIR = '.taskmaster/tasks';
-export const TASKMASTER_DOCS_DIR = '.taskmaster/docs';
-export const TASKMASTER_REPORTS_DIR = '.taskmaster/reports';
-export const TASKMASTER_TEMPLATES_DIR = '.taskmaster/templates';
+// .guidant directory structure paths
+export const TASKMASTER_DIR = '.guidant';
+export const TASKMASTER_TASKS_DIR = '.guidant/tasks';
+export const TASKMASTER_DOCS_DIR = '.guidant/docs';
+export const TASKMASTER_REPORTS_DIR = '.guidant/reports';
+export const TASKMASTER_TEMPLATES_DIR = '.guidant/templates';
 
-// Task Master configuration files
-export const TASKMASTER_CONFIG_FILE = '.taskmaster/config.json';
-export const TASKMASTER_STATE_FILE = '.taskmaster/state.json';
+// Guidant configuration files
+export const TASKMASTER_CONFIG_FILE = '.guidant/config.json';
+export const TASKMASTER_STATE_FILE = '.guidant/state.json';
 export const LEGACY_CONFIG_FILE = '.taskmasterconfig';
 
-// Task Master report files
+// Guidant report files
 export const COMPLEXITY_REPORT_FILE =
-	'.taskmaster/reports/task-complexity-report.json';
+	'.guidant/reports/task-complexity-report.json';
 export const LEGACY_COMPLEXITY_REPORT_FILE =
 	'scripts/task-complexity-report.json';
 
-// Task Master PRD file paths
-export const PRD_FILE = '.taskmaster/docs/prd.txt';
+// Guidant PRD file paths
+export const PRD_FILE = '.guidant/docs/prd.txt';
 export const LEGACY_PRD_FILE = 'scripts/prd.txt';
 
-// Task Master template files
-export const EXAMPLE_PRD_FILE = '.taskmaster/templates/example_prd.txt';
+// Guidant template files
+export const EXAMPLE_PRD_FILE = '.guidant/templates/example_prd.txt';
 export const LEGACY_EXAMPLE_PRD_FILE = 'scripts/example_prd.txt';
 
-// Task Master task file paths
-export const TASKMASTER_TASKS_FILE = '.taskmaster/tasks/tasks.json';
+// Guidant task file paths
+export const TASKMASTER_TASKS_FILE = '.guidant/tasks/tasks.json';
 export const LEGACY_TASKS_FILE = 'tasks/tasks.json';
 
 // General project files (not Task Master specific but commonly used)
@@ -41,15 +41,15 @@ export const TASK_FILE_PREFIX = 'task_';
 export const TASK_FILE_EXTENSION = '.txt';
 
 /**
- * Project markers used to identify a task-master project root
- * These files/directories indicate that a directory is a Task Master project
+ * Project markers used to identify a guidant project root
+ * These files/directories indicate that a directory is a Guidant project
  */
 export const PROJECT_MARKERS = [
-	'.taskmaster', // New taskmaster directory
+	'.guidant', // New guidant directory
 	LEGACY_CONFIG_FILE, // .taskmasterconfig
 	'tasks.json', // Generic tasks file
 	LEGACY_TASKS_FILE, // tasks/tasks.json (legacy location)
-	TASKMASTER_TASKS_FILE, // .taskmaster/tasks/tasks.json (new location)
+	TASKMASTER_TASKS_FILE, // .guidant/tasks/tasks.json (new location)
 	'.git', // Git repository
 	'.svn' // SVN repository
 ];
