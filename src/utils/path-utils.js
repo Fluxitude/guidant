@@ -50,7 +50,7 @@ export function normalizeProjectRoot(projectRoot) {
 export function findProjectRoot(startDir = process.cwd()) {
 	const projectMarkers = [
 		'.guidant',
-		TASKMASTER_TASKS_FILE,
+		GUIDANT_TASKS_FILE,
 		'tasks.json',
 		LEGACY_TASKS_FILE,
 		'.git',

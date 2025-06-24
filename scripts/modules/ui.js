@@ -1698,7 +1698,7 @@ async function displayComplexityReport(reportPath) {
 		if (answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes') {
 			// Call the analyze-complexity command
 			console.log(chalk.blue('Generating complexity report...'));
-			const tasksPath = TASKMASTER_TASKS_FILE;
+			const tasksPath = GUIDANT_TASKS_FILE;
 			if (!fs.existsSync(tasksPath)) {
 				console.error(
 					'❌ No tasks.json file found. Please run "guidant init" or create a tasks.json file.'

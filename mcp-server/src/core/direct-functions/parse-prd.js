@@ -77,8 +77,8 @@ export async function parsePRDDirect(args, log, context = {}) {
 		? path.isAbsolute(outputArg)
 			? outputArg
 			: path.resolve(projectRoot, outputArg)
-		: resolveProjectPath(TASKMASTER_TASKS_FILE, args) ||
-			path.resolve(projectRoot, TASKMASTER_TASKS_FILE);
+		: resolveProjectPath(GUIDANT_TASKS_FILE, args) ||
+			path.resolve(projectRoot, GUIDANT_TASKS_FILE);
 
 	// Check if input file exists
 	if (!fs.existsSync(inputPath)) {
