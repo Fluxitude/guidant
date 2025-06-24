@@ -1,9 +1,9 @@
 ---
-description: Guidelines for implementing and maintaining tests for Guidant CLI
+description: Guidelines for implementing and maintaining tests for Task Master CLI
 globs: "**/*.test.js,tests/**/*"
 ---
 
-# Testing Guidelines for Guidant CLI
+# Testing Guidelines for Task Master CLI
 
 *Note:* Never use asynchronous operations in tests. Always mock tests properly based on the way the tested functions are defined and used. Do not arbitrarily create tests. Based them on the low-level details and execution of the underlying code being tested. 
 

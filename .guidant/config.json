@@ -13,8 +13,8 @@
       "temperature": 0.1
     },
     "fallback": {
-      "provider": "anthropic",
-      "modelId": "claude-3-7-sonnet-20250219",
+      "provider": "vertex",
+      "modelId": "gemini-2.5-flash-lite-preview-06-17",
       "maxTokens": 128000,
       "temperature": 0.2
     }

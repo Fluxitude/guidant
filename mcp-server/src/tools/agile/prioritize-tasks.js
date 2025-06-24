@@ -6,11 +6,12 @@
 import { z } from 'zod';
 import {
     createErrorResponse,
-    getProjectRootFromSession
+    withNormalizedProjectRoot
 } from '../utils.js';
 import { readJSON, writeJSON } from '../../../../scripts/modules/utils.js';
 import { findTasksPath } from '../../core/utils/path-utils.js';
 import { generateTextService } from '../../../../scripts/modules/ai-services-unified.js';
+import { TASK_STATUS_OPTIONS } from '../../../../src/constants/task-status.js';
 
 /**
  * Register the prioritize_tasks tool with the MCP server
@@ -35,36 +36,47 @@ export function registerPrioritizeTasksTool(server) {
                 .default(false)
                 .describe('Include market research insights in prioritization'),
             filterStatus: z
-                .enum(['todo', 'in-progress', 'all'])
-                .default('todo')
+                .enum([...TASK_STATUS_OPTIONS, 'all'])
+                .default('pending')
                 .describe('Filter tasks by status for prioritization'),
             maxTasks: z
                 .number()
                 .optional()
                 .default(20)
                 .describe('Maximum number of tasks to prioritize'),
+            file: z
+                .string()
+                .optional()
+                .describe('Path to the tasks file relative to project root'),
             projectRoot: z
                 .string()
                 .optional()
                 .describe('The directory of the project. Must be an absolute path.')
         }),
 
-        execute: async (args, { log, session }) => {
+        execute: withNormalizedProjectRoot(async (args, { log, session }) => {
             try {
                 const { method, criteria, includeResearch, filterStatus, maxTasks } = args;
-                const rootFolder = getProjectRootFromSession(session, log);
-
-                if (!rootFolder) {
-                    return createErrorResponse('Project root not found in session');
-                }
 
                 // Load tasks
-                const tasksPath = findTasksPath({ projectRoot: rootFolder });
+                let tasksPath;
+                try {
+                    tasksPath = findTasksPath(
+                        { projectRoot: args.projectRoot, file: args.file },
+                        log
+                    );
+                } catch (error) {
+                    log.error(`Error finding tasks.json: ${error.message}`);
+                    return createErrorResponse(
+                        `Failed to find tasks.json: ${error.message}`
+                    );
+                }
+
                 if (!tasksPath) {
                     return createErrorResponse('No tasks file found. Initialize project first.');
                 }
 
-                const tasksData = readJSON(tasksPath, rootFolder);
+                const tasksData = readJSON(tasksPath, args.projectRoot);
                 if (!tasksData || !tasksData.tasks || tasksData.tasks.length === 0) {
                     return {
                         content: [{
@@ -111,7 +123,7 @@ export function registerPrioritizeTasksTool(server) {
                 log.error(`prioritize_tasks failed: ${error.message}`);
                 return createErrorResponse(`Failed to prioritize tasks: ${error.message}`);
             }
-        }
+        })
     });
 }
 

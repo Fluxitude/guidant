@@ -144,8 +144,8 @@ alwaysApply: false
   // ✅ DO: Show suggested next actions
   console.log(boxen(
     chalk.white.bold('Next Steps:') + '\n\n' +
-    `${chalk.cyan('1.')} Run ${chalk.yellow('guidant list')} to view all tasks\n` +
-    `${chalk.cyan('2.')} Run ${chalk.yellow('guidant show --id=' + newTaskId)} to view details`,
+    `${chalk.cyan('1.')} Run ${chalk.yellow('task-master list')} to view all tasks\n` +
+    `${chalk.cyan('2.')} Run ${chalk.yellow('task-master show --id=' + newTaskId)} to view details`,
     { padding: 1, borderColor: 'cyan', borderStyle: 'round', margin: { top: 1 } }
   ));
   ```

@@ -8,10 +8,10 @@ alwaysApply: false
 
 **Note on Interaction Method:**
 
-While this document details the implementation of Guidant's **CLI commands**, the **preferred method for interacting with Guidant in integrated environments (like Roo Code) is through the MCP server tools**. 
+While this document details the implementation of Task Master's **CLI commands**, the **preferred method for interacting with Task Master in integrated environments (like Roo Code) is through the MCP server tools**. 
 
 - **Use MCP Tools First**: Always prefer using the MCP tools (e.g., `get_tasks`, `add_task`) when interacting programmatically or via an integrated tool. They offer better performance, structured data, and richer error handling. See [`taskmaster.md`](mdc:.roo/rules/taskmaster.md) for a comprehensive list of MCP tools and their corresponding CLI commands.
-- **CLI as Fallback/User Interface**: The `guidant` CLI commands described here are primarily intended for:
+- **CLI as Fallback/User Interface**: The `task-master` CLI commands described here are primarily intended for:
     - Direct user interaction in the terminal.
     - A fallback mechanism if the MCP server is unavailable or a specific functionality is not exposed via an MCP tool.
 - **Implementation Context**: This document (`commands.md`) focuses on the standards for *implementing* the CLI commands using Commander.js within the [`commands.js`](mdc:scripts/modules/commands.js) module.
@@ -153,8 +153,8 @@ When implementing commands that delete or remove data (like `remove-task` or `re
   ```javascript
   // ✅ DO: Suggest alternatives for destructive operations
   console.log(chalk.yellow('Note: If you just want to exclude this task from active work, consider:'));
-  console.log(chalk.cyan(`  guidant set-status --id='${taskId}' --status='cancelled'`));
-  console.log(chalk.cyan(`  guidant set-status --id='${taskId}' --status='deferred'`));
+  console.log(chalk.cyan(`  task-master set-status --id='${taskId}' --status='cancelled'`));
+  console.log(chalk.cyan(`  task-master set-status --id='${taskId}' --status='deferred'`));
   console.log('This preserves the task and its history for reference.');
   ```
 
@@ -243,7 +243,7 @@ When implementing commands that delete or remove data (like `remove-task` or `re
   if (!fs.existsSync(tasksPath)) {
     console.error(chalk.red(`Error: Tasks file not found at path: ${tasksPath}`));
     if (tasksPath === 'tasks/tasks.json') {
-      console.log(chalk.yellow('Hint: Run guidant init or guidant parse-prd to create tasks.json first'));
+      console.log(chalk.yellow('Hint: Run task-master init or task-master parse-prd to create tasks.json first'));
     } else {
       console.log(chalk.yellow(`Hint: Check if the file path is correct: ${tasksPath}`));
     }
@@ -254,7 +254,7 @@ When implementing commands that delete or remove data (like `remove-task` or `re
   const taskId = parseInt(options.id, 10);
   if (isNaN(taskId) || taskId <= 0) {
     console.error(chalk.red(`Error: Invalid task ID: ${options.id}. Task ID must be a positive integer.`));
-    console.log(chalk.yellow("Usage example: guidant update-task --id='23' --prompt='Update with new information.\\nEnsure proper error handling.'"));
+    console.log(chalk.yellow("Usage example: task-master update-task --id='23' --prompt='Update with new information.\\nEnsure proper error handling.'"));
     process.exit(1);
   }
   
@@ -300,8 +300,8 @@ When implementing commands that delete or remove data (like `remove-task` or `re
     (dependencies.length > 0 ? chalk.white(`Dependencies: ${dependencies.join(', ')}`) + '\n' : '') +
     '\n' +
     chalk.white.bold('Next Steps:') + '\n' +
-    chalk.cyan(`1. Run ${chalk.yellow(`guidant show '${parentId}'`)} to see the parent task with all subtasks`) + '\n' +
-    chalk.cyan(`2. Run ${chalk.yellow(`guidant set-status --id='${parentId}.${subtask.id}' --status='in-progress'`)} to start working on it`),
+    chalk.cyan(`1. Run ${chalk.yellow(`task-master show '${parentId}'`)} to see the parent task with all subtasks`) + '\n' +
+    chalk.cyan(`2. Run ${chalk.yellow(`task-master set-status --id='${parentId}.${subtask.id}' --status='in-progress'`)} to start working on it`),
     { padding: 1, borderColor: 'green', borderStyle: 'round', margin: { top: 1 } }
   ));
   ```
@@ -416,7 +416,7 @@ For AI-powered commands that benefit from project context, follow the research c
   programInstance.on('option:unknown', function(unknownOption) {
     const commandName = this._name || 'unknown';
     console.error(chalk.red(`Error: Unknown option '${unknownOption}'`));
-    console.error(chalk.yellow(`Run 'guidant ${commandName} --help' to see available options`));
+    console.error(chalk.yellow(`Run 'task-master ${commandName} --help' to see available options`));
     process.exit(1);
   });
   
@@ -425,12 +425,12 @@ For AI-powered commands that benefit from project context, follow the research c
     console.log(boxen(
       chalk.white.bold('Command Help') + '\n\n' +
       chalk.cyan('Usage:') + '\n' +
-      `  guidant command --option1=<value> [options]\n\n` +
+      `  task-master command --option1=<value> [options]\n\n` +
       chalk.cyan('Options:') + '\n' +
       '  --option1 <value>    Description of option1 (required)\n' +
       '  --option2 <value>    Description of option2\n\n' +
       chalk.cyan('Examples:') + '\n' +
-      '  guidant command --option1=\'value1\' --option2=\'value2\'',
+      '  task-master command --option1=\'value1\' --option2=\'value2\'',
       { padding: 1, borderColor: 'blue', borderStyle: 'round' }
     ));
   }
@@ -448,7 +448,7 @@ For AI-powered commands that benefit from project context, follow the research c
     if (err.code === 'commander.unknownOption') {
       const option = err.message.match(/'([^']+)'/)?.[1]; // Safely extract option name
       console.error(chalk.red(`Error: Unknown option '${option}'`));
-      console.error(chalk.yellow("Run 'guidant <command> --help' to see available options"));
+      console.error(chalk.yellow("Run 'task-master <command> --help' to see available options"));
       process.exit(1);
     }
     
@@ -473,7 +473,7 @@ For AI-powered commands that benefit from project context, follow the research c
     // Provide more helpful error messages for common issues
     if (error.message.includes('task') && error.message.includes('not found')) {
       console.log(chalk.yellow('\nTo fix this issue:'));
-      console.log('  1. Run \'guidant list\' to see all available task IDs');
+      console.log('  1. Run \'task-master list\' to see all available task IDs');
       console.log('  2. Use a valid task ID with the --id parameter');
     } else if (error.message.includes('API key')) {
       console.log(chalk.yellow('\nThis error is related to API keys. Check your environment variables.'));
@@ -584,7 +584,7 @@ For AI-powered commands that benefit from project context, follow the research c
   function displayUpgradeNotification(currentVersion, latestVersion) {
     const message = boxen(
       `${chalk.blue.bold('Update Available!')} ${chalk.dim(currentVersion)} → ${chalk.green(latestVersion)}\n\n` +
-      `Run ${chalk.cyan('npm i guidant-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
+      `Run ${chalk.cyan('npm i task-master-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
       {
         padding: 1,
         margin: { top: 1, bottom: 1 },
@@ -623,7 +623,7 @@ function showAddSubtaskHelp() {
   console.log(boxen(
     chalk.white.bold('Add Subtask Command Help') + '\n\n' +
     chalk.cyan('Usage:') + '\n' +
-    `  guidant add-subtask --parent=<id> [options]\n\n` +
+    `  task-master add-subtask --parent=<id> [options]\n\n` +
     chalk.cyan('Options:') + '\n' +
     '  -p, --parent <id>         Parent task ID (required)\n' +
     '  -i, --task-id <id>        Existing task ID to convert to subtask\n' +
@@ -635,9 +635,9 @@ function showAddSubtaskHelp() {
     '  -f, --file <file>         Path to the tasks file (default: "tasks/tasks.json")\n' +
     '  --skip-generate           Skip regenerating task files\n\n' +
     chalk.cyan('Examples:') + '\n' +
-    '  guidant add-subtask --parent=\'5\' --task-id=\'8\'\n' +
-    '  guidant add-subtask -p \'5\' -t \'Implement login UI\' -d \'Create the login form\'\n' +
-    '  guidant add-subtask -p \'5\' -t \'Handle API Errors\' --details $\'Handle 401 Unauthorized.\nHandle 500 Server Error.\'',
+    '  task-master add-subtask --parent=\'5\' --task-id=\'8\'\n' +
+    '  task-master add-subtask -p \'5\' -t \'Implement login UI\' -d \'Create the login form\'\n' +
+    '  task-master add-subtask -p \'5\' -t \'Handle API Errors\' --details $\'Handle 401 Unauthorized.\nHandle 500 Server Error.\'',
     { padding: 1, borderColor: 'blue', borderStyle: 'round' }
   ));
 }
@@ -647,16 +647,16 @@ function showRemoveSubtaskHelp() {
   console.log(boxen(
     chalk.white.bold('Remove Subtask Command Help') + '\n\n' +
     chalk.cyan('Usage:') + '\n' +
-    `  guidant remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
+    `  task-master remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
     chalk.cyan('Options:') + '\n' +
     '  -i, --id <id>       Subtask ID(s) to remove in format "parentId.subtaskId" (can be comma-separated, required)\n' +
     '  -c, --convert       Convert the subtask to a standalone task instead of deleting it\n' +
     '  -f, --file <file>   Path to the tasks file (default: "tasks/tasks.json")\n' +
     '  --skip-generate     Skip regenerating task files\n\n' +
     chalk.cyan('Examples:') + '\n' +
-    '  guidant remove-subtask --id=\'5.2\'\n' +
-    '  guidant remove-subtask --id=\'5.2,6.3,7.1\'\n' +
-    '  guidant remove-subtask --id=\'5.2\' --convert',
+    '  task-master remove-subtask --id=\'5.2\'\n' +
+    '  task-master remove-subtask --id=\'5.2,6.3,7.1\'\n' +
+    '  task-master remove-subtask --id=\'5.2\' --convert',
     { padding: 1, borderColor: 'blue', borderStyle: 'round' }
   ));
 } 

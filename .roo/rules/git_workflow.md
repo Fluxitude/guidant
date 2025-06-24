@@ -1,9 +1,9 @@
 ---
-description: Git workflow integrated with Guidant for feature development and collaboration
+description: Git workflow integrated with Task Master for feature development and collaboration
 globs: "**/*"
 alwaysApply: true
 ---
-# Git Workflow with Guidant Integration
+# Git Workflow with Task Master Integration
 
 ## **Branch Strategy**
 
@@ -28,7 +28,7 @@ random-branch-name
 
 ## **Tagged Task Lists Integration**
 
-Guidant's **tagged task lists system** provides significant benefits for Git workflows:
+Task Master's **tagged task lists system** provides significant benefits for Git workflows:
 
 ### **Multi-Context Development**
 - **Branch-Specific Tasks**: Each branch can have its own task context using tags
@@ -98,18 +98,18 @@ git branch  # Verify you're on main
 # 3. Create task-specific branch
 git checkout -b task-004  # For Task 4
 
-# 4. Set task status in Guidant (tasks automatically use current tag context)
-# Use: set_task_status tool or `guidant set-status --id=4 --status=in-progress`
+# 4. Set task status in Task Master (tasks automatically use current tag context)
+# Use: set_task_status tool or `task-master set-status --id=4 --status=in-progress`
 ```
 
 ### **Phase 2: Task Analysis & Planning**
 ```bash
 # 5. Get task context and expand if needed (uses current tag automatically)
-# Use: get_task tool or `guidant show 4`
-# Use: expand_task tool or `guidant expand --id=4 --research --force` (if complex)
+# Use: get_task tool or `task-master show 4`
+# Use: expand_task tool or `task-master expand --id=4 --research --force` (if complex)
 
 # 6. Identify next subtask to work on
-# Use: next_task tool or `guidant next`
+# Use: next_task tool or `task-master next`
 ```
 
 ### **Phase 3: Subtask Implementation Loop**
@@ -117,11 +117,11 @@ For each subtask, follow this pattern:
 
 ```bash
 # 7. Mark subtask as in-progress
-# Use: set_task_status tool or `guidant set-status --id=4.1 --status=in-progress`
+# Use: set_task_status tool or `task-master set-status --id=4.1 --status=in-progress`
 
 # 8. Gather context and research (if needed)
 # Use: update_subtask tool with research flag or:
-# `guidant update-subtask --id=4.1 --prompt="Research findings..." --research`
+# `task-master update-subtask --id=4.1 --prompt="Research findings..." --research`
 
 # 9. Collect code context through AI exploration
 # Document findings in subtask using update_subtask
@@ -131,10 +131,10 @@ For each subtask, follow this pattern:
 
 # 11. Update subtask with completion details
 # Use: update_subtask tool or:
-# `guidant update-subtask --id=4.1 --prompt="Implementation complete..."`
+# `task-master update-subtask --id=4.1 --prompt="Implementation complete..."`
 
 # 12. Mark subtask as done
-# Use: set_task_status tool or `guidant set-status --id=4.1 --status=done`
+# Use: set_task_status tool or `task-master set-status --id=4.1 --status=done`
 
 # 13. Commit the subtask implementation
 git add .
@@ -230,30 +230,30 @@ Task 4: Setup Express.js Server Project - Testing complete"
 - `refactor(task-X):` - Code refactoring
 - `chore(task-X):` - Build/tooling changes
 
-## **Guidant Commands Integration**
+## **Task Master Commands Integration**
 
 ### **Essential Commands for Git Workflow**
 ```bash
 # Task management (uses current tag context automatically)
-guidant show <id>           # Get task/subtask details
-guidant next                # Find next task to work on
-guidant set-status --id=<id> --status=<status>
-guidant update-subtask --id=<id> --prompt="..." --research
+task-master show <id>           # Get task/subtask details
+task-master next                # Find next task to work on
+task-master set-status --id=<id> --status=<status>
+task-master update-subtask --id=<id> --prompt="..." --research
 
 # Task expansion (for complex tasks)
-guidant expand --id=<id> --research --force
+task-master expand --id=<id> --research --force
 
 # Progress tracking
-guidant list                # View all tasks and status
-guidant list --status=in-progress  # View active tasks
+task-master list                # View all tasks and status
+task-master list --status=in-progress  # View active tasks
 ```
 
 ### **MCP Tool Equivalents**
 When using Roo Code or other MCP-integrated tools:
-- `get_task` instead of `guidant show`
-- `next_task` instead of `guidant next`
-- `set_task_status` instead of `guidant set-status`
-- `update_subtask` instead of `guidant update-subtask`
+- `get_task` instead of `task-master show`
+- `next_task` instead of `task-master next`
+- `set_task_status` instead of `task-master set-status`
+- `update_subtask` instead of `task-master update-subtask`
 
 ## **Branch Management Rules**
 
@@ -326,11 +326,11 @@ Mention any dependent tasks or follow-up work needed.
 # With tagged task lists, merge conflicts are significantly reduced:
 # 1. Different branches can use different tag contexts
 # 2. Tasks in separate tags are completely isolated
-# 3. Use Guidant's move functionality to reorganize if needed
+# 3. Use Task Master's move functionality to reorganize if needed
 
 # Manual git integration available:
-# - Use `guidant add-tag --from-branch` to create tags from current branch
-# - Manually switch contexts with `guidant use-tag <name>`
+# - Use `task-master add-tag --from-branch` to create tags from current branch
+# - Manually switch contexts with `task-master use-tag <name>`
 # - Simple, predictable workflow without automatic behavior
 ```
 
@@ -368,7 +368,7 @@ git push origin hotfix-urgent-issue
 ```bash
 # If task needs to be abandoned or significantly changed:
 # 1. Update task status
-guidant set-status --id=<id> --status=cancelled
+task-master set-status --id=<id> --status=cancelled
 
 # 2. Clean up branch
 git checkout main
@@ -376,7 +376,7 @@ git branch -D task-<id>
 git push origin --delete task-<id>
 
 # 3. Document reasoning in task
-guidant update-task --id=<id> --prompt="Task cancelled due to..."
+task-master update-task --id=<id> --prompt="Task cancelled due to..."
 ```
 
 ## **Tagged System Benefits for Git Workflows**
@@ -399,6 +399,6 @@ guidant update-task --id=<id> --prompt="Task cancelled due to..."
 ---
 
 **References:**
-- [Guidant Workflow](mdc:.roo/rules/dev_workflow.md)
+- [Task Master Workflow](mdc:.roo/rules/dev_workflow.md)
 - [Architecture Guidelines](mdc:.roo/rules/architecture.md)
-- [Guidant Commands](mdc:.roo/rules/taskmaster.md)
+- [Task Master Commands](mdc:.roo/rules/taskmaster.md)

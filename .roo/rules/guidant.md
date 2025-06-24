@@ -20,15 +20,15 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 1. Initialize Project (`init`)
 
 *   **MCP Tool:** `initialize_project`
-*   **CLI Command:** `guidant init [options]`
-*   **Description:** `Set up the basic Guidant file structure and configuration in the current directory for a new project.`
+*   **CLI Command:** `task-master init [options]`
+*   **Description:** `Set up the basic Taskmaster file structure and configuration in the current directory for a new project.`
 *   **Key CLI Options:**
-    *   `--name <name>`: `Set the name for your project in Guidant's configuration.`
+    *   `--name <name>`: `Set the name for your project in Taskmaster's configuration.`
     *   `--description <text>`: `Provide a brief description for your project.`
     *   `--version <version>`: `Set the initial version for your project, e.g., '0.1.0'.`
-    *   `-y, --yes`: `Initialize Guidant quickly using default settings without interactive prompts.`
+    *   `-y, --yes`: `Initialize Taskmaster quickly using default settings without interactive prompts.`
 *   **Usage:** Run this once at the beginning of a new project.
-*   **MCP Variant Description:** `Set up the basic Guidant file structure and configuration in the current directory for a new project by running the 'guidant init' command.`
+*   **MCP Variant Description:** `Set up the basic Taskmaster file structure and configuration in the current directory for a new project by running the 'task-master init' command.`
 *   **Key MCP Parameters/Options:**
     *   `projectName`: `Set the name for your project.` (CLI: `--name <name>`)
     *   `projectDescription`: `Provide a brief description for your project.` (CLI: `--description <text>`)
@@ -38,22 +38,22 @@ This document provides a detailed reference for interacting with Guidant, coveri
     *   `addAliases`: `Add shell aliases tm and taskmaster. Default is false.` (CLI: `--aliases`)
     *   `yes`: `Skip prompts and use defaults/provided arguments. Default is false.` (CLI: `-y, --yes`)
 *   **Usage:** Run this once at the beginning of a new project, typically via an integrated tool like Roo Code. Operates on the current working directory of the MCP server. 
-*   **Important:** Once complete, you *MUST* parse a prd in order to generate tasks. There will be no tasks files until then. The next step after initializing should be to create a PRD using the example PRD in .guidant/templates/example_prd.txt. 
-*   **Tagging:** Use the `--tag` option to parse the PRD into a specific, non-default tag context. If the tag doesn't exist, it will be created automatically. Example: `guidant parse-prd spec.txt --tag=new-feature`.
+*   **Important:** Once complete, you *MUST* parse a prd in order to generate tasks. There will be no tasks files until then. The next step after initializing should be to create a PRD using the example PRD in .taskmaster/templates/example_prd.txt. 
+*   **Tagging:** Use the `--tag` option to parse the PRD into a specific, non-default tag context. If the tag doesn't exist, it will be created automatically. Example: `task-master parse-prd spec.txt --tag=new-feature`.
 
 ### 2. Parse PRD (`parse_prd`)
 
 *   **MCP Tool:** `parse_prd`
-*   **CLI Command:** `guidant parse-prd [file] [options]`
+*   **CLI Command:** `task-master parse-prd [file] [options]`
 *   **Description:** `Parse a Product Requirements Document, PRD, or text file with Taskmaster to automatically generate an initial set of tasks in tasks.json.`
 *   **Key Parameters/Options:**
     *   `input`: `Path to your PRD or requirements text file that Taskmaster should parse for tasks.` (CLI: `[file]` positional or `-i, --input <file>`)
-    *   `output`: `Specify where Taskmaster should save the generated 'tasks.json' file. Defaults to '.guidant/tasks/tasks.json'.` (CLI: `-o, --output <file>`)
+    *   `output`: `Specify where Taskmaster should save the generated 'tasks.json' file. Defaults to '.taskmaster/tasks/tasks.json'.` (CLI: `-o, --output <file>`)
     *   `numTasks`: `Approximate number of top-level tasks Taskmaster should aim to generate from the document.` (CLI: `-n, --num-tasks <number>`)
     *   `force`: `Use this to allow Taskmaster to overwrite an existing 'tasks.json' without asking for confirmation.` (CLI: `-f, --force`)
 *   **Usage:** Useful for bootstrapping a project from an existing requirements document.
-*   **Notes:** Guidant will strictly adhere to any specific requirements mentioned in the PRD, such as libraries, database schemas, frameworks, tech stacks, etc., while filling in any gaps where the PRD isn't fully specified. Tasks are designed to provide the most direct implementation path while avoiding over-engineering.
-*   **Important:** This MCP tool makes AI calls and can take up to a minute to complete. Please inform users to hang tight while the operation is in progress. If the user does not have a PRD, suggest discussing their idea and then use the example PRD in `.guidant/templates/example_prd.txt` as a template for creating the PRD based on their idea, for use with `parse-prd`.
+*   **Notes:** Task Master will strictly adhere to any specific requirements mentioned in the PRD, such as libraries, database schemas, frameworks, tech stacks, etc., while filling in any gaps where the PRD isn't fully specified. Tasks are designed to provide the most direct implementation path while avoiding over-engineering.
+*   **Important:** This MCP tool makes AI calls and can take up to a minute to complete. Please inform users to hang tight while the operation is in progress. If the user does not have a PRD, suggest discussing their idea and then use the example PRD in `.taskmaster/templates/example_prd.txt` as a template for creating the PRD based on their idea, for use with `parse-prd`.
 
 ---
 
@@ -61,7 +61,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 
 ### 2. Manage Models (`models`)
 *   **MCP Tool:** `models`
-*   **CLI Command:** `guidant models [options]`
+*   **CLI Command:** `task-master models [options]`
 *   **Description:** `View the current AI model configuration or set specific models for different roles (main, research, fallback). Allows setting custom model IDs for Ollama and OpenRouter.`
 *   **Key MCP Parameters/Options:**
     *   `setMain <model_id>`: `Set the primary model ID for task generation/updates.` (CLI: `--set-main <model_id>`)
@@ -81,10 +81,10 @@ This document provides a detailed reference for interacting with Guidant, coveri
     *   `--setup`: `Run interactive setup to configure models, including custom Ollama/OpenRouter IDs.`
 *   **Usage (MCP):** Call without set flags to get current config. Use `setMain`, `setResearch`, or `setFallback` with a valid model ID to update the configuration. Use `listAvailableModels: true` to get a list of unassigned models. To set a custom model, provide the model ID and set `ollama: true` or `openrouter: true`.
 *   **Usage (CLI):** Run without flags to view current configuration and available models. Use set flags to update specific roles. Use `--setup` for guided configuration, including custom models. To set a custom model via flags, use `--set-<role>=<model_id>` along with either `--ollama` or `--openrouter`.
-*   **Notes:** Configuration is stored in `.guidant/config.json` in the project root. This command/tool modifies that file. Use `listAvailableModels` or `guidant models` to see internally supported models. OpenRouter custom models are validated against their live API. Ollama custom models are not validated live.
+*   **Notes:** Configuration is stored in `.taskmaster/config.json` in the project root. This command/tool modifies that file. Use `listAvailableModels` or `task-master models` to see internally supported models. OpenRouter custom models are validated against their live API. Ollama custom models are not validated live.
 *   **API note:** API keys for selected AI providers (based on their model) need to exist in the mcp.json file to be accessible in MCP context. The API keys must be present in the local .env file for the CLI to be able to read them.
 *   **Model costs:** The costs in supported models are expressed in dollars. An input/output value of 3 is $3.00. A value of 0.8 is $0.80. 
-*   **Warning:** DO NOT MANUALLY EDIT THE .guidant/config.json FILE. Use the included commands either in the MCP or CLI format as needed. Always prioritize MCP tools when available and use the CLI as a fallback.
+*   **Warning:** DO NOT MANUALLY EDIT THE .taskmaster/config.json FILE. Use the included commands either in the MCP or CLI format as needed. Always prioritize MCP tools when available and use the CLI as a fallback.
 
 ---
 
@@ -93,7 +93,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 3. Get Tasks (`get_tasks`)
 
 *   **MCP Tool:** `get_tasks`
-*   **CLI Command:** `guidant list [options]`
+*   **CLI Command:** `task-master list [options]`
 *   **Description:** `List your Taskmaster tasks, optionally filtering by status and showing subtasks.`
 *   **Key Parameters/Options:**
     *   `status`: `Show only Taskmaster tasks matching this status (or multiple statuses, comma-separated), e.g., 'pending' or 'done,in-progress'.` (CLI: `-s, --status <status>`)
@@ -105,7 +105,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 4. Get Next Task (`next_task`)
 
 *   **MCP Tool:** `next_task`
-*   **CLI Command:** `guidant next [options]`
+*   **CLI Command:** `task-master next [options]`
 *   **Description:** `Ask Taskmaster to show the next available task you can work on, based on status and completed dependencies.`
 *   **Key Parameters/Options:**
     *   `file`: `Path to your Taskmaster 'tasks.json' file. Default relies on auto-detection.` (CLI: `-f, --file <file>`)
@@ -115,7 +115,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 5. Get Task Details (`get_task`)
 
 *   **MCP Tool:** `get_task`
-*   **CLI Command:** `guidant show [id] [options]`
+*   **CLI Command:** `task-master show [id] [options]`
 *   **Description:** `Display detailed information for one or more specific Taskmaster tasks or subtasks by ID.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID of the Taskmaster task (e.g., '15'), subtask (e.g., '15.2'), or a comma-separated list of IDs ('1,5,10.2') you want to view.` (CLI: `[id]` positional or `-i, --id <id>`)
@@ -131,7 +131,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 6. Add Task (`add_task`)
 
 *   **MCP Tool:** `add_task`
-*   **CLI Command:** `guidant add-task [options]`
+*   **CLI Command:** `task-master add-task [options]`
 *   **Description:** `Add a new task to Taskmaster by describing it; AI will structure it.`
 *   **Key Parameters/Options:**
     *   `prompt`: `Required. Describe the new task you want Taskmaster to create, e.g., "Implement user authentication using JWT".` (CLI: `-p, --prompt <text>`)
@@ -146,7 +146,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 7. Add Subtask (`add_subtask`)
 
 *   **MCP Tool:** `add_subtask`
-*   **CLI Command:** `guidant add-subtask [options]`
+*   **CLI Command:** `task-master add-subtask [options]`
 *   **Description:** `Add a new subtask to a Taskmaster parent task, or convert an existing task into a subtask.`
 *   **Key Parameters/Options:**
     *   `id` / `parent`: `Required. The ID of the Taskmaster task that will be the parent.` (MCP: `id`, CLI: `-p, --parent <id>`)
@@ -164,7 +164,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 8. Update Tasks (`update`)
 
 *   **MCP Tool:** `update`
-*   **CLI Command:** `guidant update [options]`
+*   **CLI Command:** `task-master update [options]`
 *   **Description:** `Update multiple upcoming tasks in Taskmaster based on new context or changes, starting from a specific task ID.`
 *   **Key Parameters/Options:**
     *   `from`: `Required. The ID of the first task Taskmaster should update. All tasks with this ID or higher that are not 'done' will be considered.` (CLI: `--from <id>`)
@@ -172,13 +172,13 @@ This document provides a detailed reference for interacting with Guidant, coveri
     *   `research`: `Enable Taskmaster to use the research role for more informed updates. Requires appropriate API key.` (CLI: `-r, --research`)
     *   `tag`: `Specify which tag context to operate on. Defaults to the current active tag.` (CLI: `--tag <name>`)
     *   `file`: `Path to your Taskmaster 'tasks.json' file. Default relies on auto-detection.` (CLI: `-f, --file <file>`)
-*   **Usage:** Handle significant implementation changes or pivots that affect multiple future tasks. Example CLI: `guidant update --from='18' --prompt='Switching to React Query.\nNeed to refactor data fetching...'`
+*   **Usage:** Handle significant implementation changes or pivots that affect multiple future tasks. Example CLI: `task-master update --from='18' --prompt='Switching to React Query.\nNeed to refactor data fetching...'`
 *   **Important:** This MCP tool makes AI calls and can take up to a minute to complete. Please inform users to hang tight while the operation is in progress.
 
 ### 9. Update Task (`update_task`)
 
 *   **MCP Tool:** `update_task`
-*   **CLI Command:** `guidant update-task [options]`
+*   **CLI Command:** `task-master update-task [options]`
 *   **Description:** `Modify a specific Taskmaster task by ID, incorporating new information or changes. By default, this replaces the existing task details.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The specific ID of the Taskmaster task, e.g., '15', you want to update.` (CLI: `-i, --id <id>`)
@@ -193,7 +193,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 10. Update Subtask (`update_subtask`)
 
 *   **MCP Tool:** `update_subtask`
-*   **CLI Command:** `guidant update-subtask [options]`
+*   **CLI Command:** `task-master update-subtask [options]`
 *   **Description:** `Append timestamped notes or details to a specific Taskmaster subtask without overwriting existing content. Intended for iterative implementation logging.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID of the Taskmaster subtask, e.g., '5.2', to update with new information.` (CLI: `-i, --id <id>`)
@@ -207,7 +207,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 11. Set Task Status (`set_task_status`)
 
 *   **MCP Tool:** `set_task_status`
-*   **CLI Command:** `guidant set-status [options]`
+*   **CLI Command:** `task-master set-status [options]`
 *   **Description:** `Update the status of one or more Taskmaster tasks or subtasks, e.g., 'pending', 'in-progress', 'done'.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID(s) of the Taskmaster task(s) or subtask(s), e.g., '15', '15.2', or '16,17.1', to update.` (CLI: `-i, --id <id>`)
@@ -219,7 +219,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 12. Remove Task (`remove_task`)
 
 *   **MCP Tool:** `remove_task`
-*   **CLI Command:** `guidant remove-task [options]`
+*   **CLI Command:** `task-master remove-task [options]`
 *   **Description:** `Permanently remove a task or subtask from the Taskmaster tasks list.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID of the Taskmaster task, e.g., '5', or subtask, e.g., '5.2', to permanently remove.` (CLI: `-i, --id <id>`)
@@ -236,7 +236,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 13. Expand Task (`expand_task`)
 
 *   **MCP Tool:** `expand_task`
-*   **CLI Command:** `guidant expand [options]`
+*   **CLI Command:** `task-master expand [options]`
 *   **Description:** `Use Taskmaster's AI to break down a complex task into smaller, manageable subtasks. Appends subtasks by default.`
 *   **Key Parameters/Options:**
     *   `id`: `The ID of the specific Taskmaster task you want to break down into subtasks.` (CLI: `-i, --id <id>`)
@@ -252,7 +252,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 14. Expand All Tasks (`expand_all`)
 
 *   **MCP Tool:** `expand_all`
-*   **CLI Command:** `guidant expand --all [options]` (Note: CLI uses the `expand` command with the `--all` flag)
+*   **CLI Command:** `task-master expand --all [options]` (Note: CLI uses the `expand` command with the `--all` flag)
 *   **Description:** `Tell Taskmaster to automatically expand all eligible pending/in-progress tasks based on complexity analysis or defaults. Appends subtasks by default.`
 *   **Key Parameters/Options:**
     *   `num`: `Optional: Suggests how many subtasks Taskmaster should aim to create per task.` (CLI: `-n, --num <number>`)
@@ -267,7 +267,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 15. Clear Subtasks (`clear_subtasks`)
 
 *   **MCP Tool:** `clear_subtasks`
-*   **CLI Command:** `guidant clear-subtasks [options]`
+*   **CLI Command:** `task-master clear-subtasks [options]`
 *   **Description:** `Remove all subtasks from one or more specified Taskmaster parent tasks.`
 *   **Key Parameters/Options:**
     *   `id`: `The ID(s) of the Taskmaster parent task(s) whose subtasks you want to remove, e.g., '15' or '16,18'. Required unless using `all`.) (CLI: `-i, --id <ids>`)
@@ -279,7 +279,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 16. Remove Subtask (`remove_subtask`)
 
 *   **MCP Tool:** `remove_subtask`
-*   **CLI Command:** `guidant remove-subtask [options]`
+*   **CLI Command:** `task-master remove-subtask [options]`
 *   **Description:** `Remove a subtask from its Taskmaster parent, optionally converting it into a standalone task.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID(s) of the Taskmaster subtask(s) to remove, e.g., '15.2' or '16.1,16.3'.` (CLI: `-i, --id <id>`)
@@ -292,7 +292,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 17. Move Task (`move_task`)
 
 *   **MCP Tool:** `move_task`
-*   **CLI Command:** `guidant move [options]`
+*   **CLI Command:** `task-master move [options]`
 *   **Description:** `Move a task or subtask to a new position within the task hierarchy.`
 *   **Key Parameters/Options:**
     *   `from`: `Required. ID of the task/subtask to move (e.g., "5" or "5.2"). Can be comma-separated for multiple tasks.` (CLI: `--from <id>`)
@@ -311,8 +311,8 @@ This document provides a detailed reference for interacting with Guidant, coveri
     *   Prevents moving to existing task IDs that already have content (to avoid overwriting)
     *   Validates that source tasks exist before attempting to move them
     *   Maintains proper parent-child relationships
-*   **Example CLI:** `guidant move --from=5.2 --to=7.3` to move subtask 5.2 to become subtask 7.3.
-*   **Example Multi-Move:** `guidant move --from=10,11,12 --to=16,17,18` to move multiple tasks to new positions.
+*   **Example CLI:** `task-master move --from=5.2 --to=7.3` to move subtask 5.2 to become subtask 7.3.
+*   **Example Multi-Move:** `task-master move --from=10,11,12 --to=16,17,18` to move multiple tasks to new positions.
 *   **Common Use:** Resolving merge conflicts in tasks.json when multiple team members create tasks on different branches.
 
 ---
@@ -322,7 +322,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 18. Add Dependency (`add_dependency`)
 
 *   **MCP Tool:** `add_dependency`
-*   **CLI Command:** `guidant add-dependency [options]`
+*   **CLI Command:** `task-master add-dependency [options]`
 *   **Description:** `Define a dependency in Taskmaster, making one task a prerequisite for another.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID of the Taskmaster task that will depend on another.` (CLI: `-i, --id <id>`)
@@ -334,7 +334,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 19. Remove Dependency (`remove_dependency`)
 
 *   **MCP Tool:** `remove_dependency`
-*   **CLI Command:** `guidant remove-dependency [options]`
+*   **CLI Command:** `task-master remove-dependency [options]`
 *   **Description:** `Remove a dependency relationship between two Taskmaster tasks.`
 *   **Key Parameters/Options:**
     *   `id`: `Required. The ID of the Taskmaster task you want to remove a prerequisite from.` (CLI: `-i, --id <id>`)
@@ -346,7 +346,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 20. Validate Dependencies (`validate_dependencies`)
 
 *   **MCP Tool:** `validate_dependencies`
-*   **CLI Command:** `guidant validate-dependencies [options]`
+*   **CLI Command:** `task-master validate-dependencies [options]`
 *   **Description:** `Check your Taskmaster tasks for dependency issues (like circular references or links to non-existent tasks) without making changes.`
 *   **Key Parameters/Options:**
     *   `tag`: `Specify which tag context to validate. Defaults to the current active tag.` (CLI: `--tag <name>`)
@@ -356,7 +356,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 21. Fix Dependencies (`fix_dependencies`)
 
 *   **MCP Tool:** `fix_dependencies`
-*   **CLI Command:** `guidant fix-dependencies [options]`
+*   **CLI Command:** `task-master fix-dependencies [options]`
 *   **Description:** `Automatically fix dependency issues (like circular references or links to non-existent tasks) in your Taskmaster tasks.`
 *   **Key Parameters/Options:**
     *   `tag`: `Specify which tag context to fix dependencies in. Defaults to the current active tag.` (CLI: `--tag <name>`)
@@ -370,10 +370,10 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 22. Analyze Project Complexity (`analyze_project_complexity`)
 
 *   **MCP Tool:** `analyze_project_complexity`
-*   **CLI Command:** `guidant analyze-complexity [options]`
+*   **CLI Command:** `task-master analyze-complexity [options]`
 *   **Description:** `Have Taskmaster analyze your tasks to determine their complexity and suggest which ones need to be broken down further.`
 *   **Key Parameters/Options:**
-    *   `output`: `Where to save the complexity analysis report. Default is '.guidant/reports/task-complexity-report.json' (or '..._tagname.json' if a tag is used).` (CLI: `-o, --output <file>`)
+    *   `output`: `Where to save the complexity analysis report. Default is '.taskmaster/reports/task-complexity-report.json' (or '..._tagname.json' if a tag is used).` (CLI: `-o, --output <file>`)
     *   `threshold`: `The minimum complexity score (1-10) that should trigger a recommendation to expand a task.` (CLI: `-t, --threshold <number>`)
     *   `research`: `Enable research role for more accurate complexity analysis. Requires appropriate API key.` (CLI: `-r, --research`)
     *   `tag`: `Specify which tag context to analyze. Defaults to the current active tag.` (CLI: `--tag <name>`)
@@ -384,11 +384,11 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 23. View Complexity Report (`complexity_report`)
 
 *   **MCP Tool:** `complexity_report`
-*   **CLI Command:** `guidant complexity-report [options]`
+*   **CLI Command:** `task-master complexity-report [options]`
 *   **Description:** `Display the task complexity analysis report in a readable format.`
 *   **Key Parameters/Options:**
     *   `tag`: `Specify which tag context to show the report for. Defaults to the current active tag.` (CLI: `--tag <name>`)
-    *   `file`: `Path to the complexity report (default: '.guidant/reports/task-complexity-report.json').` (CLI: `-f, --file <file>`)
+    *   `file`: `Path to the complexity report (default: '.taskmaster/reports/task-complexity-report.json').` (CLI: `-f, --file <file>`)
 *   **Usage:** Review and understand the complexity analysis results after running analyze-complexity.
 
 ---
@@ -398,7 +398,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 24. Generate Task Files (`generate`)
 
 *   **MCP Tool:** `generate`
-*   **CLI Command:** `guidant generate [options]`
+*   **CLI Command:** `task-master generate [options]`
 *   **Description:** `Create or update individual Markdown files for each task based on your tasks.json.`
 *   **Key Parameters/Options:**
     *   `output`: `The directory where Taskmaster should save the task files (default: in a 'tasks' directory).` (CLI: `-o, --output <directory>`)
@@ -413,7 +413,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
 ### 25. Research (`research`)
 
 *   **MCP Tool:** `research`
-*   **CLI Command:** `guidant research [options]`
+*   **CLI Command:** `task-master research [options]`
 *   **Description:** `Perform AI-powered research queries with project context to get fresh, up-to-date information beyond the AI's knowledge cutoff.`
 *   **Key Parameters/Options:**
     *   `query`: `Required. Research query/prompt (e.g., "What are the latest best practices for React Query v5?").` (CLI: `[query]` positional or `-q, --query <text>`)
@@ -423,7 +423,7 @@ This document provides a detailed reference for interacting with Guidant, coveri
     *   `includeProjectTree`: `Include project file tree structure in context (default: false).` (CLI: `--tree`)
     *   `detailLevel`: `Detail level for the research response: 'low', 'medium', 'high' (default: medium).` (CLI: `--detail <level>`)
     *   `saveTo`: `Task or subtask ID (e.g., "15", "15.2") to automatically save the research conversation to.` (CLI: `--save-to <id>`)
-    *   `saveFile`: `If true, saves the research conversation to a markdown file in '.guidant/docs/research/'.` (CLI: `--save-file`)
+    *   `saveFile`: `If true, saves the research conversation to a markdown file in '.taskmaster/docs/research/'.` (CLI: `--save-file`)
     *   `noFollowup`: `Disables the interactive follow-up question menu in the CLI.` (CLI: `--no-followup`)
     *   `tag`: `Specify which tag context to use for task-based context gathering. Defaults to the current active tag.` (CLI: `--tag <name>`)
     *   `projectRoot`: `The directory of the project. Must be an absolute path.` (CLI: Determined automatically)
@@ -456,7 +456,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 26. List Tags (`tags`)
 
 *   **MCP Tool:** `list_tags`
-*   **CLI Command:** `guidant tags [options]`
+*   **CLI Command:** `task-master tags [options]`
 *   **Description:** `List all available tags with task counts, completion status, and other metadata.`
 *   **Key Parameters/Options:**
     *   `file`: `Path to your Taskmaster 'tasks.json' file. Default relies on auto-detection.` (CLI: `-f, --file <file>`)
@@ -465,7 +465,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 27. Add Tag (`add_tag`)
 
 *   **MCP Tool:** `add_tag`
-*   **CLI Command:** `guidant add-tag <tagName> [options]`
+*   **CLI Command:** `task-master add-tag <tagName> [options]`
 *   **Description:** `Create a new, empty tag context, or copy tasks from another tag.`
 *   **Key Parameters/Options:**
     *   `tagName`: `Name of the new tag to create (alphanumeric, hyphens, underscores).` (CLI: `<tagName>` positional)
@@ -478,7 +478,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 28. Delete Tag (`delete_tag`)
 
 *   **MCP Tool:** `delete_tag`
-*   **CLI Command:** `guidant delete-tag <tagName> [options]`
+*   **CLI Command:** `task-master delete-tag <tagName> [options]`
 *   **Description:** `Permanently delete a tag and all of its associated tasks.`
 *   **Key Parameters/Options:**
     *   `tagName`: `Name of the tag to delete.` (CLI: `<tagName>` positional)
@@ -488,7 +488,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 29. Use Tag (`use_tag`)
 
 *   **MCP Tool:** `use_tag`
-*   **CLI Command:** `guidant use-tag <tagName>`
+*   **CLI Command:** `task-master use-tag <tagName>`
 *   **Description:** `Switch your active task context to a different tag.`
 *   **Key Parameters/Options:**
     *   `tagName`: `Name of the tag to switch to.` (CLI: `<tagName>` positional)
@@ -497,7 +497,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 30. Rename Tag (`rename_tag`)
 
 *   **MCP Tool:** `rename_tag`
-*   **CLI Command:** `guidant rename-tag <oldName> <newName>`
+*   **CLI Command:** `task-master rename-tag <oldName> <newName>`
 *   **Description:** `Rename an existing tag.`
 *   **Key Parameters/Options:**
     *   `oldName`: `The current name of the tag.` (CLI: `<oldName>` positional)
@@ -507,7 +507,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 31. Copy Tag (`copy_tag`)
 
 *   **MCP Tool:** `copy_tag`
-*   **CLI Command:** `guidant copy-tag <sourceName> <targetName> [options]`
+*   **CLI Command:** `task-master copy-tag <sourceName> <targetName> [options]`
 *   **Description:** `Copy an entire tag context, including all its tasks and metadata, to a new tag.`
 *   **Key Parameters/Options:**
     *   `sourceName`: `Name of the tag to copy from.` (CLI: `<sourceName>` positional)
@@ -521,7 +521,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 ### 32. Sync Readme (`sync-readme`) -- experimental
 
 *   **MCP Tool:** N/A
-*   **CLI Command:** `guidant sync-readme [options]`
+*   **CLI Command:** `task-master sync-readme [options]`
 *   **Description:** `Exports your task list to your project's README.md file, useful for showcasing progress.`
 *   **Key Parameters/Options:**
     *   `status`: `Filter tasks by status (e.g., 'pending', 'done').` (CLI: `-s, --status <status>`)
@@ -532,7 +532,7 @@ This new suite of commands allows you to manage different task contexts (tags).
 
 ## Environment Variables Configuration (Updated)
 
-Taskmaster primarily uses the **`.guidant/config.json`** file (in project root) for configuration (models, parameters, logging level, etc.), managed via `guidant models --setup`.
+Taskmaster primarily uses the **`.taskmaster/config.json`** file (in project root) for configuration (models, parameters, logging level, etc.), managed via `task-master models --setup`.
 
 Environment variables are used **only** for sensitive API keys related to AI providers and specific overrides like the Ollama base URL:
 
@@ -546,11 +546,11 @@ Environment variables are used **only** for sensitive API keys related to AI pro
     *   `OPENROUTER_API_KEY`
     *   `XAI_API_KEY`
     *   `OLLAMA_API_KEY` (Requires `OLLAMA_BASE_URL` too)
-*   **Endpoints (Optional/Provider Specific inside .guidant/config.json):**
+*   **Endpoints (Optional/Provider Specific inside .taskmaster/config.json):**
     *   `AZURE_OPENAI_ENDPOINT`
     *   `OLLAMA_BASE_URL` (Default: `http://localhost:11434/api`)
 
-**Set API keys** in your **`.env`** file in the project root (for CLI use) or within the `env` section of your **`.roo/mcp.json`** file (for MCP/Roo Code integration). All other settings (model choice, max tokens, temperature, log level, custom endpoints) are managed in `.guidant/config.json` via `guidant models` command or `models` MCP tool.
+**Set API keys** in your **`.env`** file in the project root (for CLI use) or within the `env` section of your **`.roo/mcp.json`** file (for MCP/Roo Code integration). All other settings (model choice, max tokens, temperature, log level, custom endpoints) are managed in `.taskmaster/config.json` via `task-master models` command or `models` MCP tool.
 
 ---
 
