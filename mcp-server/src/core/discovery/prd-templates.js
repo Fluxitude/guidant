@@ -434,7 +434,7 @@ export function generateTemplatePlaceholders(discoveryData) {
 		
 		// Business context
 		businessObjectives: (metadata.userPreferences?.businessGoals || []).join('\n- ') || 'Business objectives to be defined',
-		targetUsers: (problemData.targetUsers || metadata.userPreferences?.targetAudience || ['General users']).join(', '),
+		targetUsers: (requirementsData.targetUsers || problemData.targetUsers || metadata.userPreferences?.targetAudience || ['General users']).join(', '),
 		valueProposition: problemData.valueProposition || 'Value proposition to be defined',
 		
 		// Market analysis

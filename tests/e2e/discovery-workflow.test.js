@@ -30,12 +30,36 @@ describe('Discovery Workflow End-to-End Tests', () => {
 		// Setup test environment
 		testProjectRoot = path.join(__dirname, '../fixtures/test-project');
 		await fs.mkdir(testProjectRoot, { recursive: true });
-		await fs.mkdir(path.join(testProjectRoot, '.taskmaster'), { recursive: true });
-		
+		await fs.mkdir(path.join(testProjectRoot, '.guidant'), { recursive: true });
+
 		// Initialize components
 		sessionManager = new DiscoverySessionManager(testProjectRoot);
 		prdGenerator = new PRDGenerator();
 		qualityAssessor = new QualityAssessor();
+	});
+
+	beforeEach(async () => {
+		// Clean up any existing sessions before each test
+		try {
+			// First try to cancel any active session
+			const currentSession = await sessionManager.getCurrentSession();
+			if (currentSession && currentSession.status === DISCOVERY_SESSION_STATUS.ACTIVE) {
+				const state = await sessionManager.loadState();
+				state.discoverySession.status = DISCOVERY_SESSION_STATUS.CANCELLED;
+				await sessionManager.saveState(state);
+			}
+		} catch (error) {
+			// No active session, which is fine
+		}
+
+		try {
+			// Then remove the state file completely
+			const statePath = path.join(testProjectRoot, '.guidant', 'state.json');
+			await fs.unlink(statePath);
+		} catch (error) {
+			// File doesn't exist, which is fine
+		}
+		testSessionId = null;
 	});
 
 	afterAll(async () => {
@@ -66,44 +90,49 @@ describe('Discovery Workflow End-to-End Tests', () => {
 			await sessionManager.addResearchData(testSessionId, 'marketAnalysis', {
 				query: 'E-commerce market trends 2024',
 				provider: 'tavily',
+				queryType: 'market',
+				success: true,
 				results: {
 					summary: 'Growing market with mobile-first trends',
 					marketSize: '$6.2 trillion globally',
-					keyTrends: ['Mobile commerce', 'AI personalization', 'Sustainability']
-				},
-				targetMarket: 'SMB e-commerce',
-				competitors: ['Shopify', 'WooCommerce', 'BigCommerce']
+					keyTrends: ['Mobile commerce', 'AI personalization', 'Sustainability'],
+					targetMarket: 'SMB e-commerce',
+					competitors: ['Shopify', 'WooCommerce', 'BigCommerce']
+				}
 			});
 
 			// Step 3: Add technical validation data
 			await sessionManager.addResearchData(testSessionId, 'technicalValidation', {
-				technology: 'React',
+				query: 'React e-commerce platform technical feasibility',
 				provider: 'context7',
-				validation: {
-					summary: 'Excellent choice for e-commerce frontend',
-					pros: ['Component reusability', 'Large ecosystem', 'Performance'],
-					cons: ['Learning curve', 'Rapid updates']
-				},
-				projectType: 'web application',
-				scale: 'medium'
+				queryType: 'technical',
+				success: true,
+				results: {
+					technology: 'React',
+					validation: {
+						summary: 'Excellent choice for e-commerce frontend',
+						pros: ['Component reusability', 'Large ecosystem', 'Performance'],
+						cons: ['Learning curve', 'Rapid updates']
+					},
+					projectType: 'web application',
+					scale: 'medium'
+				}
 			});
 
-			// Step 4: Update stage progress for market research
-			await sessionManager.updateStageProgress(testSessionId, DISCOVERY_STAGES.MARKET_RESEARCH, {
-				completionScore: 85,
+			// Step 4: Complete market research stage
+			await sessionManager.completeStage(testSessionId, DISCOVERY_STAGES.MARKET_RESEARCH, {
 				lastActivity: new Date().toISOString(),
 				researchQueriesCompleted: 3,
 				totalQueries: 3
-			});
+			}, 85);
 
-			// Step 5: Update stage progress for technical feasibility
-			await sessionManager.updateStageProgress(testSessionId, DISCOVERY_STAGES.TECHNICAL_FEASIBILITY, {
-				completionScore: 90,
+			// Step 5: Complete technical feasibility stage
+			await sessionManager.completeStage(testSessionId, DISCOVERY_STAGES.TECHNICAL_FEASIBILITY, {
 				lastActivity: new Date().toISOString(),
 				technologiesValidated: 3,
 				totalTechnologies: 3,
 				architectureValidated: true
-			});
+			}, 90);
 
 			// Step 6: Synthesize requirements
 			const requirementsData = {
@@ -115,81 +144,90 @@ describe('Discovery Workflow End-to-End Tests', () => {
 						id: 'FR-001',
 						title: 'Product Catalog Management',
 						description: 'Users can add, edit, and organize products with images and descriptions',
-						priority: 'HIGH',
+						priority: 'high',
 						userStory: 'As a store owner, I want to manage my product catalog so that customers can browse and purchase items'
 					},
 					{
 						id: 'FR-002',
 						title: 'Shopping Cart and Checkout',
 						description: 'Customers can add items to cart and complete secure checkout process',
-						priority: 'HIGH',
+						priority: 'high',
 						userStory: 'As a customer, I want to easily purchase products so that I can complete my shopping efficiently'
 					},
 					{
 						id: 'FR-003',
 						title: 'Payment Processing',
 						description: 'Support multiple payment methods including credit cards and digital wallets',
-						priority: 'HIGH',
+						priority: 'high',
 						userStory: 'As a customer, I want multiple payment options so that I can pay using my preferred method'
 					},
 					{
 						id: 'FR-004',
 						title: 'Order Management',
 						description: 'Store owners can view, process, and track customer orders',
-						priority: 'MEDIUM',
+						priority: 'medium',
 						userStory: 'As a store owner, I want to manage orders efficiently so that I can fulfill customer purchases'
 					},
 					{
 						id: 'FR-005',
 						title: 'Customer Accounts',
 						description: 'Customers can create accounts to track orders and save preferences',
-						priority: 'MEDIUM',
+						priority: 'medium',
 						userStory: 'As a customer, I want to create an account so that I can track my orders and save my information'
 					}
 				],
 				nonFunctionalRequirements: [
 					{
 						id: 'NFR-001',
-						category: 'Performance',
+						title: 'Performance Requirements',
 						description: 'Page load times must be under 3 seconds',
-						priority: 'HIGH',
-						acceptanceCriteria: 'All pages load within 3 seconds on standard broadband connection'
+						type: 'performance',
+						criteria: 'All pages load within 3 seconds on standard broadband connection'
 					},
 					{
 						id: 'NFR-002',
-						category: 'Security',
+						title: 'Security Requirements',
 						description: 'All payment data must be encrypted and PCI DSS compliant',
-						priority: 'HIGH',
-						acceptanceCriteria: 'Pass PCI DSS compliance audit'
+						type: 'security',
+						criteria: 'Pass PCI DSS compliance audit'
 					},
 					{
 						id: 'NFR-003',
-						category: 'Usability',
+						title: 'Usability Requirements',
 						description: 'Interface must be intuitive for non-technical users',
-						priority: 'MEDIUM',
-						acceptanceCriteria: 'New users can set up store within 1 hour without training'
+						type: 'usability',
+						criteria: 'New users can set up store within 1 hour without training'
 					}
 				]
 			};
 
-			await sessionManager.updateStageProgress(testSessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, {
-				completionScore: 100,
+			// First update the stage with the requirements data
+			await sessionManager.updateSessionStage(testSessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, requirementsData);
+
+			// Then complete the stage
+			await sessionManager.completeStage(testSessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, {
 				lastActivity: new Date().toISOString(),
 				requirementsSynthesized: true,
 				functionalRequirementsCount: requirementsData.functionalRequirements.length,
-				nonFunctionalRequirementsCount: requirementsData.nonFunctionalRequirements.length,
-				data: requirementsData
-			});
+				nonFunctionalRequirementsCount: requirementsData.nonFunctionalRequirements.length
+			}, 100);
 
 			// Step 7: Generate PRD
 			const discoverySession = await sessionManager.getSession(testSessionId);
 			expect(discoverySession).toBeDefined();
+
+			// Debug: Check session structure
+			console.log('Discovery session progress:', JSON.stringify(discoverySession.progress, null, 2));
 
 			const prdResult = await prdGenerator.generatePRD(discoverySession, {
 				templateType: 'COMPREHENSIVE',
 				includeResearchData: true,
 				aiEnhancement: true
 			});
+
+			if (!prdResult.success) {
+				console.error('PRD generation failed:', prdResult.error);
+			}
 
 			expect(prdResult.success).toBe(true);
 			expect(prdResult.prd).toBeDefined();
@@ -247,39 +285,41 @@ describe('Discovery Workflow End-to-End Tests', () => {
 						id: 'FR-001',
 						title: 'Create Posts',
 						description: 'Users can create and publish blog posts',
-						priority: 'HIGH'
+						priority: 'high'
 					},
 					{
 						id: 'FR-002',
 						title: 'View Posts',
 						description: 'Visitors can read published blog posts',
-						priority: 'HIGH'
+						priority: 'high'
 					},
 					{
 						id: 'FR-003',
 						title: 'Manage Content',
 						description: 'Authors can edit and delete their posts',
-						priority: 'MEDIUM'
+						priority: 'medium'
 					}
 				],
 				nonFunctionalRequirements: [
 					{
 						id: 'NFR-001',
-						category: 'Performance',
+						title: 'Performance Requirements',
 						description: 'Fast page loading',
-						priority: 'MEDIUM'
+						type: 'performance'
 					}
 				]
 			};
 
-			await sessionManager.updateStageProgress(sessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, {
-				completionScore: 100,
+			// First update the stage with the requirements data
+			await sessionManager.updateSessionStage(sessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, minimalRequirements);
+
+			// Then complete the stage
+			await sessionManager.completeStage(sessionId, DISCOVERY_STAGES.REQUIREMENTS_SYNTHESIS, {
 				lastActivity: new Date().toISOString(),
 				requirementsSynthesized: true,
 				functionalRequirementsCount: minimalRequirements.functionalRequirements.length,
-				nonFunctionalRequirementsCount: minimalRequirements.nonFunctionalRequirements.length,
-				data: minimalRequirements
-			});
+				nonFunctionalRequirementsCount: minimalRequirements.nonFunctionalRequirements.length
+			}, 100);
 
 			const session = await sessionManager.getSession(sessionId);
 			const prdResult = await prdGenerator.generatePRD(session, {
@@ -293,12 +333,35 @@ describe('Discovery Workflow End-to-End Tests', () => {
 		}, 15000);
 
 		test('should validate session state persistence', async () => {
+			// Create a new session for this test
+			const sessionResult = await sessionManager.createSession('Persistence Test Project');
+			expect(sessionResult.success).toBe(true);
+			const persistenceSessionId = sessionResult.session.sessionId;
+
+			// Add market analysis research data
+			await sessionManager.addResearchData(persistenceSessionId, 'marketAnalysis', {
+				query: 'Market research for persistence test',
+				provider: 'tavily',
+				queryType: 'market',
+				success: true,
+				results: { marketSize: '1B', competitors: ['CompA', 'CompB'] }
+			});
+
+			// Add technical validation research data
+			await sessionManager.addResearchData(persistenceSessionId, 'technicalValidation', {
+				query: 'Technical feasibility for persistence test',
+				provider: 'context7',
+				queryType: 'technical',
+				success: true,
+				results: { feasible: true, technologies: ['React', 'Node.js'] }
+			});
+
 			// Test that session state is properly persisted and retrieved
-			const session = await sessionManager.getSession(testSessionId);
-			
+			const session = await sessionManager.getSession(persistenceSessionId);
+
 			expect(session).toBeDefined();
-			expect(session.sessionId).toBe(testSessionId);
-			expect(session.projectName).toBe('E-commerce Platform');
+			expect(session.sessionId).toBe(persistenceSessionId);
+			expect(session.projectName).toBe('Persistence Test Project');
 			expect(session.progress).toBeDefined();
 			expect(session.researchData).toBeDefined();
 
@@ -349,7 +412,19 @@ A web-based e-commerce platform with product management, shopping cart, payment 
 
 ## Market Analysis
 Target market includes small to medium businesses looking to establish online presence.
-Competitive landscape includes Shopify, WooCommerce, and BigCommerce.`;
+Competitive landscape includes Shopify, WooCommerce, and BigCommerce.
+
+## Success Metrics
+- Monthly active users: 10,000+ within first year
+- Transaction volume: $1M+ processed monthly
+- Customer satisfaction: 4.5+ star rating
+- System uptime: 99.9% availability
+- Revenue growth: 25% month-over-month for merchants
+
+## Implementation Timeline
+Phase 1 (Months 1-2): Core platform development
+Phase 2 (Months 3-4): Payment integration and testing
+Phase 3 (Months 5-6): Launch and optimization`;
 
 			const poorPRD = `# Simple App
 
@@ -364,15 +439,53 @@ This is an app.
 - Should be good`;
 
 			const mockSession = {
-				projectName: 'Test Project',
+				projectName: 'E-commerce Platform',
 				progress: {
+					'market-research': {
+						data: {
+							competitorAnalysis: [
+								{ name: 'Shopify', description: 'Leading e-commerce platform', strengths: ['Easy setup', 'App ecosystem'], weaknesses: ['Transaction fees'] },
+								{ name: 'WooCommerce', description: 'WordPress-based solution', strengths: ['Free', 'Customizable'], weaknesses: ['Requires hosting'] }
+							],
+							marketSize: '$6.2 trillion globally',
+							opportunities: ['Mobile commerce growth', 'SMB digital transformation'],
+							targetMarket: 'Small to medium businesses'
+						}
+					},
+					'technical-feasibility': {
+						data: {
+							recommendedTechStack: {
+								frontend: ['React', 'TypeScript'],
+								backend: ['Node.js', 'Express'],
+								database: ['PostgreSQL'],
+								infrastructure: ['AWS', 'Docker']
+							},
+							architecture: {
+								pattern: 'Microservices',
+								components: ['API Gateway', 'Product Service', 'Order Service', 'Payment Service']
+							},
+							complexityAssessment: {
+								overall: 'medium',
+								frontend: 'medium',
+								backend: 'medium'
+							}
+						}
+					},
 					'requirements-synthesis': {
 						data: {
 							functionalRequirements: [
-								{ id: 'FR-001', title: 'Feature 1', description: 'Test feature', priority: 'HIGH' }
+								{ id: 'FR-001', title: 'Product Management', description: 'Add, edit, delete products', priority: 'high' },
+								{ id: 'FR-002', title: 'Shopping Cart', description: 'Add products to cart and checkout', priority: 'high' },
+								{ id: 'FR-003', title: 'Payment Processing', description: 'Process payments securely', priority: 'high' },
+								{ id: 'FR-004', title: 'Order Management', description: 'Track and manage orders', priority: 'high' },
+								{ id: 'FR-005', title: 'User Accounts', description: 'Customer registration and login', priority: 'medium' },
+								{ id: 'FR-006', title: 'Search and Filter', description: 'Find products easily', priority: 'medium' },
+								{ id: 'FR-007', title: 'Reviews and Ratings', description: 'Customer feedback system', priority: 'low' }
 							],
 							nonFunctionalRequirements: [
-								{ id: 'NFR-001', category: 'Performance', description: 'Fast', priority: 'HIGH' }
+								{ id: 'NFR-001', type: 'performance', description: 'Page load under 3 seconds', criteria: '<3s load time' },
+								{ id: 'NFR-002', type: 'security', description: 'PCI DSS compliance', criteria: 'Payment security standards' },
+								{ id: 'NFR-003', type: 'usability', description: 'Intuitive interface', criteria: 'User-friendly design' }
 							]
 						}
 					}
@@ -409,13 +522,13 @@ This is an app.
 
 			// Try to generate PRD without requirements synthesis
 			const session = await sessionManager.getSession(sessionId);
-			
-			try {
-				await prdGenerator.generatePRD(session);
-				fail('Should have thrown error for incomplete session');
-			} catch (error) {
-				expect(error.message).toContain('Requirements synthesis must be completed');
-			}
+
+			const result = await prdGenerator.generatePRD(session);
+
+			// PRD generation should fail and return error object
+			expect(result.success).toBe(false);
+			expect(result.error).toBeDefined();
+			expect(result.error.message).toContain('Requirements synthesis must be completed');
 		});
 
 		test('should handle empty or malformed PRD content', async () => {

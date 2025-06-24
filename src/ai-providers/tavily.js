@@ -5,7 +5,7 @@
  */
 
 import { BaseAIProvider } from './base-provider.js';
-import { log } from '../../scripts/modules/index.js';
+import { log } from '../../scripts/modules/utils.js';
 
 export class TavilyProvider extends BaseAIProvider {
 	constructor() {

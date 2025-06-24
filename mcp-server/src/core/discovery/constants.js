@@ -152,7 +152,8 @@ export const RESEARCH_ROUTING_PATTERNS = {
 	TECHNICAL_KEYWORDS: [
 		'framework', 'library', 'api', 'database', 'architecture',
 		'implementation', 'code', 'development', 'programming',
-		'technology', 'stack', 'platform', 'infrastructure'
+		'technology', 'stack', 'platform', 'infrastructure',
+		'performance', 'optimization', 'security', 'testing'
 	],
 	MARKET_KEYWORDS: [
 		'market', 'competitor', 'business', 'revenue', 'customer',

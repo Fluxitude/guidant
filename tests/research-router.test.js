@@ -5,7 +5,7 @@
 
 import { ResearchRouter } from '../mcp-server/src/core/discovery/research-router.js';
 import { RESEARCH_PROVIDERS, RESEARCH_QUERY_TYPES, DISCOVERY_STAGES } from '../mcp-server/src/core/discovery/constants.js';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { jest } from '@jest/globals';
 
 describe('ResearchRouter', () => {
 	let researchRouter;
@@ -16,23 +16,49 @@ describe('ResearchRouter', () => {
 	beforeEach(() => {
 		researchRouter = new ResearchRouter();
 
-		// Create mock providers
+		// Create mock providers with updated return structures
 		mockContext7Provider = {
-			validateTechnicalFeasibility: vi.fn().mockResolvedValue({ feasible: true }),
-			getArchitectureRecommendations: vi.fn().mockResolvedValue({ recommendations: [] }),
-			resolveLibraryId: vi.fn().mockResolvedValue({ libraryId: 'test' }),
-			isAvailable: vi.fn().mockResolvedValue(true)
+			validateTechnicalFeasibility: jest.fn().mockResolvedValue({
+				feasible: true,
+				confidence: 85,
+				confidenceLevel: 'high',
+				technologies: [
+					{
+						technology: 'react',
+						feasible: true,
+						confidence: { score: 85, level: 'high', source: 'hybrid' },
+						recommendations: ['React is well-documented and stable'],
+						warnings: [],
+						alternatives: []
+					}
+				],
+				assessment: {
+					feasible: true,
+					summary: 'All technologies are feasible',
+					recommendations: ['Use latest versions', 'Follow best practices'],
+					warnings: [],
+					riskLevel: 'low'
+				},
+				source: 'hybrid-context7-ai'
+			}),
+			getArchitectureRecommendations: jest.fn().mockResolvedValue({ recommendations: [] }),
+			resolveLibraryId: jest.fn().mockResolvedValue({
+				libraryId: 'test',
+				available: true,
+				source: 'context7'
+			}),
+			isAvailable: jest.fn().mockResolvedValue(true)
 		};
 
 		mockTavilyProvider = {
-			researchMarketOpportunity: vi.fn().mockResolvedValue({ opportunities: [] }),
-			search: vi.fn().mockResolvedValue({ results: [] }),
-			isAvailable: vi.fn().mockResolvedValue(true)
+			researchMarketOpportunity: jest.fn().mockResolvedValue({ opportunities: [] }),
+			search: jest.fn().mockResolvedValue({ results: [] }),
+			isAvailable: jest.fn().mockResolvedValue(true)
 		};
 
 		mockPerplexityProvider = {
-			generateText: vi.fn().mockResolvedValue({ text: 'Generated response' }),
-			isAvailable: vi.fn().mockResolvedValue(true)
+			generateText: jest.fn().mockResolvedValue({ text: 'Generated response' }),
+			isAvailable: jest.fn().mockResolvedValue(true)
 		};
 
 		// Register mock providers
@@ -42,7 +68,7 @@ describe('ResearchRouter', () => {
 	});
 
 	afterEach(() => {
-		vi.restoreAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	describe('Provider Registration', () => {
@@ -208,7 +234,7 @@ describe('ResearchRouter', () => {
 		});
 
 		it('should handle batch query errors gracefully', async () => {
-			mockContext7Provider.validateTechnicalFeasibility.mockRejectedValueOnce(
+			mockContext7Provider.resolveLibraryId.mockRejectedValueOnce(
 				new Error('Provider error')
 			);
 
@@ -234,8 +260,8 @@ describe('ResearchRouter', () => {
 
 			const result = await researchRouter.routeQuery(query, context);
 
-			// Should fallback to Perplexity for technical queries
-			expect(result.provider).toBe(RESEARCH_PROVIDERS.PERPLEXITY);
+			// Should fallback to Tavily (first in fallback order)
+			expect(result.provider).toBe(RESEARCH_PROVIDERS.TAVILY);
 			expect(result.metadata.routingDecision).toContain('Fallback');
 		});
 

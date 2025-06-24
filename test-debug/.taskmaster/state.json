@@ -1,0 +1,74 @@
+{
+  "currentTag": "master",
+  "lastSwitched": "2025-06-24T16:37:15.466Z",
+  "branchTagMapping": {},
+  "migrationNoticeShown": false,
+  "discoverySession": {
+    "sessionId": "831ccc1f-7ede-4d0f-8987-3084f103420e",
+    "projectName": "Debug Test Project",
+    "stage": "problem-discovery",
+    "status": "active",
+    "progress": {
+      "problem-discovery": {
+        "status": "in-progress",
+        "completionScore": 0,
+        "startedAt": "2025-06-24T16:37:15.466Z",
+        "data": {
+          "successCriteria": [],
+          "constraints": [],
+          "assumptions": [],
+          "stakeholders": []
+        }
+      },
+      "market-research": {
+        "status": "not-started",
+        "completionScore": 0,
+        "data": {
+          "competitorAnalysis": [],
+          "opportunities": [],
+          "threats": [],
+          "userPersonas": []
+        }
+      },
+      "technical-feasibility": {
+        "status": "not-started",
+        "completionScore": 0,
+        "data": {
+          "risks": [],
+          "mitigations": []
+        }
+      },
+      "requirements-synthesis": {
+        "status": "not-started",
+        "completionScore": 0,
+        "data": {
+          "functionalRequirements": [],
+          "nonFunctionalRequirements": [],
+          "userStories": [],
+          "dependencies": [],
+          "targetUsers": [],
+          "successCriteria": []
+        }
+      },
+      "prd-generation": {
+        "status": "not-started",
+        "completionScore": 0,
+        "data": {}
+      }
+    },
+    "created": "2025-06-24T16:37:15.466Z",
+    "lastUpdated": "2025-06-24T16:37:15.466Z",
+    "researchData": {
+      "marketAnalysis": [],
+      "technicalValidation": [],
+      "competitiveAnalysis": [],
+      "generalResearch": []
+    },
+    "metadata": {
+      "userPreferences": {},
+      "techStackPreferences": [],
+      "inspirationReferences": [],
+      "constraints": []
+    }
+  }
+}

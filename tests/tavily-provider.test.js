@@ -4,7 +4,7 @@
  */
 
 import { TavilyProvider } from '../src/ai-providers/tavily.js';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { jest } from '@jest/globals';
 
 describe('TavilyProvider', () => {
 	let tavilyProvider;
@@ -13,11 +13,11 @@ describe('TavilyProvider', () => {
 	beforeEach(() => {
 		tavilyProvider = new TavilyProvider();
 		// Mock fetch globally
-		global.fetch = vi.fn();
+		global.fetch = jest.fn();
 	});
 
 	afterEach(() => {
-		vi.restoreAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	describe('Constructor and Basic Properties', () => {

@@ -4,16 +4,17 @@
  * Routes queries to optimal provider (Context7, Tavily, Perplexity) based on query type and context
  */
 
-import { 
-	RESEARCH_PROVIDERS, 
-	RESEARCH_QUERY_TYPES, 
+import {
+	RESEARCH_PROVIDERS,
+	RESEARCH_QUERY_TYPES,
 	RESEARCH_ROUTING_PATTERNS,
-	DISCOVERY_STAGES 
+	DISCOVERY_STAGES
 } from './constants.js';
-import { log } from '../../../../scripts/modules/index.js';
-import fs from 'fs';
-import path from 'path';
 import { buildProviderAdapter } from './provider-adapters.js';
+import { log } from '../../../../scripts/modules/utils.js';
+import fs from 'fs/promises';
+import fsSync from 'fs';
+import path from 'path';
 
 /**
  * Load research router configuration from config/research-router-config.json.
@@ -30,8 +31,8 @@ function loadResearchRouterConfig() {
 
 	for (const configPath of candidatePaths) {
 		try {
-			if (!fs.existsSync(configPath)) continue;
-			const raw = fs.readFileSync(configPath, 'utf8');
+			if (!fsSync.existsSync(configPath)) continue;
+			const raw = fsSync.readFileSync(configPath, 'utf8');
 			return JSON.parse(raw);
 		} catch (err) {
 			// eslint-disable-next-line no-console
@@ -50,7 +51,7 @@ function resolveResearchRouterConfigPath() {
 		path.resolve(process.cwd(), 'claude-task-master', 'config', 'research-router-config.json')
 	];
 	for (const p of candidatePaths) {
-		if (fs.existsSync(p)) return p;
+		if (fsSync.existsSync(p)) return p;
 	}
 	return null;
 }
@@ -58,7 +59,7 @@ function resolveResearchRouterConfigPath() {
 function watchResearchRouterConfig(onChange) {
 	researchRouterConfigPath = resolveResearchRouterConfigPath();
 	if (!researchRouterConfigPath) return;
-	fs.watchFile(researchRouterConfigPath, { interval: 2000 }, () => {
+	fsSync.watchFile(researchRouterConfigPath, { interval: 2000 }, () => {
 		try {
 			const updated = loadResearchRouterConfig();
 			if (updated) {
@@ -153,7 +154,7 @@ export class ResearchRouter {
 				return await this.routeWithFallback(query, context, [optimalProvider]);
 			}
 
-			const results = await provider.execute(this.classifyQuery(query, context), query, context);
+			const results = await provider.execute(queryType, query, context);
 			
 			return {
 				provider: optimalProvider,
@@ -424,11 +425,25 @@ export class ResearchRouter {
 	 * @returns {Promise<Object>} Research results
 	 */
 	async routeWithFallback(query, context, excludeProviders = []) {
-		const availableProviders = this.fallbackOrder.filter(
+		const queryType = this.classifyQuery(query, context);
+
+		// Get fallback providers from routing rules first, then general fallback order
+		const routingRules = this.routingRules.get(queryType) || [];
+		const fallbackProviders = routingRules
+			.filter(rule => rule.condition === 'fallback')
+			.sort((a, b) => a.priority - b.priority)
+			.map(rule => rule.provider);
+
+		// If no specific fallback rules, use general fallback order
+		const availableProviders = fallbackProviders.length > 0
+			? [...fallbackProviders, ...this.fallbackOrder]
+			: this.fallbackOrder;
+
+		const filteredProviders = availableProviders.filter(
 			provider => !excludeProviders.includes(provider)
 		);
 
-		for (const providerName of availableProviders) {
+		for (const providerName of filteredProviders) {
 			try {
 				const provider = this.providers.get(providerName);
 				if (!provider) continue;
@@ -438,7 +453,7 @@ export class ResearchRouter {
 
 				log('debug', `ResearchRouter: Trying fallback provider ${providerName}`);
 				
-				const results = await provider.execute(this.classifyQuery(query, context), query, context);
+				const results = await provider.execute(queryType, query, context);
 				
 				return {
 					provider: providerName,
@@ -455,7 +470,7 @@ export class ResearchRouter {
 				log('warn', `ResearchRouter: Fallback failed for ${query} - ${error.message}`);
 			}
 		}
-		throw new Error(`All fallback providers failed for ${query}`);
+		throw new Error('All research providers failed or unavailable');
 	}
 
 	/**
@@ -474,7 +489,7 @@ export class ResearchRouter {
 				case RESEARCH_PROVIDERS.CONTEXT7:
 					return await provider.isAvailable();
 				case RESEARCH_PROVIDERS.TAVILY:
-					return await provider.isAvailable(context.apiKey);
+					return await provider.isAvailable(context);
 				case RESEARCH_PROVIDERS.PERPLEXITY:
 					return !!context.apiKey;
 				default:

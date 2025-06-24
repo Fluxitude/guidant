@@ -159,7 +159,11 @@ const RequirementsSynthesisDataSchema = z.object({
 		from: z.string(),
 		to: z.string(),
 		type: z.enum(['blocks', 'depends-on', 'related'])
-	})).default([])
+	})).default([]),
+	// Additional synthesis data
+	problemStatement: z.string().optional(),
+	targetUsers: z.array(z.string()).default([]),
+	successCriteria: z.array(z.string()).default([])
 });
 
 // PRD generation stage data

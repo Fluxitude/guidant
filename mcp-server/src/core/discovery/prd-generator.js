@@ -239,7 +239,7 @@ export class PRDGenerator {
 			sections: content.sections,
 			requirements: {
 				functional: reqData.functionalRequirements || [],
-				nonFunctional: reqData.nonFunctionalRequirements || []
+				nonFunctional: this.transformNonFunctionalRequirements(reqData.nonFunctionalRequirements || [])
 			},
 			technicalSpecs: {
 				architecture: techData.architecture || 'Architecture to be defined',
@@ -258,6 +258,38 @@ export class PRDGenerator {
 
 		// Validate structure against schema
 		return PRDStructureSchema.parse(structure);
+	}
+
+	/**
+	 * Transform non-functional requirements from session format to PRD structure format
+	 * @param {Array} sessionNFRs - Non-functional requirements from session data
+	 * @returns {Array} Transformed non-functional requirements for PRD structure
+	 */
+	transformNonFunctionalRequirements(sessionNFRs) {
+		return sessionNFRs.map(nfr => ({
+			id: nfr.id,
+			category: this.capitalizeNFRType(nfr.type || 'Performance'),
+			description: nfr.description,
+			priority: 'medium', // Default priority since session data doesn't include it
+			acceptanceCriteria: nfr.criteria
+		}));
+	}
+
+	/**
+	 * Capitalize NFR type to match PRD structure schema
+	 * @param {string} type - NFR type from session data (lowercase)
+	 * @returns {string} Capitalized type for PRD structure
+	 */
+	capitalizeNFRType(type) {
+		const typeMap = {
+			'performance': 'Performance',
+			'security': 'Security',
+			'usability': 'Usability',
+			'reliability': 'Reliability',
+			'scalability': 'Scalability',
+			'maintainability': 'Maintainability'
+		};
+		return typeMap[type.toLowerCase()] || 'Performance';
 	}
 
 	/**

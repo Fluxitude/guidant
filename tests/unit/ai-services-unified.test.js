@@ -180,6 +180,16 @@ jest.unstable_mockModule('../../src/ai-providers/index.js', () => ({
 		generateText: jest.fn(),
 		streamText: jest.fn(),
 		generateObject: jest.fn()
+	})),
+	Context7Provider: jest.fn(() => ({
+		validateTechnicalFeasibility: jest.fn(),
+		getArchitectureRecommendations: jest.fn(),
+		resolveLibraryId: jest.fn()
+	})),
+	TavilyProvider: jest.fn(() => ({
+		search: jest.fn(),
+		researchMarketOpportunity: jest.fn(),
+		researchCompetitors: jest.fn()
 	}))
 }));
 

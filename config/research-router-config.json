@@ -1,30 +1,30 @@
 {
   "fallbackOrder": [
-    "TAVILY",
-    "CONTEXT7",
-    "PERPLEXITY"
+    "tavily",
+    "context7",
+    "perplexity"
   ],
   "routingRules": {
     "technical": [
-      { "provider": "CONTEXT7", "priority": 1, "condition": "always" },
-      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+      { "provider": "context7", "priority": 1, "condition": "always" },
+      { "provider": "perplexity", "priority": 2, "condition": "fallback" }
     ],
     "market": [
-      { "provider": "TAVILY", "priority": 1, "condition": "always" },
-      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+      { "provider": "tavily", "priority": 1, "condition": "always" },
+      { "provider": "perplexity", "priority": 2, "condition": "fallback" }
     ],
     "competitive": [
-      { "provider": "TAVILY", "priority": 1, "condition": "always" },
-      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+      { "provider": "tavily", "priority": 1, "condition": "always" },
+      { "provider": "perplexity", "priority": 2, "condition": "fallback" }
     ],
     "hybrid": [
-      { "provider": "TAVILY", "priority": 1, "condition": "market_focus" },
-      { "provider": "CONTEXT7", "priority": 1, "condition": "technical_focus" },
-      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+      { "provider": "tavily", "priority": 1, "condition": "market_focus" },
+      { "provider": "context7", "priority": 1, "condition": "technical_focus" },
+      { "provider": "perplexity", "priority": 2, "condition": "fallback" }
     ],
     "general": [
-      { "provider": "PERPLEXITY", "priority": 1, "condition": "always" },
-      { "provider": "TAVILY", "priority": 2, "condition": "fallback" }
+      { "provider": "perplexity", "priority": 1, "condition": "always" },
+      { "provider": "tavily", "priority": 2, "condition": "fallback" }
     ]
   },
   "classificationKeywords": {
@@ -41,7 +41,11 @@
       "technology",
       "stack",
       "platform",
-      "infrastructure"
+      "infrastructure",
+      "performance",
+      "optimization",
+      "security",
+      "testing"
     ],
     "market": [
       "market",

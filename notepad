@@ -2,3 +2,24 @@
 2. Use prd pdf to assess prd(quality-assessor)
 
 3. check if our generate prd works seamlessly with parse prd, also when our prd is generated, where is it stored? is it stored in the place parse prd expects it?
+4. That's a powerful idea! To make your AI task management app incorporate coding principles intelligently into the wizard process, you need to design prompts or logic that ask the right questions and map project characteristics to the right principles
+
+{
+  "mcpServers": {
+    "guidant": {
+      "command": "npx",
+      "args": ["-y", "--package=guidant", "guidant-ai"],
+      "env": {
+        "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
+        "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
+        "OPENAI_API_KEY": "YOUR_OPENAI_KEY_HERE",
+        "GOOGLE_API_KEY": "YOUR_GOOGLE_KEY_HERE",
+        "MISTRAL_API_KEY": "YOUR_MISTRAL_KEY_HERE",
+        "OPENROUTER_API_KEY": "YOUR_OPENROUTER_KEY_HERE",
+        "XAI_API_KEY": "YOUR_XAI_KEY_HERE",
+        "AZURE_OPENAI_API_KEY": "YOUR_AZURE_KEY_HERE",
+        "OLLAMA_API_KEY": "YOUR_OLLAMA_API_KEY_HERE"
+      }
+    }
+  }
+}

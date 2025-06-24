@@ -7,7 +7,7 @@ import { TavilyProvider } from '../src/ai-providers/tavily.js';
 import { Context7Provider } from '../src/ai-providers/context7.js';
 import { ResearchRouter } from '../mcp-server/src/core/discovery/research-router.js';
 import { RESEARCH_PROVIDERS, DISCOVERY_STAGES } from '../mcp-server/src/core/discovery/constants.js';
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { jest } from '@jest/globals';
 
 describe('Phase 2 Integration Tests', () => {
 	let researchRouter;
@@ -20,7 +20,7 @@ describe('Phase 2 Integration Tests', () => {
 		context7Provider = new Context7Provider();
 
 		// Mock external dependencies
-		global.fetch = vi.fn();
+		global.fetch = jest.fn();
 		
 		// Register providers with router
 		researchRouter.registerProvider(RESEARCH_PROVIDERS.TAVILY, tavilyProvider);
@@ -28,13 +28,13 @@ describe('Phase 2 Integration Tests', () => {
 	});
 
 	afterEach(() => {
-		vi.restoreAllMocks();
+		jest.restoreAllMocks();
 	});
 
 	describe('Provider Integration with Router', () => {
 		it('should integrate Tavily provider with router for market research', async () => {
-			// Mock Tavily API response
-			global.fetch.mockResolvedValueOnce({
+			// Mock Tavily API response for multiple calls (market research makes several search calls)
+			global.fetch.mockResolvedValue({
 				ok: true,
 				json: () => Promise.resolve({
 					query: 'fintech market analysis',
@@ -81,7 +81,12 @@ describe('Phase 2 Integration Tests', () => {
 
 			expect(result.provider).toBe(RESEARCH_PROVIDERS.CONTEXT7);
 			expect(result.results).toBeDefined();
-			expect(result.results.technologies).toEqual(['react', 'node.js']);
+			expect(result.results.feasible).toBe(true);
+			expect(result.results.confidence).toBeGreaterThan(80);
+			expect(result.results.technologies).toHaveLength(2);
+			expect(result.results.technologies[0].technology).toBe('react');
+			expect(result.results.technologies[1].technology).toBe('node.js');
+			expect(result.results.source).toBe('hybrid-context7-ai');
 		});
 	});
 
@@ -158,6 +163,54 @@ describe('Phase 2 Integration Tests', () => {
 				})
 			});
 
+			// Ensure Context7 is available and working with updated return structure
+			jest.spyOn(context7Provider, 'isAvailable').mockResolvedValue(true);
+			jest.spyOn(context7Provider, 'validateTechnicalFeasibility').mockResolvedValue({
+				feasible: true,
+				confidence: 88,
+				confidenceLevel: 'high',
+				technologies: [
+					{
+						technology: 'react',
+						feasible: true,
+						confidence: { score: 90, level: 'very-high', source: 'context7' },
+						recommendations: ['React has excellent Context7 documentation'],
+						warnings: [],
+						alternatives: []
+					},
+					{
+						technology: 'node.js',
+						feasible: true,
+						confidence: { score: 85, level: 'high', source: 'hybrid' },
+						recommendations: ['Node.js is well-supported'],
+						warnings: [],
+						alternatives: []
+					},
+					{
+						technology: 'mongodb',
+						feasible: true,
+						confidence: { score: 88, level: 'high', source: 'context7' },
+						recommendations: ['MongoDB has comprehensive documentation'],
+						warnings: [],
+						alternatives: []
+					}
+				],
+				assessment: {
+					feasible: true,
+					summary: 'All technologies are feasible for the project',
+					recommendations: ['Use latest versions', 'Follow best practices'],
+					warnings: [],
+					riskLevel: 'low'
+				},
+				source: 'hybrid-context7-ai'
+			});
+
+			// Also mock the provider adapter's isAvailable method
+			const context7Adapter = researchRouter.providers.get(RESEARCH_PROVIDERS.CONTEXT7);
+			if (context7Adapter) {
+				jest.spyOn(context7Adapter, 'isAvailable').mockResolvedValue(true);
+			}
+
 			const discoveryQueries = [
 				{
 					query: 'productivity app market size 2024',
@@ -185,9 +238,15 @@ describe('Phase 2 Integration Tests', () => {
 			const results = await researchRouter.routeBatch(discoveryQueries);
 
 			expect(results).toHaveLength(3);
-			expect(results[0].provider).toBe(RESEARCH_PROVIDERS.TAVILY); // Market query
-			expect(results[1].provider).toBe(RESEARCH_PROVIDERS.CONTEXT7); // Technical query
-			expect(results[2].provider).toBe(RESEARCH_PROVIDERS.TAVILY); // Competitive query
+
+			// Find results by query content since batch processing may change order
+			const marketResult = results.find(r => r.query.includes('market size'));
+			const technicalResult = results.find(r => r.query.includes('architecture best practices'));
+			const competitiveResult = results.find(r => r.query.includes('vs'));
+
+			expect(marketResult.provider).toBe(RESEARCH_PROVIDERS.TAVILY);
+			expect(technicalResult.provider).toBe(RESEARCH_PROVIDERS.CONTEXT7);
+			expect(competitiveResult.provider).toBe(RESEARCH_PROVIDERS.TAVILY);
 		});
 	});
 
@@ -224,18 +283,20 @@ describe('Phase 2 Integration Tests', () => {
 			const query = 'market research query';
 			const context = { apiKey: 'test-key' };
 
-			await expect(researchRouter.routeQuery(query, context))
-				.rejects.toThrow();
+			// Should fallback to Context7 when Tavily fails
+			const result = await researchRouter.routeQuery(query, context);
+			expect(result.provider).toBe(RESEARCH_PROVIDERS.CONTEXT7);
+			expect(result.metadata.routingDecision).toContain('Fallback');
 		});
 
 		it('should use fallback routing when primary provider fails', async () => {
 			// Mock Tavily to be unavailable
-			vi.spyOn(tavilyProvider, 'isAvailable').mockResolvedValueOnce(false);
+			jest.spyOn(tavilyProvider, 'isAvailable').mockResolvedValueOnce(false);
 
 			// Add a mock Perplexity provider for fallback
 			const mockPerplexity = {
-				generateText: vi.fn().mockResolvedValue({ text: 'Fallback response' }),
-				isAvailable: vi.fn().mockResolvedValue(true)
+				generateText: jest.fn().mockResolvedValue({ text: 'Fallback response' }),
+				isAvailable: jest.fn().mockResolvedValue(true)
 			};
 			researchRouter.registerProvider(RESEARCH_PROVIDERS.PERPLEXITY, mockPerplexity);
 
@@ -273,7 +334,7 @@ describe('Phase 2 Integration Tests', () => {
 
 			expect(explanation).toContain('Technical query');
 			expect(explanation).toContain('context7');
-			expect(explanation).toContain('library documentation');
+			expect(explanation).toContain('documentation and feasibility analysis');
 		});
 	});
 });

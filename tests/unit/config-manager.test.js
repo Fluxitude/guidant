@@ -108,7 +108,7 @@ import fsMocked from 'fs';
 const MOCK_PROJECT_ROOT = '/mock/project';
 const MOCK_CONFIG_PATH = path.join(
 	MOCK_PROJECT_ROOT,
-	'.taskmaster/config.json'
+	'.guidant/config.json'
 );
 
 // Updated DEFAULT_CONFIG reflecting the implementation
@@ -138,7 +138,7 @@ const DEFAULT_CONFIG = {
 		debug: false,
 		defaultSubtasks: 5,
 		defaultPriority: 'medium',
-		projectName: 'Task Master',
+		projectName: 'Guidant',
 		ollamaBaseURL: 'http://localhost:11434/api',
 		bedrockBaseURL: 'https://bedrock.us-east-1.amazonaws.com'
 	}
@@ -237,7 +237,7 @@ beforeEach(() => {
 			// Return the REAL file content stringified
 			return REAL_SUPPORTED_MODELS_CONTENT;
 		} else if (filePath === MOCK_CONFIG_PATH) {
-			// Still mock the .taskmasterconfig reads
+			// Still mock the .guidant/config.json reads
 			return JSON.stringify(DEFAULT_CONFIG); // Default behavior
 		}
 		// For Jest internal files or other unexpected files, return empty string instead of throwing
@@ -326,7 +326,7 @@ describe('Validation Functions', () => {
 
 // --- getConfig Tests ---
 describe('getConfig Tests', () => {
-	test('should return default config if .taskmasterconfig does not exist', () => {
+	test('should return default config if .guidant/config.json does not exist', () => {
 		// Arrange
 		fsExistsSyncSpy.mockReturnValue(false);
 		// findProjectRoot mock is set in beforeEach
