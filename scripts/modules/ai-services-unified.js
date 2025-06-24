@@ -111,7 +111,7 @@ function _getTagInfo(projectRoot) {
 			const fs = require('fs');
 			const tasksPath = path.join(
 				projectRoot,
-				'.taskmaster',
+				'.guidant',
 				'tasks',
 				'tasks.json'
 			);

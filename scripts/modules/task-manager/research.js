@@ -109,7 +109,7 @@ async function performResearch(
 		try {
 			const tasksPath = path.join(
 				projectRoot,
-				'.taskmaster',
+				'.guidant',
 				'tasks',
 				'tasks.json'
 			);
