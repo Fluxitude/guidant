@@ -2024,7 +2024,7 @@ function displayApiKeyStatus(statusReport) {
 	console.log(table.toString());
 	console.log(
 		chalk.gray(
-			`  Note: Some providers (e.g., Azure, Ollama) may require additional endpoint configuration in ${TASKMASTER_CONFIG_FILE}.`
+			`  Note: Some providers (e.g., Azure, Ollama) may require additional endpoint configuration in ${GUIDANT_CONFIG_FILE}.`
 		)
 	);
 }
