@@ -1,5 +1,5 @@
 /**
- * Task Master
+ * Guidant
  * Copyright (c) 2025 Eyal Toledano, Ralph Khreish
  *
  * This software is licensed under the MIT License with Commons Clause.
@@ -27,13 +27,13 @@ import { convertAllCursorRulesToRooRules } from './modules/rule-transformer.js';
 import { execSync } from 'child_process';
 import {
 	EXAMPLE_PRD_FILE,
-	TASKMASTER_CONFIG_FILE,
-	TASKMASTER_TEMPLATES_DIR,
-	TASKMASTER_DIR,
-	TASKMASTER_TASKS_DIR,
-	TASKMASTER_DOCS_DIR,
-	TASKMASTER_REPORTS_DIR,
-	TASKMASTER_STATE_FILE,
+	GUIDANT_CONFIG_FILE,
+	GUIDANT_TEMPLATES_DIR,
+	GUIDANT_DIR,
+	GUIDANT_TASKS_DIR,
+	GUIDANT_DOCS_DIR,
+	GUIDANT_REPORTS_DIR,
+	GUIDANT_STATE_FILE,
 	ENV_EXAMPLE_FILE,
 	GITIGNORE_FILE
 } from '../src/constants/paths.js';
@@ -64,7 +64,7 @@ function displayBanner() {
 	if (isSilentMode()) return;
 
 	console.clear();
-	const bannerText = figlet.textSync('Task Master AI', {
+	const bannerText = figlet.textSync('Guidant', {
 		font: 'Standard',
 		horizontalLayout: 'default',
 		verticalLayout: 'default'
@@ -158,8 +158,8 @@ function addShellAliases() {
 
 		// Check if aliases already exist
 		const configContent = fs.readFileSync(shellConfigFile, 'utf8');
-		if (configContent.includes("alias tm='task-master'")) {
-			log('info', 'Task Master aliases already exist in shell config.');
+		if (configContent.includes("alias gd='guidant'")) {
+			log('info', 'Guidant aliases already exist in shell config.');
 			return true;
 		}
 
@@ -186,7 +186,7 @@ alias guidant='guidant'
 
 // Function to create initial state.json file for tag management
 function createInitialStateFile(targetDir) {
-	const stateFilePath = path.join(targetDir, TASKMASTER_STATE_FILE);
+	const stateFilePath = path.join(targetDir, GUIDANT_STATE_FILE);
 
 	// Check if state.json already exists
 	if (fs.existsSync(stateFilePath)) {
@@ -257,8 +257,8 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 				'self_improve.mdc'
 			);
 			break;
-			// case 'README-task-master.md':
-			// 	sourcePath = path.join(__dirname, '..', 'README-task-master.md');
+			// case 'README-guidant.md':
+			// 	sourcePath = path.join(__dirname, '..', 'README-guidant.md');
 			break;
 		case 'windsurfrules':
 			sourcePath = path.join(__dirname, '..', 'assets', '.windsurfrules');
@@ -325,7 +325,7 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 
 			if (newLines.length > 0) {
 				// Add a comment to separate the original content from our additions
-				const updatedContent = `${existingContent.trim()}\n\n# Added by Task Master AI\n${newLines.join('\n')}`;
+				const updatedContent = `${existingContent.trim()}\n\n# Added by Guidant\n${newLines.join('\n')}`;
 				fs.writeFileSync(targetPath, updatedContent);
 				log('success', `Updated ${targetPath} with additional entries`);
 			} else {
@@ -343,24 +343,24 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 			const existingContent = fs.readFileSync(targetPath, 'utf8');
 
 			// Add a separator comment before appending our content
-			const updatedContent = `${existingContent.trim()}\n\n# Added by Task Master - Development Workflow Rules\n\n${content}`;
+			const updatedContent = `${existingContent.trim()}\n\n# Added by Guidant - Development Workflow Rules\n\n${content}`;
 			fs.writeFileSync(targetPath, updatedContent);
 			log('success', `Updated ${targetPath} with additional rules`);
 			return;
 		}
 
 		// Handle README.md - offer to preserve or create a different file
-		if (filename === 'README-task-master.md') {
+		if (filename === 'README-guidant.md') {
 			log('info', `${targetPath} already exists`);
 			// Create a separate README file specifically for this project
 			const taskMasterReadmePath = path.join(
 				path.dirname(targetPath),
-				'README-task-master.md'
+				'README-guidant.md'
 			);
 			fs.writeFileSync(taskMasterReadmePath, content);
 			log(
 				'success',
-				`Created ${taskMasterReadmePath} (preserved original README-task-master.md)`
+				`Created ${taskMasterReadmePath} (preserved original README-guidant.md)`
 			);
 			return;
 		}
@@ -377,6 +377,9 @@ function copyTemplateFile(templateName, targetPath, replacements = {}) {
 
 // Main function to initialize a new project (No longer needs isInteractive logic)
 async function initializeProject(options = {}) {
+	// Set environment variable to skip config loading during init to prevent infinite loops
+	process.env.GUIDANT_SKIP_CONFIG_LOAD = 'true';
+
 	// Receives options as argument
 	// Only display banner if not in silent mode
 	if (!isSilentMode()) {
@@ -403,9 +406,9 @@ async function initializeProject(options = {}) {
 		}
 
 		// Use provided options or defaults
-		const projectName = options.name || 'task-master-project';
+		const projectName = options.name || 'guidant-project';
 		const projectDescription =
-			options.description || 'A project managed with Task Master AI';
+			options.description || 'A project managed with Guidant';
 		const projectVersion = options.version || '0.1.0';
 		const authorName = options.author || 'Vibe coder';
 		const dryRun = options.dryRun || false;
@@ -413,10 +416,10 @@ async function initializeProject(options = {}) {
 
 		if (dryRun) {
 			log('info', 'DRY RUN MODE: No files will be modified');
-			log('info', 'Would initialize Task Master project');
+			log('info', 'Would initialize Guidant project');
 			log('info', 'Would create/update necessary project files');
 			if (addAliases) {
-				log('info', 'Would add shell aliases for task-master');
+				log('info', 'Would add shell aliases for guidant');
 			}
 			return {
 				dryRun: true
@@ -424,6 +427,8 @@ async function initializeProject(options = {}) {
 		}
 
 		createProjectStructure(addAliases, dryRun, options);
+		// Clean up environment variable
+		delete process.env.GUIDANT_SKIP_CONFIG_LOAD;
 	} else {
 		// Interactive logic
 		log('info', 'Required options not provided, proceeding with prompts.');
@@ -437,16 +442,16 @@ async function initializeProject(options = {}) {
 			const addAliasesInput = await promptQuestion(
 				rl,
 				chalk.cyan(
-					'Add shell aliases for task-master? This lets you type "tm" instead of "task-master" (Y/n): '
+					'Add shell aliases for guidant? This lets you type "gd" instead of "guidant" (Y/n): '
 				)
 			);
 			const addAliasesPrompted = addAliasesInput.trim().toLowerCase() !== 'n';
 
 			// Confirm settings...
-			console.log('\nTask Master Project settings:');
+			console.log('\nGuidant Project settings:');
 			console.log(
 				chalk.blue(
-					'Add shell aliases (so you can use "tm" instead of "task-master"):'
+					'Add shell aliases (so you can use "gd" instead of "guidant"):'
 				),
 				chalk.white(addAliasesPrompted ? 'Yes' : 'No')
 			);
@@ -468,10 +473,10 @@ async function initializeProject(options = {}) {
 
 			if (dryRun) {
 				log('info', 'DRY RUN MODE: No files will be modified');
-				log('info', 'Would initialize Task Master project');
+				log('info', 'Would initialize Guidant project');
 				log('info', 'Would create/update necessary project files');
 				if (addAliasesPrompted) {
-					log('info', 'Would add shell aliases for task-master');
+					log('info', 'Would add shell aliases for guidant');
 				}
 				return {
 					dryRun: true
@@ -480,8 +485,12 @@ async function initializeProject(options = {}) {
 
 			// Create structure using only necessary values
 			createProjectStructure(addAliasesPrompted, dryRun, options);
+			// Clean up environment variable
+			delete process.env.GUIDANT_SKIP_CONFIG_LOAD;
 		} catch (error) {
 			rl.close();
+			// Clean up environment variable on error
+			delete process.env.GUIDANT_SKIP_CONFIG_LOAD;
 			log('error', `Error during initialization process: ${error.message}`);
 			process.exit(1);
 		}
@@ -502,7 +511,7 @@ function createProjectStructure(addAliases, dryRun, options) {
 	const targetDir = process.cwd();
 	log('info', `Initializing project in ${targetDir}`);
 
-	// Define Roo modes locally (external integration, not part of core Task Master)
+	// Define Roo modes locally (external integration, not part of core Guidant)
 	const ROO_MODES = ['architect', 'ask', 'boomerang', 'code', 'debug', 'test'];
 
 	// Create directories
@@ -515,12 +524,12 @@ function createProjectStructure(addAliases, dryRun, options) {
 		ensureDirectoryExists(path.join(targetDir, '.roo', `rules-${mode}`));
 	}
 
-	// Create NEW .taskmaster directory structure (using constants)
-	ensureDirectoryExists(path.join(targetDir, TASKMASTER_DIR));
-	ensureDirectoryExists(path.join(targetDir, TASKMASTER_TASKS_DIR));
-	ensureDirectoryExists(path.join(targetDir, TASKMASTER_DOCS_DIR));
-	ensureDirectoryExists(path.join(targetDir, TASKMASTER_REPORTS_DIR));
-	ensureDirectoryExists(path.join(targetDir, TASKMASTER_TEMPLATES_DIR));
+	// Create NEW .guidant directory structure (using constants)
+	ensureDirectoryExists(path.join(targetDir, GUIDANT_DIR));
+	ensureDirectoryExists(path.join(targetDir, GUIDANT_TASKS_DIR));
+	ensureDirectoryExists(path.join(targetDir, GUIDANT_DOCS_DIR));
+	ensureDirectoryExists(path.join(targetDir, GUIDANT_REPORTS_DIR));
+	ensureDirectoryExists(path.join(targetDir, GUIDANT_TEMPLATES_DIR));
 
 	// Create initial state.json file for tag management
 	createInitialStateFile(targetDir);
@@ -543,7 +552,7 @@ function createProjectStructure(addAliases, dryRun, options) {
 	// Copy config.json with project name to NEW location
 	copyTemplateFile(
 		'config.json',
-		path.join(targetDir, TASKMASTER_CONFIG_FILE),
+		path.join(targetDir, GUIDANT_CONFIG_FILE),
 		{
 			...replacements
 		}
@@ -646,20 +655,20 @@ function createProjectStructure(addAliases, dryRun, options) {
 			'Running interactive model setup. Please select your preferred AI models.'
 		);
 		try {
-			execSync('npx task-master models --setup', {
+			execSync('npx guidant models --setup', {
 				stdio: 'inherit',
 				cwd: targetDir
 			});
 			log('success', 'AI Models configured.');
 		} catch (error) {
 			log('error', 'Failed to configure AI models:', error.message);
-			log('warn', 'You may need to run "task-master models --setup" manually.');
+			log('warn', 'You may need to run "guidant models --setup" manually.');
 		}
 	} else if (isSilentMode() && !dryRun) {
 		log('info', 'Skipping interactive model setup in silent (MCP) mode.');
 		log(
 			'warn',
-			'Please configure AI models using "task-master models --set-..." or the "models" MCP tool.'
+			'Please configure AI models using "guidant models --set-..." or the "models" MCP tool.'
 		);
 	} else if (dryRun) {
 		log('info', 'DRY RUN: Skipping interactive model setup.');
@@ -667,7 +676,7 @@ function createProjectStructure(addAliases, dryRun, options) {
 		log('info', 'Skipping interactive model setup due to --yes flag.');
 		log(
 			'info',
-			'Default AI models will be used. You can configure different models later using "task-master models --setup" or "task-master models --set-..." commands.'
+			'Default AI models will be used. You can configure different models later using "guidant models --setup" or "guidant models --set-..." commands.'
 		);
 	}
 	// ====================================
@@ -695,15 +704,15 @@ function createProjectStructure(addAliases, dryRun, options) {
 			boxen(
 				`${chalk.cyan.bold('Things you should do next:')}\n\n${chalk.white('1. ')}${chalk.yellow(
 					'Configure AI models (if needed) and add API keys to `.env`'
-				)}\n${chalk.white('   ├─ ')}${chalk.dim('Models: Use `task-master models` commands')}\n${chalk.white('   └─ ')}${chalk.dim(
+				)}\n${chalk.white('   ├─ ')}${chalk.dim('Models: Use `guidant models` commands')}\n${chalk.white('   └─ ')}${chalk.dim(
 					'Keys: Add provider API keys to .env (or inside the MCP config file i.e. .cursor/mcp.json)'
 				)}\n${chalk.white('2. ')}${chalk.yellow(
 					'Discuss your idea with AI and ask for a PRD using example_prd.txt, and save it to scripts/PRD.txt'
 				)}\n${chalk.white('3. ')}${chalk.yellow(
 					'Ask Cursor Agent (or run CLI) to parse your PRD and generate initial tasks:'
-				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('parse_prd')}${chalk.dim(' | CLI: ')}${chalk.cyan('task-master parse-prd scripts/prd.txt')}\n${chalk.white('4. ')}${chalk.yellow(
+				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('parse_prd')}${chalk.dim(' | CLI: ')}${chalk.cyan('guidant parse-prd scripts/prd.txt')}\n${chalk.white('4. ')}${chalk.yellow(
 					'Ask Cursor to analyze the complexity of the tasks in your PRD using research'
-				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('analyze_project_complexity')}${chalk.dim(' | CLI: ')}${chalk.cyan('task-master analyze-complexity')}\n${chalk.white('5. ')}${chalk.yellow(
+				)}\n${chalk.white('   └─ ')}${chalk.dim('MCP Tool: ')}${chalk.cyan('analyze_project_complexity')}${chalk.dim(' | CLI: ')}${chalk.cyan('guidant analyze-complexity')}\n${chalk.white('5. ')}${chalk.yellow(
 					'Ask Cursor to expand all of your tasks using the complexity analysis'
 				)}\n${chalk.white('6. ')}${chalk.yellow('Ask Cursor to begin working on the next task')}\n${chalk.white('7. ')}${chalk.yellow(
 					'Add new tasks anytime using the add-task command or MCP tool'
@@ -714,7 +723,7 @@ function createProjectStructure(addAliases, dryRun, options) {
 				)}\n${chalk.white('10. ')}${chalk.green.bold('Ship it!')}\n\n${chalk.dim(
 					'* Review the README.md file to learn how to use other commands via Cursor Agent.'
 				)}\n${chalk.dim(
-					'* Use the task-master command without arguments to see all available commands.'
+					'* Use the guidant command without arguments to see all available commands.'
 				)}`,
 				{
 					padding: 1,
@@ -741,9 +750,9 @@ function setupMCPConfiguration(targetDir) {
 
 	// New MCP config to be added - references the installed package
 	const newMCPServer = {
-		'task-master-ai': {
+		'guidant-ai': {
 			command: 'npx',
-			args: ['-y', '--package=task-master-ai', 'task-master-ai'],
+			args: ['-y', '--package=guidant-ai', 'guidant-ai'],
 			env: {
 				ANTHROPIC_API_KEY: 'ANTHROPIC_API_KEY_HERE',
 				PERPLEXITY_API_KEY: 'PERPLEXITY_API_KEY_HERE',
@@ -767,7 +776,7 @@ function setupMCPConfiguration(targetDir) {
 	if (fs.existsSync(mcpJsonPath)) {
 		log(
 			'info',
-			'MCP configuration file already exists, checking for existing task-master-mcp...'
+			'MCP configuration file already exists, checking for existing guidant-mcp...'
 		);
 		try {
 			// Read existing config
@@ -778,32 +787,32 @@ function setupMCPConfiguration(targetDir) {
 				mcpConfig.mcpServers = {};
 			}
 
-			// Check if any existing server configuration already has task-master-mcp in its args
+			// Check if any existing server configuration already has guidant-mcp in its args
 			const hasMCPString = Object.values(mcpConfig.mcpServers).some(
 				(server) =>
 					server.args &&
 					server.args.some(
-						(arg) => typeof arg === 'string' && arg.includes('task-master-ai')
+						(arg) => typeof arg === 'string' && arg.includes('guidant-ai')
 					)
 			);
 
 			if (hasMCPString) {
 				log(
 					'info',
-					'Found existing task-master-ai MCP configuration in mcp.json, leaving untouched'
+					'Found existing guidant-ai MCP configuration in mcp.json, leaving untouched'
 				);
 				return; // Exit early, don't modify the existing configuration
 			}
 
-			// Add the task-master-ai server if it doesn't exist
-			if (!mcpConfig.mcpServers['task-master-ai']) {
-				mcpConfig.mcpServers['task-master-ai'] = newMCPServer['task-master-ai'];
+			// Add the guidant-ai server if it doesn't exist
+			if (!mcpConfig.mcpServers['guidant-ai']) {
+				mcpConfig.mcpServers['guidant-ai'] = newMCPServer['guidant-ai'];
 				log(
 					'info',
-					'Added task-master-ai server to existing MCP configuration'
+					'Added guidant-ai server to existing MCP configuration'
 				);
 			} else {
-				log('info', 'task-master-ai server already configured in mcp.json');
+				log('info', 'guidant-ai server already configured in mcp.json');
 			}
 
 			// Write the updated configuration
@@ -840,7 +849,7 @@ function setupMCPConfiguration(targetDir) {
 	}
 
 	// Add note to console about MCP integration
-	log('info', 'MCP server will use the installed task-master-ai package');
+	log('info', 'MCP server will use the installed guidant-ai package');
 }
 
 // Ensure necessary functions are exported

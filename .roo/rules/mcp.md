@@ -1,18 +1,18 @@
 ---
-description: Guidelines for implementing and interacting with the Task Master MCP Server
+description: Guidelines for implementing and interacting with the Guidant MCP Server
 globs: mcp-server/src/**/*, scripts/modules/**/*
 alwaysApply: false
 ---
-# Task Master MCP Server Guidelines
+# Guidant MCP Server Guidelines
 
-This document outlines the architecture and implementation patterns for the Task Master Model Context Protocol (MCP) server, designed for integration with tools like Roo Code.
+This document outlines the architecture and implementation patterns for the Guidant Model Context Protocol (MCP) server, designed for integration with tools like Roo Code.
 
 ## Architecture Overview (See also: [`architecture.md`](mdc:.roo/rules/architecture.md))
 
-The MCP server acts as a bridge between external tools (like Roo Code) and the core Task Master CLI logic. It leverages FastMCP for the server framework.
+The MCP server acts as a bridge between external tools (like Roo Code) and the core Guidant CLI logic. It leverages FastMCP for the server framework.
 
-- **Flow**: `External Tool (Roo Code)` <-> `FastMCP Server` <-> `MCP Tools` (`mcp-server/src/tools/*.js`) <-> `Core Logic Wrappers` (`mcp-server/src/core/direct-functions/*.js`, exported via `task-master-core.js`) <-> `Core Modules` (`scripts/modules/*.js`)
-- **Goal**: Provide a performant and reliable way for external tools to interact with Task Master functionality without directly invoking the CLI for every operation.
+- **Flow**: `External Tool (Roo Code)` <-> `FastMCP Server` <-> `MCP Tools` (`mcp-server/src/tools/*.js`) <-> `Core Logic Wrappers` (`mcp-server/src/core/direct-functions/*.js`, exported via `guidant-core.js`) <-> `Core Modules` (`scripts/modules/*.js`)
+- **Goal**: Provide a performant and reliable way for external tools to interact with Guidant functionality without directly invoking the CLI for every operation.
 
 ## Direct Function Implementation Best Practices
 
@@ -145,7 +145,7 @@ When implementing a new direct function in `mcp-server/src/core/direct-functions
       ```
 
 7. **Debugging MCP/Core Logic Interaction**:
-    - ✅ **DO**: If an MCP tool fails with unclear errors (like JSON parsing failures), run the equivalent `task-master` CLI command in the terminal. The CLI often provides more detailed error messages originating from the core logic (e.g., `ReferenceError`, stack traces) that are obscured by the MCP layer.
+    - ✅ **DO**: If an MCP tool fails with unclear errors (like JSON parsing failures), run the equivalent `guidant` CLI command in the terminal. The CLI often provides more detailed error messages originating from the core logic (e.g., `ReferenceError`, stack traces) that are obscured by the MCP layer.
 
 ## Tool Definition and Execution
 
@@ -208,7 +208,7 @@ import {
     createErrorResponse,
     withNormalizedProjectRoot // <<< Import HOF
 } from './utils.js';
-import { yourDirectFunction } from '../core/task-master-core.js';
+import { yourDirectFunction } from '../core/guidant-core.js';
 import { findTasksJsonPath } from '../core/utils/path-utils.js'; // If needed
 
 export function registerYourTool(server) {
@@ -254,18 +254,18 @@ By using this HOF, the core logic within the `execute` method and any downstream
 
 ### Project Initialization Tool
 
-The `initialize_project` tool allows integrated clients like Roo Code to set up a new Task Master project:
+The `initialize_project` tool allows integrated clients like Roo Code to set up a new Guidant project:
 
 ```javascript
 // In initialize-project.js
 import { z } from "zod";
-import { initializeProjectDirect } from "../core/task-master-core.js";
+import { initializeProjectDirect } from "../core/guidant-core.js";
 import { handleApiResult, createErrorResponse } from "./utils.js";
 
 export function registerInitializeProjectTool(server) {
   server.addTool({
     name: "initialize_project",
-    description: "Initialize a new Task Master project",
+    description: "Initialize a new Guidant project",
     parameters: z.object({
       projectName: z.string().optional().describe("The name for the new project"),
       projectDescription: z.string().optional().describe("A brief description"),
@@ -307,7 +307,7 @@ log.info('Progress: 50% - AI call initiated...'); // Example progress logging
 The `session` object (destructured from `context`) contains authenticated session data and client information.
 
 - **Authentication**: Access user-specific data (`session.userId`, etc.) if authentication is implemented.
-- **Project Root**: The primary use in Task Master is accessing `session.roots` to determine the client's project root directory via the `getProjectRootFromSession` utility (from [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js)). See the Standard Tool Execution Pattern above.
+- **Project Root**: The primary use in Guidant is accessing `session.roots` to determine the client's project root directory via the `getProjectRootFromSession` utility (from [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js)). See the Standard Tool Execution Pattern above.
 - **Environment Variables**: The `session.env` object provides access to environment variables set in the MCP client configuration (e.g., `.roo/mcp.json`). This is the **primary mechanism** for the unified AI service layer (`ai-services-unified.js`) to securely access **API keys** when called from MCP context.
 - **Capabilities**: Can be used to check client capabilities (`session.clientCapabilities`).
 
@@ -315,7 +315,7 @@ The `session` object (destructured from `context`) contains authenticated sessio
 
 These functions, located in `mcp-server/src/core/direct-functions/`, form the core logic execution layer for MCP tools.
 
-- **Purpose**: Bridge MCP tools and core Task Master modules (`scripts/modules/*`). Handle AI interactions if applicable.
+- **Purpose**: Bridge MCP tools and core Guidant modules (`scripts/modules/*`). Handle AI interactions if applicable.
 - **Responsibilities**:
   - Receive `args` (including `projectRoot`), `log`, and optionally `{ session }` context.
   - Find `tasks.json` using `findTasksJsonPath`.
@@ -356,7 +356,7 @@ Resources provide LLMs with static or dynamic data without executing tools.
 
 ## Implementing MCP Support for a Command
 
-Follow these steps to add MCP support for an existing Task Master command (see [`new_features.md`](mdc:.roo/rules/new_features.md) for more detail):
+Follow these steps to add MCP support for an existing Guidant command (see [`new_features.md`](mdc:.roo/rules/new_features.md) for more detail):
 
 1.  **Ensure Core Logic Exists**: Verify the core functionality is implemented and exported from the relevant module in `scripts/modules/`. Ensure the core function can suppress console output (e.g., via an `outputFormat` parameter).
 
@@ -376,7 +376,7 @@ Follow these steps to add MCP support for an existing Task Master command (see [
         - ❌ **DON'T**: Call `reportProgress`.
     - Export the wrapper function.
 
-3.  **Update `task-master-core.js` with Import/Export**: Import and re-export your `*Direct` function and add it to the `directFunctions` map.
+3.  **Update `guidant-core.js` with Import/Export**: Import and re-export your `*Direct` function and add it to the `directFunctions` map.
 
 4.  **Create MCP Tool (`mcp-server/src/tools/`)**:
     - Create a new file (e.g., `your-command.js`) using **kebab-case**.
@@ -404,25 +404,25 @@ Follow these steps to add MCP support for an existing Task Master command (see [
 
 ## Parameter Type Handling
 
-- **Prefer Direct Function Calls**: For optimal performance and error handling, MCP tools should utilize direct function wrappers defined in [`task-master-core.js`](mdc:mcp-server/src/core/task-master-core.js). These wrappers call the underlying logic from the core modules (e.g., [`task-manager.js`](mdc:scripts/modules/task-manager.js)).
+- **Prefer Direct Function Calls**: For optimal performance and error handling, MCP tools should utilize direct function wrappers defined in [`guidant-core.js`](mdc:mcp-server/src/core/guidant-core.js). These wrappers call the underlying logic from the core modules (e.g., [`task-manager.js`](mdc:scripts/modules/task-manager.js)).
 - **Standard Tool Execution Pattern**:
     - The `execute` method within each MCP tool (in `mcp-server/src/tools/*.js`) should:
-        1.  Call the corresponding `*Direct` function wrapper (e.g., `listTasksDirect`) from [`task-master-core.js`](mdc:mcp-server/src/core/task-master-core.js), passing necessary arguments and the logger.
+        1.  Call the corresponding `*Direct` function wrapper (e.g., `listTasksDirect`) from [`guidant-core.js`](mdc:mcp-server/src/core/guidant-core.js), passing necessary arguments and the logger.
         2.  Receive the result object (typically `{ success, data/error, fromCache }`).
         3.  Pass this result object to the `handleApiResult` utility (from [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js)) for standardized response formatting and error handling.
         4.  Return the formatted response object provided by `handleApiResult`.
-- **CLI Execution as Fallback**: The `executeTaskMasterCommand` utility in [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js) allows executing commands via the CLI (`task-master ...`). This should **only** be used as a fallback if a direct function wrapper is not yet implemented or if a specific command intrinsically requires CLI execution.
+- **CLI Execution as Fallback**: The `executeTaskMasterCommand` utility in [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js) allows executing commands via the CLI (`guidant ...`). This should **only** be used as a fallback if a direct function wrapper is not yet implemented or if a specific command intrinsically requires CLI execution.
 - **Centralized Utilities** (See also: [`utilities.md`](mdc:.roo/rules/utilities.md)):
-    - Use `findTasksJsonPath` (in [`task-master-core.js`](mdc:mcp-server/src/core/task-master-core.js)) *within direct function wrappers* to locate the `tasks.json` file consistently.
+    - Use `findTasksJsonPath` (in [`guidant-core.js`](mdc:mcp-server/src/core/guidant-core.js)) *within direct function wrappers* to locate the `tasks.json` file consistently.
     - **Leverage MCP Utilities**: The file [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js) contains essential helpers for MCP tool implementation:
         - `getProjectRoot`: Normalizes project paths.
         - `handleApiResult`: Takes the raw result from a `*Direct` function and formats it into a standard MCP success or error response, automatically handling data processing via `processMCPResponseData`. This is called by the tool's `execute` method.
         - `createContentResponse`/`createErrorResponse`: Used by `handleApiResult` to format successful/error MCP responses.
         - `processMCPResponseData`: Filters/cleans data (e.g., removing `details`, `testStrategy`) before it's sent in the MCP response. Called by `handleApiResult`.
-        - `getCachedOrExecute`: **Used inside `*Direct` functions** in `task-master-core.js` to implement caching logic.
+        - `getCachedOrExecute`: **Used inside `*Direct` functions** in `guidant-core.js` to implement caching logic.
         - `executeTaskMasterCommand`: Fallback for executing CLI commands.
 - **Caching**: To improve performance for frequently called read operations (like `listTasks`, `showTask`, `nextTask`), a caching layer using `lru-cache` is implemented.
-    - **Caching logic resides *within* the direct function wrappers** in [`task-master-core.js`](mdc:mcp-server/src/core/task-master-core.js) using the `getCachedOrExecute` utility from [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js).
+    - **Caching logic resides *within* the direct function wrappers** in [`guidant-core.js`](mdc:mcp-server/src/core/guidant-core.js) using the `getCachedOrExecute` utility from [`tools/utils.js`](mdc:mcp-server/src/tools/utils.js).
     - Generate unique cache keys based on function arguments that define a distinct call (e.g., file path, filters).
     - The `getCachedOrExecute` utility handles checking the cache, executing the core logic function on a cache miss, storing the result, and returning the data along with a `fromCache` flag.
     - Cache statistics can be monitored using the `cacheStats` MCP tool (implemented via `getCacheStatsDirect`).
@@ -440,7 +440,7 @@ Follow these steps to add MCP support for an existing Task Master command (see [
    - [ ] Handle all parameter validations and type conversions
    - [ ] Implement path resolving for relative paths
    - [ ] Add appropriate error handling with standardized error codes
-   - [ ] Add to imports/exports in `task-master-core.js`
+   - [ ] Add to imports/exports in `guidant-core.js`
 
 3. **MCP Tool Implementation**:
    - [ ] Create new file in `mcp-server/src/tools/` with kebab-case naming
@@ -480,7 +480,7 @@ Follow these steps to add MCP support for an existing Task Master command (see [
   - ✅ DO: Include the cache status in result logs
   - ❌ DON'T: Log entire large data structures or sensitive information
 
-- The MCP server integrates with Task Master core functions through three layers:
+- The MCP server integrates with Guidant core functions through three layers:
   1. Tool Definitions (`mcp-server/src/tools/*.js`) - Define parameters and validation
   2. Direct Functions (`mcp-server/src/core/direct-functions/*.js`) - Handle core logic integration
   3. Core Functions (`scripts/modules/*.js`) - Implement the actual functionality
@@ -514,7 +514,7 @@ Follow these steps to add MCP support for an existing Task Master command (see [
   - MCP Tool Name: `list_tasks`
 
 - **Mapping**:
-  - The `directFunctions` map in `task-master-core.js` maps the core function name (in camelCase) to its direct implementation:
+  - The `directFunctions` map in `guidant-core.js` maps the core function name (in camelCase) to its direct implementation:
     ```javascript
     export const directFunctions = {
       list: listTasksDirect,

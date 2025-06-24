@@ -1,0 +1,63 @@
+{
+  "fallbackOrder": [
+    "TAVILY",
+    "CONTEXT7",
+    "PERPLEXITY"
+  ],
+  "routingRules": {
+    "technical": [
+      { "provider": "CONTEXT7", "priority": 1, "condition": "always" },
+      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+    ],
+    "market": [
+      { "provider": "TAVILY", "priority": 1, "condition": "always" },
+      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+    ],
+    "competitive": [
+      { "provider": "TAVILY", "priority": 1, "condition": "always" },
+      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+    ],
+    "hybrid": [
+      { "provider": "TAVILY", "priority": 1, "condition": "market_focus" },
+      { "provider": "CONTEXT7", "priority": 1, "condition": "technical_focus" },
+      { "provider": "PERPLEXITY", "priority": 2, "condition": "fallback" }
+    ],
+    "general": [
+      { "provider": "PERPLEXITY", "priority": 1, "condition": "always" },
+      { "provider": "TAVILY", "priority": 2, "condition": "fallback" }
+    ]
+  },
+  "classificationKeywords": {
+    "technical": [
+      "framework",
+      "library",
+      "api",
+      "database",
+      "architecture",
+      "implementation",
+      "code",
+      "development",
+      "programming",
+      "technology",
+      "stack",
+      "platform",
+      "infrastructure"
+    ],
+    "market": [
+      "market",
+      "competitor",
+      "business",
+      "revenue",
+      "customer",
+      "user",
+      "pricing",
+      "monetization",
+      "industry",
+      "trend",
+      "analysis",
+      "opportunity",
+      "demand",
+      "segment"
+    ]
+  }
+} 

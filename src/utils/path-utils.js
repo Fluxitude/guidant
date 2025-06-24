@@ -6,19 +6,19 @@
 import path from 'path';
 import fs from 'fs';
 import {
-	TASKMASTER_TASKS_FILE,
+	GUIDANT_TASKS_FILE,
 	LEGACY_TASKS_FILE,
-	TASKMASTER_DOCS_DIR,
-	TASKMASTER_REPORTS_DIR,
+	GUIDANT_DOCS_DIR,
+	GUIDANT_REPORTS_DIR,
 	COMPLEXITY_REPORT_FILE,
-	TASKMASTER_CONFIG_FILE,
+	GUIDANT_CONFIG_FILE,
 	LEGACY_CONFIG_FILE
 } from '../constants/paths.js';
 import { getLoggerOrDefault } from './logger-utils.js';
 
 /**
- * Normalize project root to ensure it doesn't end with .taskmaster
- * This prevents double .taskmaster paths when using constants that include .taskmaster
+ * Normalize project root to ensure it doesn't end with .guidant
+ * This prevents double .guidant paths when using constants that include .guidant
  * @param {string} projectRoot - The project root path to normalize
  * @returns {string} - Normalized project root path
  */
@@ -28,14 +28,14 @@ export function normalizeProjectRoot(projectRoot) {
 	// Split the path into segments
 	const segments = projectRoot.split(path.sep);
 
-	// Find the index of .taskmaster segment
-	const taskmasterIndex = segments.findIndex(
-		(segment) => segment === '.taskmaster'
+	// Find the index of .guidant segment
+	const guidantIndex = segments.findIndex(
+		(segment) => segment === '.guidant'
 	);
 
-	if (taskmasterIndex !== -1) {
-		// If .taskmaster is found, return everything up to but not including .taskmaster
-		const normalizedSegments = segments.slice(0, taskmasterIndex);
+	if (guidantIndex !== -1) {
+		// If .guidant is found, return everything up to but not including .guidant
+		const normalizedSegments = segments.slice(0, guidantIndex);
 		return normalizedSegments.join(path.sep) || path.sep;
 	}
 
@@ -49,7 +49,7 @@ export function normalizeProjectRoot(projectRoot) {
  */
 export function findProjectRoot(startDir = process.cwd()) {
 	const projectMarkers = [
-		'.taskmaster',
+		'.guidant',
 		TASKMASTER_TASKS_FILE,
 		'tasks.json',
 		LEGACY_TASKS_FILE,
@@ -118,7 +118,7 @@ export function findTasksPath(explicitPath = null, args = null, log = null) {
 
 	// 4. Check possible locations in order of preference
 	const possiblePaths = [
-		path.join(projectRoot, TASKMASTER_TASKS_FILE), // .taskmaster/tasks/tasks.json (NEW)
+		path.join(projectRoot, GUIDANT_TASKS_FILE), // .guidant/tasks/tasks.json (NEW)
 		path.join(projectRoot, LEGACY_TASKS_FILE) // tasks/tasks.json (LEGACY)
 	];
 
@@ -191,7 +191,7 @@ export function findPRDPath(explicitPath = null, args = null, log = null) {
 
 	// 4. Check possible locations in order of preference
 	const locations = [
-		TASKMASTER_DOCS_DIR, // .taskmaster/docs/ (NEW)
+		GUIDANT_DOCS_DIR, // .guidant/docs/ (NEW)
 		'scripts/', // Legacy location
 		'' // Project root
 	];
@@ -263,7 +263,7 @@ export function findComplexityReportPath(
 
 	// 4. Check possible locations in order of preference
 	const locations = [
-		TASKMASTER_REPORTS_DIR, // .taskmaster/reports/ (NEW)
+		GUIDANT_REPORTS_DIR, // .guidant/reports/ (NEW)
 		'scripts/', // Legacy location
 		'' // Project root
 	];
@@ -320,11 +320,11 @@ export function resolveTasksOutputPath(
 	const rawProjectRoot =
 		args?.projectRoot || findProjectRoot() || process.cwd();
 
-	// 3. Normalize project root to prevent double .taskmaster paths
+	// 3. Normalize project root to prevent double .guidant paths
 	const projectRoot = normalizeProjectRoot(rawProjectRoot);
 
-	// 4. Use new .taskmaster structure by default
-	const defaultPath = path.join(projectRoot, TASKMASTER_TASKS_FILE);
+	// 4. Use new .guidant structure by default
+	const defaultPath = path.join(projectRoot, GUIDANT_TASKS_FILE);
 	logger.info?.(`Using default output path: ${defaultPath}`);
 
 	// Ensure the directory exists
@@ -367,10 +367,10 @@ export function resolveComplexityReportOutputPath(
 	const rawProjectRoot =
 		args?.projectRoot || findProjectRoot() || process.cwd();
 
-	// 3. Normalize project root to prevent double .taskmaster paths
+	// 3. Normalize project root to prevent double .guidant paths
 	const projectRoot = normalizeProjectRoot(rawProjectRoot);
 
-	// 4. Use new .taskmaster structure by default
+	// 4. Use new .guidant structure by default
 	const defaultPath = path.join(projectRoot, COMPLEXITY_REPORT_FILE);
 	logger.info?.(`Using default complexity report output path: ${defaultPath}`);
 
@@ -418,12 +418,12 @@ export function findConfigPath(explicitPath = null, args = null, log = null) {
 		return null;
 	}
 
-	// 3. Normalize project root to prevent double .taskmaster paths
+	// 3. Normalize project root to prevent double .guidant paths
 	const projectRoot = normalizeProjectRoot(rawProjectRoot);
 
 	// 4. Check possible locations in order of preference
 	const possiblePaths = [
-		path.join(projectRoot, TASKMASTER_CONFIG_FILE), // NEW location
+		path.join(projectRoot, GUIDANT_CONFIG_FILE), // NEW location
 		path.join(projectRoot, LEGACY_CONFIG_FILE) // LEGACY location
 	];
 
@@ -432,7 +432,7 @@ export function findConfigPath(explicitPath = null, args = null, log = null) {
 			// Issue deprecation warning for legacy paths
 			if (configPath?.endsWith(LEGACY_CONFIG_FILE)) {
 				logger.warn?.(
-					`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .taskmaster/config.json. Run 'task-master migrate' to automatically migrate your project.`
+					`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .guidant/config.json. Run 'guidant migrate' to automatically migrate your project.`
 				);
 			}
 

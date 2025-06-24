@@ -733,9 +733,9 @@ function listTasks(
 						subtasksSection + // <-- Subtasks are handled above now
 						'\n\n' +
 						// Use nextItem.id
-						`${chalk.cyan('Start working:')} ${chalk.yellow(`task-master set-status --id=${nextItem.id} --status=in-progress`)}\n` +
+						`${chalk.cyan('Start working:')} ${chalk.yellow(`guidant set-status --id=${nextItem.id} --status=in-progress`)}\n` +
 						// Use nextItem.id
-						`${chalk.cyan('View details:')} ${chalk.yellow(`task-master show ${nextItem.id}`)}`,
+						`${chalk.cyan('View details:')} ${chalk.yellow(`guidant show ${nextItem.id}`)}`,
 					{
 						padding: { left: 2, right: 2, top: 1, bottom: 1 },
 						borderColor: '#FF8800',
@@ -772,9 +772,9 @@ function listTasks(
 			boxen(
 				chalk.white.bold('Suggested Next Steps:') +
 					'\n\n' +
-					`${chalk.cyan('1.')} Run ${chalk.yellow('task-master next')} to see what to work on next\n` +
-					`${chalk.cyan('2.')} Run ${chalk.yellow('task-master expand --id=<id>')} to break down a task into subtasks\n` +
-					`${chalk.cyan('3.')} Run ${chalk.yellow('task-master set-status --id=<id> --status=done')} to mark a task as complete`,
+					`${chalk.cyan('1.')} Run ${chalk.yellow('guidant next')} to see what to work on next\n` +
+					`${chalk.cyan('2.')} Run ${chalk.yellow('guidant expand --id=<id>')} to break down a task into subtasks\n` +
+					`${chalk.cyan('3.')} Run ${chalk.yellow('guidant set-status --id=<id> --status=done')} to mark a task as complete`,
 				{
 					padding: 1,
 					borderColor: 'gray',
@@ -1013,8 +1013,8 @@ function generateMarkdownOutput(data, filteredTasks, stats) {
 				'│                                                                                                                         │\n';
 		}
 
-		markdown += `│  Start working: task-master set-status --id=${nextItem.id} --status=in-progress                                                     │\n`;
-		markdown += `│  View details: task-master show ${nextItem.id}                                                                      │\n`;
+		markdown += `│  Start working: guidant set-status --id=${nextItem.id} --status=in-progress                                                     │\n`;
+		markdown += `│  View details: guidant show ${nextItem.id}                                                                      │\n`;
 		markdown +=
 			'│                                                                                                                         │\n';
 		markdown +=
@@ -1032,11 +1032,11 @@ function generateMarkdownOutput(data, filteredTasks, stats) {
 	markdown +=
 		'│                                                                                      │\n';
 	markdown +=
-		'│   1. Run task-master next to see what to work on next                                │\n';
+		'│   1. Run guidant next to see what to work on next                                │\n';
 	markdown +=
-		'│   2. Run task-master expand --id=<id> to break down a task into subtasks             │\n';
+		'│   2. Run guidant expand --id=<id> to break down a task into subtasks             │\n';
 	markdown +=
-		'│   3. Run task-master set-status --id=<id> --status=done to mark a task as complete   │\n';
+		'│   3. Run guidant set-status --id=<id> --status=done to mark a task as complete   │\n';
 	markdown +=
 		'│                                                                                      │\n';
 	markdown +=

@@ -1,6 +1,6 @@
 /**
  * git-utils.js
- * Git integration utilities for Task Master
+ * Git integration utilities for Guidant
  * Uses raw git commands and gh CLI for operations
  * MCP-friendly: All functions require projectRoot parameter
  */

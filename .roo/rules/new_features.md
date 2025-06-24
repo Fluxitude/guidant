@@ -1,9 +1,9 @@
 ---
-description: Guidelines for integrating new features into the Task Master CLI
+description: Guidelines for integrating new features into the Guidant CLI
 globs: scripts/modules/*.js
 alwaysApply: false
 ---
-# Task Master Feature Integration Guidelines
+# Guidant Feature Integration Guidelines
 
 ## Feature Placement Decision Process
 
@@ -38,7 +38,7 @@ The standard pattern for adding a feature follows this workflow:
 4. **UI Components**: Add any display functions to [`ui.js`](mdc:scripts/modules/ui.js) following [`ui.md`](mdc:.roo/rules/ui.md). Consider enhanced formatting with syntax highlighting for code blocks.
 5. **Command Integration**: Add the CLI command to [`commands.js`](mdc:scripts/modules/commands.js) following [`commands.md`](mdc:.roo/rules/commands.md).
 6. **Testing**: Write tests for all components of the feature (following [`tests.md`](mdc:.roo/rules/tests.md))
-7. **Configuration**: Update configuration settings or add new ones in [`config-manager.js`](mdc:scripts/modules/config-manager.js) and ensure getters/setters are appropriate. Update documentation in [`utilities.md`](mdc:.roo/rules/utilities.md) and [`taskmaster.md`](mdc:.roo/rules/taskmaster.md). Update the `.taskmasterconfig` structure if needed.
+7. **Configuration**: Update configuration settings or add new ones in [`config-manager.js`](mdc:scripts/modules/config-manager.js) and ensure getters/setters are appropriate. Update documentation in [`utilities.md`](mdc:.roo/rules/utilities.md) and [`taskmaster.md`](mdc:.roo/rules/taskmaster.md). Update the `.guidantconfig` structure if needed.
 8. **Documentation**: Update help text and documentation in [`dev_workflow.md`](mdc:.roo/rules/dev_workflow.md) and [`taskmaster.md`](mdc:.roo/rules/taskmaster.md).
 
 ## Critical Checklist for New Features
@@ -197,7 +197,7 @@ The standard pattern for adding a feature follows this workflow:
   - ❌ **DON'T**: Access the global `silentMode` flag directly.
 
 - **Debugging Strategy**:
-  - ✅ **DO**: If an MCP tool fails with vague errors (e.g., JSON parsing issues like `Unexpected token ... is not valid JSON`), **try running the equivalent CLI command directly in the terminal** (e.g., `task-master expand --all`). CLI output often provides much more specific error messages (like missing function definitions or stack traces from the core logic) that pinpoint the root cause.
+  - ✅ **DO**: If an MCP tool fails with vague errors (e.g., JSON parsing issues like `Unexpected token ... is not valid JSON`), **try running the equivalent CLI command directly in the terminal** (e.g., `guidant expand --all`). CLI output often provides much more specific error messages (like missing function definitions or stack traces from the core logic) that pinpoint the root cause.
   - ❌ **DON'T**: Rely solely on MCP logs if the error is unclear; use the CLI as a complementary debugging tool for core logic issues.
 
 - **Telemetry Integration**: Ensure AI calls correctly handle and propagate `telemetryData` as described in [`telemetry.md`](mdc:.roo/rules/telemetry.md).
@@ -492,12 +492,12 @@ For each new feature:
 Follow the existing command reference format:
 ```markdown
 - **Command Reference: your-command**
-  - CLI Syntax: `task-master your-command [options]`
+  - CLI Syntax: `guidant your-command [options]`
   - Description: Brief explanation of what the command does
   - Parameters:
     - `--option1=<value>`: Description of option1 (default: 'default')
     - `--option2=<value>`: Description of option2 (required)
-  - Example: `task-master your-command --option1=value --option2=value2`
+  - Example: `guidant your-command --option1=value --option2=value2`
   - Notes: Additional details, limitations, or special considerations
 ```
 
@@ -505,7 +505,7 @@ For more information on module structure, see [`MODULE_PLAN.md`](mdc:scripts/mod
 
 ## Adding MCP Server Support for Commands
 
-Integrating Task Master commands with the MCP server (for use by tools like Roo Code) follows a specific pattern distinct from the CLI command implementation, prioritizing performance and reliability.
+Integrating Guidant commands with the MCP server (for use by tools like Roo Code) follows a specific pattern distinct from the CLI command implementation, prioritizing performance and reliability.
 
 - **Goal**: Leverage direct function calls to core logic, avoiding CLI overhead.
 - **Reference**: See [`mcp.md`](mdc:.roo/rules/mcp.md) for full details.
@@ -525,7 +525,7 @@ Integrating Task Master commands with the MCP server (for use by tools like Roo 
     - Format the return as `{ success: true/false, data/error, fromCache: boolean }`.
     - Export the wrapper function.
 
-3.  **Update `task-master-core.js` with Import/Export**: Import and re-export your `*Direct` function and add it to the `directFunctions` map.
+3.  **Update `guidant-core.js` with Import/Export**: Import and re-export your `*Direct` function and add it to the `directFunctions` map.
 
 4.  **Create MCP Tool (`mcp-server/src/tools/`)**:
     - Create a new file (e.g., `your-command.js`) using **kebab-case**.
@@ -609,12 +609,12 @@ When implementing project initialization commands:
    ```javascript
    // In initialize-project.js MCP tool:
    import { z } from "zod";
-   import { initializeProjectDirect } from "../core/task-master-core.js";
+   import { initializeProjectDirect } from "../core/guidant-core.js";
    
    export function registerInitializeProjectTool(server) {
      server.addTool({
        name: "initialize_project",
-       description: "Initialize a new Task Master project",
+       description: "Initialize a new Guidant project",
        parameters: z.object({
          projectName: z.string().optional().describe("The name for the new project"),
          projectDescription: z.string().optional().describe("A brief description"),
@@ -688,7 +688,7 @@ When implementing project initialization commands:
       try {
         const projectRoot = findProjectRoot();
         if (!projectRoot) {
-          console.error('Not in a Task Master project directory');
+          console.error('Not in a Guidant project directory');
           process.exit(1);
         }
         
@@ -696,7 +696,7 @@ When implementing project initialization commands:
         const targetTag = options.tag || getCurrentTag() || 'master';
         
         const result = await newFeatureCore(
-          path.join(projectRoot, '.taskmaster', 'tasks', 'tasks.json'),
+          path.join(projectRoot, '.guidant', 'tasks', 'tasks.json'),
           { param: options.param },
           { 
             force: options.force,
@@ -917,4 +917,4 @@ When implementing project initialization commands:
   - ✅ DO: Ensure tagged system features work with flags
   - ✅ DO: Provide clear documentation about flag usage
 
-By following these guidelines, new features will integrate smoothly with the Task Master ecosystem while supporting the enhanced tagged task lists system for multi-context development workflows.
+By following these guidelines, new features will integrate smoothly with the Guidant ecosystem while supporting the enhanced tagged task lists system for multi-context development workflows.

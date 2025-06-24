@@ -44,7 +44,7 @@ alwaysApply: false
   ```
 
 - **Location**:
-    - **Core CLI Utilities**: Place utilities used primarily by the core `task-master` CLI logic and command modules (`scripts/modules/*`) into [`scripts/modules/utils.js`](mdc:scripts/modules/utils.js).
+    - **Core CLI Utilities**: Place utilities used primarily by the core `guidant` CLI logic and command modules (`scripts/modules/*`) into [`scripts/modules/utils.js`](mdc:scripts/modules/utils.js).
     - **MCP Server Utilities**: Place utilities specifically designed to support the MCP server implementation into the appropriate subdirectories within `mcp-server/src/`.
         - Path/Core Logic Helpers: [`mcp-server/src/core/utils/`](mdc:mcp-server/src/core/utils) (e.g., `path-utils.js`).
         - Tool Execution/Response Helpers: [`mcp-server/src/tools/utils.js`](mdc:mcp-server/src/tools/utils.js).
@@ -80,11 +80,11 @@ alwaysApply: false
 
 ## Configuration Management (via `config-manager.js`)
 
-Taskmaster configuration (excluding API keys) is primarily managed through the `.taskmasterconfig` file located in the project root and accessed via getters in [`scripts/modules/config-manager.js`](mdc:scripts/modules/config-manager.js).
+Taskmaster configuration (excluding API keys) is primarily managed through the `.guidantconfig` file located in the project root and accessed via getters in [`scripts/modules/config-manager.js`](mdc:scripts/modules/config-manager.js).
 
-- **`.taskmasterconfig` File**:
+- **`.guidantconfig` File**:
   - ✅ DO: Use this JSON file to store settings like AI model selections (main, research, fallback), parameters (temperature, maxTokens), logging level, default priority/subtasks, etc.
-  - ✅ DO: Manage this file using the `task-master models --setup` CLI command or the `models` MCP tool.
+  - ✅ DO: Manage this file using the `guidant models --setup` CLI command or the `models` MCP tool.
   - ✅ DO: Rely on [`config-manager.js`](mdc:scripts/modules/config-manager.js) to load this file (using the correct project root passed from MCP or found via CLI utils), merge with defaults, and provide validated settings.
   - ❌ DON'T: Store API keys in this file.
   - ❌ DON'T: Manually edit this file unless necessary.
@@ -101,7 +101,7 @@ Taskmaster configuration (excluding API keys) is primarily managed through the `
   - ✅ DO: Understand that the unified service layer (`ai-services-unified.js`) internally resolves API keys using `resolveEnvVariable(key, session)` from `utils.js`.
 
 - **Error Handling**:
-  - ✅ DO: Handle potential `ConfigurationError` if the `.taskmasterconfig` file is missing or invalid when accessed via `getConfig` (e.g., in `commands.js` or direct functions).
+  - ✅ DO: Handle potential `ConfigurationError` if the `.guidantconfig` file is missing or invalid when accessed via `getConfig` (e.g., in `commands.js` or direct functions).
 
 ## Logging Utilities (in `scripts/modules/utils.js`)
 
@@ -110,7 +110,7 @@ Taskmaster configuration (excluding API keys) is primarily managed through the `
   - ✅ DO: Use appropriate icons for different log levels
   - ✅ DO: Respect the configured log level
   - ❌ DON'T: Add direct console.log calls outside the logging utility
-  - **Note on Passed Loggers**: When a logger object (like the FastMCP `log` object) is passed *as a parameter* (e.g., as `mcpLog`) into core Task Master functions, the receiving function often expects specific methods (`.info`, `.warn`, `.error`, etc.) to be directly callable on that object (e.g., `mcpLog[level](mdc:...)`). If the passed logger doesn't have this exact structure, a wrapper object may be needed. See the **Handling Logging Context (`mcpLog`)** section in [`mcp.md`](mdc:.roo/rules/mcp.md) for the standard pattern used in direct functions.
+  - **Note on Passed Loggers**: When a logger object (like the FastMCP `log` object) is passed *as a parameter* (e.g., as `mcpLog`) into core Guidant functions, the receiving function often expects specific methods (`.info`, `.warn`, `.error`, etc.) to be directly callable on that object (e.g., `mcpLog[level](mdc:...)`). If the passed logger doesn't have this exact structure, a wrapper object may be needed. See the **Handling Logging Context (`mcpLog`)** section in [`mcp.md`](mdc:.roo/rules/mcp.md) for the standard pattern used in direct functions.
 
 - **Logger Wrapper Pattern**: 
   - ✅ DO: Use the logger wrapper pattern when passing loggers to prevent `mcpLog[level] is not a function` errors:
@@ -424,7 +424,7 @@ Taskmaster configuration (excluding API keys) is primarily managed through the `
     - Throws a specific error if the `tasks.json` file cannot be located.
     - Updates the `lastFoundProjectRoot` cache on success.
 - **`PROJECT_MARKERS`**: An exported array of common file/directory names used to identify a likely project root during the CLI fallback search_files.
-- **`getPackagePath()`**: Utility to find the installation path of the `task-master-ai` package itself (potentially removable).
+- **`getPackagePath()`**: Utility to find the installation path of the `guidant-ai` package itself (potentially removable).
 
 ## MCP Server Tool Utilities (`mcp-server/src/tools/utils.js`)
 
@@ -489,7 +489,7 @@ These utilities specifically support the implementation and execution of MCP too
     - **Recommendation**: Prefer using the `withNormalizedProjectRoot` HOF in tools instead of calling this directly.
 
 - **`executeTaskMasterCommand(...)`**: 
-    - **Purpose**: Executes `task-master` CLI command as a fallback. 
+    - **Purpose**: Executes `guidant` CLI command as a fallback. 
     - **Recommendation**: Deprecated for most uses; prefer direct function calls.
 
 ## Export Organization
@@ -673,7 +673,7 @@ Refer to [`context_gathering.md`](mdc:.roo/rules/context_gathering.md) for detai
     const rootPath = path.parse(currentPath).root;
     
     while (currentPath !== rootPath) {
-      const taskMasterPath = path.join(currentPath, '.taskmaster');
+      const taskMasterPath = path.join(currentPath, '.guidant');
       if (fs.existsSync(taskMasterPath)) {
         return currentPath;
       }
@@ -734,7 +734,7 @@ Refer to [`context_gathering.md`](mdc:.roo/rules/context_gathering.md) for detai
       const projectRoot = findProjectRoot();
       if (!projectRoot) return 'master';
       
-      const statePath = path.join(projectRoot, '.taskmaster', 'state.json');
+      const statePath = path.join(projectRoot, '.guidant', 'state.json');
       if (fs.existsSync(statePath)) {
         const state = readJSON(statePath);
         return state.currentTag || 'master';
@@ -760,13 +760,13 @@ Refer to [`context_gathering.md`](mdc:.roo/rules/context_gathering.md) for detai
       const projectRoot = findProjectRoot(path.dirname(tasksJsonPath)) || path.dirname(tasksJsonPath);
       
       // 1. Migrate config.json - add defaultTag and tags section
-      const configPath = path.join(projectRoot, '.taskmaster', 'config.json');
+      const configPath = path.join(projectRoot, '.guidant', 'config.json');
       if (fs.existsSync(configPath)) {
         migrateConfigJson(configPath);
       }
       
       // 2. Create state.json if it doesn't exist
-      const statePath = path.join(projectRoot, '.taskmaster', 'state.json');
+      const statePath = path.join(projectRoot, '.guidant', 'state.json');
       if (!fs.existsSync(statePath)) {
         createStateJson(statePath);
       }
@@ -842,7 +842,7 @@ Refer to [`context_gathering.md`](mdc:.roo/rules/context_gathering.md) for detai
       const projectRoot = findProjectRoot();
       if (!projectRoot) return;
       
-      const statePath = path.join(projectRoot, '.taskmaster', 'state.json');
+      const statePath = path.join(projectRoot, '.guidant', 'state.json');
       const state = readJSON(statePath) || {};
       
       state.migrationNoticeShown = false; // Reset to show notice

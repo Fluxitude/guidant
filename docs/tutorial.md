@@ -1,19 +1,19 @@
-# Task Master Tutorial
+# Guidant Tutorial
 
-This tutorial will guide you through setting up and using Task Master for AI-driven development.
+This tutorial will guide you through setting up and using Guidant for AI-driven development.
 
 ## Initial Setup
 
-There are two ways to set up Task Master: using MCP (recommended) or via npm installation.
+There are two ways to set up Guidant: using MCP (recommended) or via npm installation.
 
 ### Option 1: Using MCP (Recommended)
 
-MCP (Model Control Protocol) provides the easiest way to get started with Task Master directly in your editor.
+MCP (Model Control Protocol) provides the easiest way to get started with Guidant directly in your editor.
 
 1. **Install the package**
 
 ```bash
-npm i -g task-master-ai
+npm i -g guidant-ai
 ```
 
 2. **Add the MCP config to your IDE/MCP Client** (Cursor is recommended, but it works with other clients):
@@ -23,7 +23,7 @@ npm i -g task-master-ai
   "mcpServers": {
     "taskmaster-ai": {
       "command": "npx",
-      "args": ["-y", "--package=task-master-ai", "task-master-ai"],
+      "args": ["-y", "--package=guidant-ai", "guidant-ai"],
       "env": {
         "ANTHROPIC_API_KEY": "YOUR_ANTHROPIC_API_KEY_HERE",
         "PERPLEXITY_API_KEY": "YOUR_PERPLEXITY_API_KEY_HERE",
@@ -39,7 +39,7 @@ npm i -g task-master-ai
 }
 ```
 
-**IMPORTANT:** An API key is _required_ for each AI provider you plan on using. Run the `task-master models` command to see your selected models and the status of your API keys across .env and mcp.json
+**IMPORTANT:** An API key is _required_ for each AI provider you plan on using. Run the `guidant models` command to see your selected models and the status of your API keys across .env and mcp.json
 
 **To use AI commands in CLI** you MUST have API keys in the .env file
 **To use AI commands in MCP** you MUST have API keys in the .mcp.json file (or MCP config equivalent)
@@ -48,7 +48,7 @@ We recommend having keys in both places and adding mcp.json to your gitignore so
 
 3. **Enable the MCP** in your editor settings
 
-4. **Prompt the AI** to initialize Task Master:
+4. **Prompt the AI** to initialize Guidant:
 
 ```
 Can you please initialize taskmaster-ai into my project?
@@ -60,12 +60,12 @@ The AI will:
 - Set up initial configuration files
 - Guide you through the rest of the process
 
-5. Place your PRD document in the `.taskmaster/docs/` directory (e.g., `.taskmaster/docs/prd.txt`)
+5. Place your PRD document in the `.guidant/docs/` directory (e.g., `.guidant/docs/prd.txt`)
 
-6. **Use natural language commands** to interact with Task Master:
+6. **Use natural language commands** to interact with Guidant:
 
 ```
-Can you parse my PRD at .taskmaster/docs/prd.txt?
+Can you parse my PRD at .guidant/docs/prd.txt?
 What's the next task I should work on?
 Can you help me implement task 3?
 ```
@@ -76,49 +76,49 @@ If you prefer to use the command line interface directly:
 
 ```bash
 # Install globally
-npm install -g task-master-ai
+npm install -g guidant-ai
 
 # OR install locally within your project
-npm install task-master-ai
+npm install guidant-ai
 ```
 
 Initialize a new project:
 
 ```bash
 # If installed globally
-task-master init
+guidant init
 
 # If installed locally
-npx task-master init
+npx guidant init
 ```
 
 This will prompt you for project details and set up a new project with the necessary files and structure.
 
 ## Common Commands
 
-After setting up Task Master, you can use these commands (either via AI prompts or CLI):
+After setting up Guidant, you can use these commands (either via AI prompts or CLI):
 
 ```bash
 # Parse a PRD and generate tasks
-task-master parse-prd your-prd.txt
+guidant parse-prd your-prd.txt
 
 # List all tasks
-task-master list
+guidant list
 
 # Show the next task to work on
-task-master next
+guidant next
 
 # Generate task files
-task-master generate
+guidant generate
 ```
 
 ## Setting up Cursor AI Integration
 
-Task Master is designed to work seamlessly with [Cursor AI](https://www.cursor.so/), providing a structured workflow for AI-driven development.
+Guidant is designed to work seamlessly with [Cursor AI](https://www.cursor.so/), providing a structured workflow for AI-driven development.
 
 ### Using Cursor with MCP (Recommended)
 
-If you've already set up Task Master with MCP in Cursor, the integration is automatic. You can simply use natural language to interact with Task Master:
+If you've already set up Guidant with MCP in Cursor, the integration is automatic. You can simply use natural language to interact with Guidant:
 
 ```
 What tasks are available to work on next?
@@ -132,7 +132,7 @@ If you're not using MCP, you can still set up Cursor integration:
 
 1. After initializing your project, open it in Cursor
 2. The `.cursor/rules/dev_workflow.mdc` file is automatically loaded by Cursor, providing the AI with knowledge about the task management system
-3. Place your PRD document in the `.taskmaster/docs/` directory (e.g., `.taskmaster/docs/prd.txt`)
+3. Place your PRD document in the `.guidant/docs/` directory (e.g., `.guidant/docs/prd.txt`)
 4. Open Cursor's AI chat and switch to Agent mode
 
 ### Alternative MCP Setup in Cursor
@@ -143,25 +143,25 @@ You can also set up the MCP server in Cursor settings:
 2. Navigate to the MCP section
 3. Click on "Add New MCP Server"
 4. Configure with the following details:
-   - Name: "Task Master"
+   - Name: "Guidant"
    - Type: "Command"
-   - Command: "npx -y --package=task-master-ai task-master-ai"
+   - Command: "npx -y --package=guidant-ai guidant-ai"
 5. Save the settings
 
-Once configured, you can interact with Task Master's task management commands directly through Cursor's interface, providing a more integrated experience.
+Once configured, you can interact with Guidant's task management commands directly through Cursor's interface, providing a more integrated experience.
 
 ## Initial Task Generation
 
 In Cursor's AI chat, instruct the agent to generate tasks from your PRD:
 
 ```
-Please use the task-master parse-prd command to generate tasks from my PRD. The PRD is located at .taskmaster/docs/prd.txt.
+Please use the guidant parse-prd command to generate tasks from my PRD. The PRD is located at .guidant/docs/prd.txt.
 ```
 
 The agent will execute:
 
 ```bash
-task-master parse-prd .taskmaster/docs/prd.txt
+guidant parse-prd .guidant/docs/prd.txt
 ```
 
 This will:
@@ -181,7 +181,7 @@ Please generate individual task files from tasks.json
 The agent will execute:
 
 ```bash
-task-master generate
+guidant generate
 ```
 
 This creates individual task files in the `tasks/` directory (e.g., `task_001.txt`, `task_002.txt`), making it easier to reference specific tasks.
@@ -204,9 +204,9 @@ Can you show me tasks 1, 3, and 5 to understand their current status?
 
 The agent will:
 
-- Run `task-master list` to see all tasks
-- Run `task-master next` to determine the next task to work on
-- Run `task-master show 1,3,5` to display multiple tasks with interactive options
+- Run `guidant list` to see all tasks
+- Run `guidant next` to determine the next task to work on
+- Run `guidant show 1,3,5` to display multiple tasks with interactive options
 - Analyze dependencies to determine which tasks are ready to be worked on
 - Prioritize tasks based on priority level and ID order
 - Suggest the next task(s) to implement
@@ -236,7 +236,7 @@ Show me tasks 5, 7, and 9 so I can plan my implementation approach.
 
 The agent will:
 
-- Run `task-master show 5,7,9` to display a compact summary table
+- Run `guidant show 5,7,9` to display a compact summary table
 - Show task status, priority, and progress indicators
 - Provide an interactive action menu with batch operations
 - Allow you to perform group actions like marking multiple tasks as in-progress
@@ -260,7 +260,7 @@ Task 3 is now complete. Please update its status.
 The agent will execute:
 
 ```bash
-task-master set-status --id=3 --status=done
+guidant set-status --id=3 --status=done
 ```
 
 ### 5. Handling Implementation Drift
@@ -280,10 +280,10 @@ We've decided to use MongoDB instead of PostgreSQL. Can you update all future ta
 The agent will execute:
 
 ```bash
-task-master update --from=4 --prompt="Now we are using MongoDB instead of PostgreSQL."
+guidant update --from=4 --prompt="Now we are using MongoDB instead of PostgreSQL."
 
 # OR, if research is needed to find best practices for MongoDB:
-task-master update --from=4 --prompt="Update to use MongoDB, researching best practices" --research
+guidant update --from=4 --prompt="Update to use MongoDB, researching best practices" --research
 ```
 
 This will rewrite or re-scope subsequent tasks in tasks.json while preserving completed work.
@@ -299,7 +299,7 @@ I think subtask 5.2 would fit better as part of task 7 instead. Can you move it 
 The agent will execute:
 
 ```bash
-task-master move --from=5.2 --to=7.3
+guidant move --from=5.2 --to=7.3
 ```
 
 You can reorganize tasks in various ways:
@@ -335,9 +335,9 @@ The agent will help you:
 
 ```bash
 # Move your tasks to new positions (e.g., 16-18)
-task-master move --from=10 --to=16
-task-master move --from=11 --to=17
-task-master move --from=12 --to=18
+guidant move --from=10 --to=16
+guidant move --from=11 --to=17
+guidant move --from=12 --to=18
 ```
 
 This approach preserves everyone's work while maintaining a clean task structure, making it much easier to handle task conflicts than trying to manually merge JSON files.
@@ -353,7 +353,7 @@ Task 5 seems complex. Can you break it down into subtasks?
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --num=3
+guidant expand --id=5 --num=3
 ```
 
 You can provide additional context:
@@ -365,7 +365,7 @@ Please break down task 5 with a focus on security considerations.
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --prompt="Focus on security aspects"
+guidant expand --id=5 --prompt="Focus on security aspects"
 ```
 
 You can also expand all pending tasks:
@@ -377,7 +377,7 @@ Please break down all pending tasks into subtasks.
 The agent will execute:
 
 ```bash
-task-master expand --all
+guidant expand --all
 ```
 
 For research-backed subtask generation using the configured research model:
@@ -389,7 +389,7 @@ Please break down task 5 using research-backed generation.
 The agent will execute:
 
 ```bash
-task-master expand --id=5 --research
+guidant expand --id=5 --research
 ```
 
 ## Example Cursor AI Interactions
@@ -397,7 +397,7 @@ task-master expand --id=5 --research
 ### Starting a new project
 
 ```
-I've just initialized a new project with Claude Task Master. I have a PRD at .taskmaster/docs/prd.txt.
+I've just initialized a new project with Claude Guidant. I have a PRD at .guidant/docs/prd.txt.
 Can you help me parse it and set up the initial tasks?
 ```
 
@@ -446,7 +446,7 @@ Can you show me the complexity report in a more readable format?
 
 ### Research-Driven Development
 
-Task Master includes a powerful research tool that provides fresh, up-to-date information beyond the AI's knowledge cutoff. This is particularly valuable for:
+Guidant includes a powerful research tool that provides fresh, up-to-date information beyond the AI's knowledge cutoff. This is particularly valuable for:
 
 #### Getting Current Best Practices
 
@@ -457,7 +457,7 @@ Before implementing task 5 (authentication), research the latest JWT security re
 The agent will execute:
 
 ```bash
-task-master research "Latest JWT security recommendations 2024" --id=5
+guidant research "Latest JWT security recommendations 2024" --id=5
 ```
 
 #### Research with Project Context
@@ -469,7 +469,7 @@ Research React Query v5 migration strategies for our current API implementation.
 The agent will execute:
 
 ```bash
-task-master research "React Query v5 migration strategies" --files=src/api.js,src/hooks.js
+guidant research "React Query v5 migration strategies" --files=src/api.js,src/hooks.js
 ```
 
 #### Research and Update Pattern
@@ -482,8 +482,8 @@ Research the latest Node.js performance optimization techniques and update task 
 
 The agent will:
 
-1. Run research: `task-master research "Node.js performance optimization 2024" --id=12`
-2. Update the task: `task-master update-subtask --id=12.2 --prompt="Updated with latest performance findings: [research results]"`
+1. Run research: `guidant research "Node.js performance optimization 2024" --id=12`
+2. Update the task: `guidant update-subtask --id=12.2 --prompt="Updated with latest performance findings: [research results]"`
 
 #### When to Use Research
 
@@ -498,7 +498,7 @@ The research tool automatically includes relevant project context and provides f
 
 ## Git Integration and Tag Management
 
-Task Master supports tagged task lists for multi-context development, which is particularly useful when working with git branches or different project phases.
+Guidant supports tagged task lists for multi-context development, which is particularly useful when working with git branches or different project phases.
 
 ### Working with Tags
 
@@ -512,7 +512,7 @@ The agent will execute:
 
 ```bash
 # Create a tag based on your current git branch
-task-master add-tag --from-branch
+guidant add-tag --from-branch
 ```
 
 Or you can create a tag with a specific name:
@@ -524,7 +524,7 @@ Create a new tag called 'user-auth' for authentication-related tasks.
 The agent will execute:
 
 ```bash
-task-master add-tag user-auth --description="User authentication feature tasks"
+guidant add-tag user-auth --description="User authentication feature tasks"
 ```
 
 ### Switching Between Contexts
@@ -538,7 +538,7 @@ Switch to the 'user-auth' tag context so I can work on authentication tasks.
 The agent will execute:
 
 ```bash
-task-master use-tag user-auth
+guidant use-tag user-auth
 ```
 
 ### Copying Tasks Between Tags
@@ -552,7 +552,7 @@ Copy all tasks from the current tag to a new 'testing' tag for QA work.
 The agent will execute:
 
 ```bash
-task-master add-tag testing --copy-from-current --description="QA and testing tasks"
+guidant add-tag testing --copy-from-current --description="QA and testing tasks"
 ```
 
 ### Tag Management
@@ -566,7 +566,7 @@ Show me all available tags and their current status.
 The agent will execute:
 
 ```bash
-task-master tags --show-metadata
+guidant tags --show-metadata
 ```
 
 ### Benefits of Tagged Task Lists
@@ -579,12 +579,12 @@ task-master tags --show-metadata
 
 ### Git Workflow Integration
 
-A typical git workflow with Task Master tags:
+A typical git workflow with Guidant tags:
 
 1. **Create feature branch**: `git checkout -b feature/user-auth`
-2. **Create matching tag**: Ask agent to run `task-master add-tag --from-branch`
+2. **Create matching tag**: Ask agent to run `guidant add-tag --from-branch`
 3. **Work in isolated context**: All task operations work within the new tag
-4. **Switch contexts as needed**: Use `task-master use-tag <name>` to switch between different work streams
-5. **Merge and cleanup**: After merging the branch, optionally delete the tag with `task-master delete-tag <name>`
+4. **Switch contexts as needed**: Use `guidant use-tag <name>` to switch between different work streams
+5. **Merge and cleanup**: After merging the branch, optionally delete the tag with `guidant delete-tag <name>`
 
 This workflow ensures your task management stays organized and conflicts are minimized when working with teams or multiple features simultaneously.

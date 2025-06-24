@@ -1,12 +1,12 @@
 ---
-description: Guidelines for integrating AI usage telemetry across Task Master.
+description: Guidelines for integrating AI usage telemetry across Guidant.
 globs: scripts/modules/**/*.js,mcp-server/src/**/*.js
 alwaysApply: true
 ---
 
 # AI Usage Telemetry Integration
 
-This document outlines the standard pattern for capturing, propagating, and handling AI usage telemetry data (cost, tokens, model, etc.) across the Task Master stack. This ensures consistent telemetry for both CLI and MCP interactions.
+This document outlines the standard pattern for capturing, propagating, and handling AI usage telemetry data (cost, tokens, model, etc.) across the Guidant stack. This ensures consistent telemetry for both CLI and MCP interactions.
 
 ## Overview
 
@@ -144,7 +144,7 @@ These are the exposed endpoints for MCP clients.
 
 - **Example Snippet (MCP Tool `some_ai_action.js`)**:
   ```javascript
-  import { someAiActionDirect } from '../core/task-master-core.js';
+  import { someAiActionDirect } from '../core/guidant-core.js';
   import { handleApiResult, withNormalizedProjectRoot } from './utils.js';
   // ... zod for parameters ...
 

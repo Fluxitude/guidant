@@ -14,7 +14,7 @@ import {
 import { createLogWrapper } from '../../tools/utils.js';
 import { getDefaultNumTasks } from '../../../../scripts/modules/config-manager.js';
 import { resolvePrdPath, resolveProjectPath } from '../utils/path-utils.js';
-import { TASKMASTER_TASKS_FILE } from '../../../../src/constants/paths.js';
+import { GUIDANT_TASKS_FILE } from '../../../../src/constants/paths.js';
 
 /**
  * Direct function wrapper for parsing PRD documents and generating tasks.

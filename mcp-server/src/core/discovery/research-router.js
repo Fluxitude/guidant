@@ -11,16 +11,106 @@ import {
 	DISCOVERY_STAGES 
 } from './constants.js';
 import { log } from '../../../../scripts/modules/index.js';
+import fs from 'fs';
+import path from 'path';
+import { buildProviderAdapter } from './provider-adapters.js';
+
+/**
+ * Load research router configuration from config/research-router-config.json.
+ * If the file is missing or invalid, returns null so the router can fall back
+ * to its built-in defaults.
+ */
+function loadResearchRouterConfig() {
+	const candidatePaths = [
+		// Common location inside mono-repo root
+		path.resolve(process.cwd(), 'config', 'research-router-config.json'),
+		// Fallback to historical path inside claude-task-master subfolder
+		path.resolve(process.cwd(), 'claude-task-master', 'config', 'research-router-config.json')
+	];
+
+	for (const configPath of candidatePaths) {
+		try {
+			if (!fs.existsSync(configPath)) continue;
+			const raw = fs.readFileSync(configPath, 'utf8');
+			return JSON.parse(raw);
+		} catch (err) {
+			// eslint-disable-next-line no-console
+			console.warn(`ResearchRouter: Failed to load config from ${configPath}:`, err.message);
+		}
+	}
+	return null; // No valid config found
+}
+
+// Store the resolved config path globally within this module so we can watch it
+let researchRouterConfigPath = null;
+
+function resolveResearchRouterConfigPath() {
+	const candidatePaths = [
+		path.resolve(process.cwd(), 'config', 'research-router-config.json'),
+		path.resolve(process.cwd(), 'claude-task-master', 'config', 'research-router-config.json')
+	];
+	for (const p of candidatePaths) {
+		if (fs.existsSync(p)) return p;
+	}
+	return null;
+}
+
+function watchResearchRouterConfig(onChange) {
+	researchRouterConfigPath = resolveResearchRouterConfigPath();
+	if (!researchRouterConfigPath) return;
+	fs.watchFile(researchRouterConfigPath, { interval: 2000 }, () => {
+		try {
+			const updated = loadResearchRouterConfig();
+			if (updated) {
+				onChange(updated);
+				log('info', 'ResearchRouter: External config reloaded');
+			}
+		} catch (err) {
+			log('warn', 'ResearchRouter: Failed to reload config:', err.message);
+		}
+	});
+}
 
 export class ResearchRouter {
 	constructor() {
 		this.providers = new Map();
-		this.routingRules = this.initializeRoutingRules();
-		this.fallbackOrder = [
-			RESEARCH_PROVIDERS.TAVILY,    // Primary for market research
-			RESEARCH_PROVIDERS.CONTEXT7,  // Primary for technical queries
-			RESEARCH_PROVIDERS.PERPLEXITY // Fallback for general queries
-		];
+
+		// Attempt to load external configuration
+		const externalConfig = loadResearchRouterConfig();
+
+		// Routing rules
+		if (externalConfig && externalConfig.routingRules) {
+			this.routingRules = this.initializeRoutingRulesFromConfig(externalConfig.routingRules);
+		} else {
+			this.routingRules = this.initializeRoutingRules();
+		}
+
+		// Fallback order
+		if (externalConfig && Array.isArray(externalConfig.fallbackOrder)) {
+			this.fallbackOrder = externalConfig.fallbackOrder;
+		} else {
+			this.fallbackOrder = [
+				RESEARCH_PROVIDERS.TAVILY,    // Primary for market research
+				RESEARCH_PROVIDERS.CONTEXT7,  // Primary for technical queries
+				RESEARCH_PROVIDERS.PERPLEXITY // Fallback for general queries
+			];
+		}
+
+		// Keyword lists for classification (optional use later)
+		this.keywordLists = externalConfig?.classificationKeywords || null;
+
+		// Start watching config file for changes
+		watchResearchRouterConfig((newConfig) => {
+			if (newConfig.routingRules) {
+				this.routingRules = this.initializeRoutingRulesFromConfig(newConfig.routingRules);
+			}
+			if (Array.isArray(newConfig.fallbackOrder)) {
+				this.fallbackOrder = newConfig.fallbackOrder;
+			}
+			if (newConfig.classificationKeywords) {
+				this.keywordLists = newConfig.classificationKeywords;
+			}
+		});
 	}
 
 	/**
@@ -33,7 +123,9 @@ export class ResearchRouter {
 			throw new Error(`Unknown provider: ${providerName}`);
 		}
 
-		this.providers.set(providerName, providerInstance);
+		// Wrap in adapter so we expose uniform interface
+		const adapter = buildProviderAdapter(providerName, providerInstance);
+		this.providers.set(providerName, adapter);
 		log('debug', `ResearchRouter: Registered provider ${providerName}`);
 	}
 
@@ -55,15 +147,13 @@ export class ResearchRouter {
 				throw new Error(`Provider ${optimalProvider} not registered`);
 			}
 
-			// Check provider availability
-			const isAvailable = await this.checkProviderAvailability(optimalProvider, context);
+			const isAvailable = await provider.isAvailable?.(context);
 			if (!isAvailable) {
 				log('warn', `ResearchRouter: Provider ${optimalProvider} unavailable, trying fallback`);
 				return await this.routeWithFallback(query, context, [optimalProvider]);
 			}
 
-			// Execute query with the selected provider
-			const results = await this.executeQuery(provider, optimalProvider, query, context);
+			const results = await provider.execute(this.classifyQuery(query, context), query, context);
 			
 			return {
 				provider: optimalProvider,
@@ -112,30 +202,25 @@ export class ResearchRouter {
 				}
 
 				const providerResults = await Promise.all(
-					providerQueries.map(async (queryObj) => {
+					providerQueries.map(async (qObj) => {
 						try {
-							const result = await this.executeQuery(
-								provider, 
-								providerName, 
-								queryObj.query, 
-								queryObj.context
-							);
+							const res = await provider.execute(qObj.queryType, qObj.query, qObj.context);
 							return {
 								provider: providerName,
-								queryType: queryObj.queryType,
-								query: queryObj.query,
-								results: result,
+								queryType: qObj.queryType,
+								query: qObj.query,
+								results: res,
 								metadata: {
-									routingDecision: this.explainRoutingDecision(queryObj.queryType, providerName),
+									routingDecision: this.explainRoutingDecision(qObj.queryType, providerName),
 									timestamp: new Date().toISOString(),
-									context: queryObj.context
+									context: qObj.context
 								}
 							};
 						} catch (error) {
-							log('error', `ResearchRouter: Batch query failed for ${queryObj.query} - ${error.message}`);
+							log('error', `ResearchRouter: Batch query failed for ${qObj.query} - ${error.message}`);
 							return {
 								provider: providerName,
-								query: queryObj.query,
+								query: qObj.query,
 								error: error.message,
 								timestamp: new Date().toISOString()
 							};
@@ -178,8 +263,8 @@ export class ResearchRouter {
 		}
 
 		// Keyword-based classification
-		const technicalKeywords = RESEARCH_ROUTING_PATTERNS.TECHNICAL_KEYWORDS;
-		const marketKeywords = RESEARCH_ROUTING_PATTERNS.MARKET_KEYWORDS;
+		const technicalKeywords = this.keywordLists?.technical || RESEARCH_ROUTING_PATTERNS.TECHNICAL_KEYWORDS;
+		const marketKeywords = this.keywordLists?.market || RESEARCH_ROUTING_PATTERNS.MARKET_KEYWORDS;
 
 		const technicalMatches = technicalKeywords.filter(keyword => 
 			queryLower.includes(keyword.toLowerCase())
@@ -211,9 +296,9 @@ export class ResearchRouter {
 	 * @returns {string} Selected provider name
 	 */
 	selectProvider(queryType, context = {}) {
-		const rules = this.routingRules.get(queryType);
+		const rules = this.routingRules.get(queryType.toLowerCase());
 		if (!rules) {
-			return this.fallbackOrder[0]; // Default to Tavily
+			return this.fallbackOrder[0]; // Default provider
 		}
 
 		// Apply context-specific rules
@@ -348,12 +433,12 @@ export class ResearchRouter {
 				const provider = this.providers.get(providerName);
 				if (!provider) continue;
 
-				const isAvailable = await this.checkProviderAvailability(providerName, context);
+				const isAvailable = await provider.isAvailable?.(context);
 				if (!isAvailable) continue;
 
 				log('debug', `ResearchRouter: Trying fallback provider ${providerName}`);
 				
-				const results = await this.executeQuery(provider, providerName, query, context);
+				const results = await provider.execute(this.classifyQuery(query, context), query, context);
 				
 				return {
 					provider: providerName,
@@ -367,12 +452,10 @@ export class ResearchRouter {
 					}
 				};
 			} catch (error) {
-				log('warn', `ResearchRouter: Fallback provider ${providerName} failed - ${error.message}`);
-				continue;
+				log('warn', `ResearchRouter: Fallback failed for ${query} - ${error.message}`);
 			}
 		}
-
-		throw new Error('All research providers failed or unavailable');
+		throw new Error(`All fallback providers failed for ${query}`);
 	}
 
 	/**
@@ -390,13 +473,10 @@ export class ResearchRouter {
 			switch (providerName) {
 				case RESEARCH_PROVIDERS.CONTEXT7:
 					return await provider.isAvailable();
-				
 				case RESEARCH_PROVIDERS.TAVILY:
 					return await provider.isAvailable(context.apiKey);
-				
 				case RESEARCH_PROVIDERS.PERPLEXITY:
-					return context.apiKey ? true : false;
-				
+					return !!context.apiKey;
 				default:
 					return false;
 			}
@@ -407,51 +487,36 @@ export class ResearchRouter {
 	}
 
 	/**
-	 * Initialize routing rules for different query types
-	 * @returns {Map} Routing rules map
+	 * Initialize default routing rules (used when no external config).
 	 */
 	initializeRoutingRules() {
 		const rules = new Map();
-
-		// Technical query routing
 		rules.set(RESEARCH_QUERY_TYPES.TECHNICAL, [
 			{ provider: RESEARCH_PROVIDERS.CONTEXT7, priority: 1, condition: 'always' },
 			{ provider: RESEARCH_PROVIDERS.PERPLEXITY, priority: 2, condition: 'fallback' }
 		]);
-
-		// Market query routing
 		rules.set(RESEARCH_QUERY_TYPES.MARKET, [
 			{ provider: RESEARCH_PROVIDERS.TAVILY, priority: 1, condition: 'always' },
 			{ provider: RESEARCH_PROVIDERS.PERPLEXITY, priority: 2, condition: 'fallback' }
 		]);
-
-		// Competitive query routing
 		rules.set(RESEARCH_QUERY_TYPES.COMPETITIVE, [
 			{ provider: RESEARCH_PROVIDERS.TAVILY, priority: 1, condition: 'always' },
 			{ provider: RESEARCH_PROVIDERS.PERPLEXITY, priority: 2, condition: 'fallback' }
 		]);
-
-		// Hybrid query routing
 		rules.set(RESEARCH_QUERY_TYPES.HYBRID, [
 			{ provider: RESEARCH_PROVIDERS.TAVILY, priority: 1, condition: 'market_focus' },
 			{ provider: RESEARCH_PROVIDERS.CONTEXT7, priority: 1, condition: 'technical_focus' },
 			{ provider: RESEARCH_PROVIDERS.PERPLEXITY, priority: 2, condition: 'fallback' }
 		]);
-
-		// General query routing
 		rules.set(RESEARCH_QUERY_TYPES.GENERAL, [
 			{ provider: RESEARCH_PROVIDERS.PERPLEXITY, priority: 1, condition: 'always' },
 			{ provider: RESEARCH_PROVIDERS.TAVILY, priority: 2, condition: 'fallback' }
 		]);
-
 		return rules;
 	}
 
 	/**
-	 * Evaluate routing rule condition
-	 * @param {Object} rule - Routing rule
-	 * @param {Object} context - Query context
-	 * @returns {boolean} Whether rule condition is met
+	 * Evaluate routing rule condition.
 	 */
 	evaluateRule(rule, context) {
 		switch (rule.condition) {
@@ -462,7 +527,7 @@ export class ResearchRouter {
 			case 'technical_focus':
 				return context.focus === 'technical' || context.stage === DISCOVERY_STAGES.TECHNICAL_FEASIBILITY;
 			case 'fallback':
-				return false; // Only used in fallback scenarios
+				return false;
 			default:
 				return false;
 		}
@@ -470,44 +535,47 @@ export class ResearchRouter {
 
 	/**
 	 * Group queries by optimal provider for batch processing
-	 * @param {Array<Object>} classifiedQueries - Classified query objects
-	 * @returns {Map} Provider groups map
 	 */
 	groupQueriesByProvider(classifiedQueries) {
 		const groups = new Map();
-
-		for (const queryObj of classifiedQueries) {
-			const provider = queryObj.optimalProvider;
-			if (!groups.has(provider)) {
-				groups.set(provider, []);
+		for (const q of classifiedQueries) {
+			if (!groups.has(q.optimalProvider)) {
+				groups.set(q.optimalProvider, []);
 			}
-			groups.get(provider).push(queryObj);
+			groups.get(q.optimalProvider).push(q);
 		}
-
 		return groups;
 	}
 
 	/**
-	 * Explain routing decision for transparency
-	 * @param {string} queryType - Query type
-	 * @param {string} selectedProvider - Selected provider
-	 * @returns {string} Routing decision explanation
+	 * Human-friendly explanation of routing decision.
 	 */
 	explainRoutingDecision(queryType, selectedProvider) {
 		const explanations = {
-			[RESEARCH_QUERY_TYPES.TECHNICAL]: `Technical query routed to ${selectedProvider} for library documentation and feasibility analysis`,
-			[RESEARCH_QUERY_TYPES.MARKET]: `Market query routed to ${selectedProvider} for competitive analysis and market research`,
-			[RESEARCH_QUERY_TYPES.COMPETITIVE]: `Competitive query routed to ${selectedProvider} for competitor analysis`,
-			[RESEARCH_QUERY_TYPES.HYBRID]: `Hybrid query routed to ${selectedProvider} based on context priority`,
-			[RESEARCH_QUERY_TYPES.GENERAL]: `General query routed to ${selectedProvider} for comprehensive research`
+			[RESEARCH_QUERY_TYPES.TECHNICAL]: `Technical query routed to ${selectedProvider} for documentation and feasibility analysis`,
+			[RESEARCH_QUERY_TYPES.MARKET]: `Market query routed to ${selectedProvider} for competitive or market research`,
+			[RESEARCH_QUERY_TYPES.COMPETITIVE]: `Competitive query routed to ${selectedProvider}`,
+			[RESEARCH_QUERY_TYPES.HYBRID]: `Hybrid query routed to ${selectedProvider} based on context`,
+			[RESEARCH_QUERY_TYPES.GENERAL]: `General query routed to ${selectedProvider}`
 		};
-
 		return explanations[queryType] || `Query routed to ${selectedProvider}`;
 	}
 
 	/**
-	 * Get routing statistics and performance metrics
-	 * @returns {Object} Routing statistics
+	 * Build routing rules map from configuration object.
+	 * @param {Object} configRules - keys are query types, values arrays of rule objects
+	 * @returns {Map}
+	 */
+	initializeRoutingRulesFromConfig(configRules) {
+		const rules = new Map();
+		for (const [queryType, ruleArray] of Object.entries(configRules)) {
+			rules.set(queryType.toLowerCase(), ruleArray);
+		}
+		return rules;
+	}
+
+	/**
+	 * Expose internal stats for monitoring.
 	 */
 	getRoutingStats() {
 		return {
@@ -517,3 +585,5 @@ export class ResearchRouter {
 		};
 	}
 }
+
+

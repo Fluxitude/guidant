@@ -69,7 +69,7 @@ PERPLEXITY_API_KEY=your_key_here
 
 ### Option 1: MCP (Recommended)
 
-MCP (Model Control Protocol) lets you run Task Master directly from your editor.
+MCP (Model Control Protocol) lets you run Guidant directly from your editor.
 
 #### 1. Add your MCP config at the following path depending on your editor
 

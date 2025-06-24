@@ -5,7 +5,7 @@ alwaysApply: false
 ---
 # Tagged Task Lists Command Patterns
 
-This document outlines the standardized patterns that **ALL** Task Master commands must follow to properly support the tagged task lists system.
+This document outlines the standardized patterns that **ALL** Guidant commands must follow to properly support the tagged task lists system.
 
 ## Core Principles
 
@@ -208,15 +208,15 @@ Test each command with:
 
 ```bash
 # Test with explicit tag
-node bin/task-master command-name --tag test-tag
+node bin/guidant command-name --tag test-tag
 
 # Test with active tag (should use current active tag)
-node bin/task-master use-tag test-tag
-node bin/task-master command-name
+node bin/guidant use-tag test-tag
+node bin/guidant command-name
 
 # Test with master tag (default)
-node bin/task-master use-tag master  
-node bin/task-master command-name
+node bin/guidant use-tag master  
+node bin/guidant command-name
 ```
 
 ## Migration Strategy
@@ -226,4 +226,4 @@ node bin/task-master command-name
 3. **Test Phase**: Verify tag resolution works correctly
 4. **Document Phase**: Update command documentation with tag support
 
-This ensures consistent, predictable behavior across all Task Master commands and prevents tag deletion bugs.
+This ensures consistent, predictable behavior across all Guidant commands and prevents tag deletion bugs.

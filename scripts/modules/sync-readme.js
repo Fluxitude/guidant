@@ -13,13 +13,13 @@ import listTasks from './task-manager/list-tasks.js';
 function createBasicReadme(projectName) {
 	return `# ${projectName}
 
-This project is managed using Task Master.
+This project is managed using Guidant.
 
 `;
 }
 
 /**
- * Create UTM tracking URL for task-master.dev
+ * Create UTM tracking URL for guidant.dev
  * @param {string} projectRoot - The project root path
  * @returns {string} - UTM tracked URL
  */
@@ -41,7 +41,7 @@ function createTaskMasterUrl(projectRoot) {
 		utm_content: 'task-export-link'
 	});
 
-	return `https://task-master.dev?${utmParams.toString()}`;
+	return `https://guidant.dev?${utmParams.toString()}`;
 }
 
 /**
@@ -62,7 +62,7 @@ function createStartMarker(options) {
 	const exportInfo =
 		`🎯 **Taskmaster Export** - ${timestamp}\n` +
 		`📋 Export: ${subtasksText} • ${statusText}\n` +
-		`🔗 Powered by [Task Master](${createTaskMasterUrl(projectRoot)})`;
+		`🔗 Powered by [Guidant](${createTaskMasterUrl(projectRoot)})`;
 
 	// Create a markdown box using code blocks and emojis to mimic our UI style
 	const boxContent =

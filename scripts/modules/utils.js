@@ -1,14 +1,13 @@
 /**
  * utils.js
- * Utility functions for the Task Master CLI
+ * Utility functions for the Guidant CLI
  */
 
 import fs from 'fs';
 import path from 'path';
 import chalk from 'chalk';
 import dotenv from 'dotenv';
-// Import specific config getters needed here
-import { getLogLevel, getDebugFlag } from './config-manager.js';
+// Import git utils
 import * as gitUtils from './utils/git-utils.js';
 import {
 	COMPLEXITY_REPORT_FILE,
@@ -159,13 +158,18 @@ function log(level, ...args) {
 	// GUARD: Prevent circular dependency during config loading
 	// Use a simple fallback log level instead of calling getLogLevel()
 	let configLevel = 'info'; // Default fallback
-	try {
-		// Only try to get config level if we're not in the middle of config loading
-		configLevel = getLogLevel() || 'info';
-	} catch (error) {
-		// If getLogLevel() fails (likely due to circular dependency),
-		// use default 'info' level and continue
-		configLevel = 'info';
+
+	// Skip config loading during init to prevent infinite loops
+	if (!process.env.GUIDANT_SKIP_CONFIG_LOAD) {
+		try {
+			// Only try to get config level if we're not in the middle of config loading
+			const { getLogLevel } = require('./config-manager.js');
+			configLevel = getLogLevel() || 'info';
+		} catch (error) {
+			// If getLogLevel() fails (likely due to circular dependency),
+			// use default 'info' level and continue
+			configLevel = 'info';
+		}
 	}
 
 	// Use text prefixes instead of emojis
@@ -227,12 +231,17 @@ function hasTaggedStructure(data) {
 function readJSON(filepath, projectRoot = null, tag = null) {
 	// GUARD: Prevent circular dependency during config loading
 	let isDebug = false; // Default fallback
-	try {
-		// Only try to get debug flag if we're not in the middle of config loading
-		isDebug = getDebugFlag();
-	} catch (error) {
-		// If getDebugFlag() fails (likely due to circular dependency),
-		// use default false and continue
+
+	// Skip config loading during init to prevent infinite loops
+	if (!process.env.GUIDANT_SKIP_CONFIG_LOAD) {
+		try {
+			// Only try to get debug flag if we're not in the middle of config loading
+			const { getDebugFlag } = require('./config-manager.js');
+			isDebug = getDebugFlag();
+		} catch (error) {
+			// If getDebugFlag() fails (likely due to circular dependency),
+			// use default false and continue
+		}
 	}
 
 	if (isDebug) {
@@ -479,26 +488,42 @@ function performCompleteTagMigration(tasksJsonPath) {
 			path.dirname(tasksJsonPath);
 
 		// 1. Migrate config.json - add defaultTag and tags section
-		const configPath = path.join(projectRoot, '.taskmaster', 'config.json');
+		const configPath = path.join(projectRoot, '.guidant', 'config.json');
 		if (fs.existsSync(configPath)) {
 			migrateConfigJson(configPath);
 		}
 
 		// 2. Create state.json if it doesn't exist
-		const statePath = path.join(projectRoot, '.taskmaster', 'state.json');
+		const statePath = path.join(projectRoot, '.guidant', 'state.json');
 		if (!fs.existsSync(statePath)) {
 			createStateJson(statePath);
 		}
 
-		if (getDebugFlag()) {
-			log(
-				'debug',
-				`Complete tag migration performed for project: ${projectRoot}`
-			);
+		// Skip debug logging during init to prevent infinite loops
+		if (!process.env.GUIDANT_SKIP_CONFIG_LOAD) {
+			try {
+				const { getDebugFlag } = require('./config-manager.js');
+				if (getDebugFlag()) {
+					log(
+						'debug',
+						`Complete tag migration performed for project: ${projectRoot}`
+					);
+				}
+			} catch (error) {
+				// Skip debug logging if config manager fails
+			}
 		}
 	} catch (error) {
-		if (getDebugFlag()) {
-			log('warn', `Error during complete tag migration: ${error.message}`);
+		// Skip debug logging during init to prevent infinite loops
+		if (!process.env.GUIDANT_SKIP_CONFIG_LOAD) {
+			try {
+				const { getDebugFlag } = require('./config-manager.js');
+				if (getDebugFlag()) {
+					log('warn', `Error during complete tag migration: ${error.message}`);
+				}
+			} catch (error) {
+				// Skip debug logging if config manager fails
+			}
 		}
 	}
 }
@@ -526,14 +551,14 @@ function migrateConfigJson(configPath) {
 
 		if (modified) {
 			fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf8');
-			if (process.env.TASKMASTER_DEBUG === 'true') {
+			if (process.env.GUIDANT_DEBUG === 'true') {
 				console.log(
 					'[DEBUG] Updated config.json with tagged task system settings'
 				);
 			}
 		}
 	} catch (error) {
-		if (process.env.TASKMASTER_DEBUG === 'true') {
+		if (process.env.GUIDANT_DEBUG === 'true') {
 			console.warn(`[WARN] Error migrating config.json: ${error.message}`);
 		}
 	}
@@ -553,11 +578,11 @@ function createStateJson(statePath) {
 		};
 
 		fs.writeFileSync(statePath, JSON.stringify(initialState, null, 2), 'utf8');
-		if (process.env.TASKMASTER_DEBUG === 'true') {
+		if (process.env.GUIDANT_DEBUG === 'true') {
 			console.log('[DEBUG] Created initial state.json for tagged task system');
 		}
 	} catch (error) {
-		if (process.env.TASKMASTER_DEBUG === 'true') {
+		if (process.env.GUIDANT_DEBUG === 'true') {
 			console.warn(`[WARN] Error creating state.json: ${error.message}`);
 		}
 	}
@@ -587,14 +612,14 @@ function markMigrationForNotice(tasksJsonPath) {
 				fs.writeFileSync(statePath, JSON.stringify(stateData, null, 2), 'utf8');
 			}
 		} catch (stateError) {
-			if (process.env.TASKMASTER_DEBUG === 'true') {
+			if (process.env.GUIDANT_DEBUG === 'true') {
 				console.warn(
 					`[WARN] Error updating state for migration notice: ${stateError.message}`
 				);
 			}
 		}
 	} catch (error) {
-		if (process.env.TASKMASTER_DEBUG === 'true') {
+		if (process.env.GUIDANT_DEBUG === 'true') {
 			console.warn(
 				`[WARN] Error marking migration for notice: ${error.message}`
 			);
@@ -610,7 +635,7 @@ function markMigrationForNotice(tasksJsonPath) {
  * @param {string} tag - Optional tag for tag context
  */
 function writeJSON(filepath, data, projectRoot = null, tag = null) {
-	const isDebug = process.env.TASKMASTER_DEBUG === 'true';
+	const isDebug = process.env.GUIDANT_DEBUG === 'true';
 
 	try {
 		let finalData = data;
@@ -735,13 +760,18 @@ function sanitizePrompt(prompt) {
 function readComplexityReport(customPath = null) {
 	// GUARD: Prevent circular dependency during config loading
 	let isDebug = false; // Default fallback
-	try {
-		// Only try to get debug flag if we're not in the middle of config loading
-		isDebug = getDebugFlag();
-	} catch (error) {
-		// If getDebugFlag() fails (likely due to circular dependency),
-		// use default false and continue
-		isDebug = false;
+
+	// Skip config loading during init to prevent infinite loops
+	if (!process.env.GUIDANT_SKIP_CONFIG_LOAD) {
+		try {
+			// Only try to get debug flag if we're not in the middle of config loading
+			const { getDebugFlag } = require('./config-manager.js');
+			isDebug = getDebugFlag();
+		} catch (error) {
+			// If getDebugFlag() fails (likely due to circular dependency),
+			// use default false and continue
+			isDebug = false;
+		}
 	}
 
 	try {
@@ -1155,7 +1185,7 @@ function getCurrentTag(projectRoot) {
 
 	// Fall back to defaultTag from config using fs directly
 	try {
-		const configPath = path.join(projectRoot, '.taskmaster', 'config.json');
+		const configPath = path.join(projectRoot, '.guidant', 'config.json');
 		if (fs.existsSync(configPath)) {
 			const rawConfig = fs.readFileSync(configPath, 'utf8');
 			const configData = JSON.parse(rawConfig);

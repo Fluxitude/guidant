@@ -12,8 +12,8 @@ import {
 import { parsePRDDirect } from '../core/task-master-core.js';
 import {
 	PRD_FILE,
-	TASKMASTER_DOCS_DIR,
-	TASKMASTER_TASKS_FILE
+	GUIDANT_DOCS_DIR,
+	GUIDANT_TASKS_FILE
 } from '../../../src/constants/paths.js';
 
 /**

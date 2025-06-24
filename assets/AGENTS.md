@@ -1,4 +1,4 @@
-# Task Master AI - Claude Code Integration Guide
+# Guidant AI - Claude Code Integration Guide
 
 ## Essential Commands
 
@@ -6,9 +6,9 @@
 
 ```bash
 # Project Setup
-task-master init                                    # Initialize Task Master in current project
-task-master parse-prd .taskmaster/docs/prd.txt      # Generate tasks from PRD document
-task-master models --setup                        # Configure AI models interactively
+guidant init                                    # Initialize Guidant in current project
+guidant parse-prd .guidant/docs/prd.txt      # Generate tasks from PRD document
+guidant models --setup                        # Configure AI models interactively
 
 # Daily Development Workflow
 task-master list                                   # Show all tasks with status
@@ -17,16 +17,16 @@ task-master show <id>                             # View detailed task informati
 task-master set-status --id=<id> --status=done    # Mark task complete
 
 # Task Management
-task-master add-task --prompt="description" --research        # Add new task with AI assistance
-task-master expand --id=<id> --research --force              # Break task into subtasks
-task-master update-task --id=<id> --prompt="changes"         # Update specific task
-task-master update --from=<id> --prompt="changes"            # Update multiple tasks from ID onwards
-task-master update-subtask --id=<id> --prompt="notes"        # Add implementation notes to subtask
+guidant add-task --prompt="description" --research        # Add new task with AI assistance
+guidant expand --id=<id> --research --force              # Break task into subtasks
+guidant update-task --id=<id> --prompt="changes"         # Update specific task
+guidant update --from=<id> --prompt="changes"            # Update multiple tasks from ID onwards
+guidant update-subtask --id=<id> --prompt="notes"        # Add implementation notes to subtask
 
 # Analysis & Planning
-task-master analyze-complexity --research          # Analyze task complexity
-task-master complexity-report                      # View complexity analysis
-task-master expand --all --research               # Expand all eligible tasks
+guidant analyze-complexity --research          # Analyze task complexity
+guidant complexity-report                      # View complexity analysis
+guidant expand --all --research               # Expand all eligible tasks
 
 # Dependencies & Organization
 task-master add-dependency --id=<id> --depends-on=<id>       # Add task dependency
@@ -39,10 +39,10 @@ task-master generate                                         # Update task markd
 
 ### Core Files
 
-- `.taskmaster/tasks/tasks.json` - Main task data file (auto-managed)
-- `.taskmaster/config.json` - AI model configuration (use `task-master models` to modify)
-- `.taskmaster/docs/prd.txt` - Product Requirements Document for parsing
-- `.taskmaster/tasks/*.txt` - Individual task files (auto-generated from tasks.json)
+- `.guidant/tasks/tasks.json` - Main task data file (auto-managed)
+- `.guidant/config.json` - AI model configuration (use `guidant models` to modify)
+- `.guidant/docs/prd.txt` - Product Requirements Document for parsing
+- `.guidant/tasks/*.txt` - Individual task files (auto-generated from tasks.json)
 - `.env` - API keys for CLI usage
 
 ### Claude Code Integration Files
@@ -56,7 +56,7 @@ task-master generate                                         # Update task markd
 
 ```
 project/
-├── .taskmaster/
+├── .guidant/
 │   ├── tasks/              # Task files directory
 │   │   ├── tasks.json      # Main task database
 │   │   ├── task-1.md      # Individual task files
@@ -139,15 +139,15 @@ complexity_report; // = task-master complexity-report
 #### 1. Project Initialization
 
 ```bash
-# Initialize Task Master
-task-master init
+# Initialize Guidant
+guidant init
 
 # Create or obtain PRD, then parse it
-task-master parse-prd .taskmaster/docs/prd.txt
+guidant parse-prd .guidant/docs/prd.txt
 
 # Analyze complexity and expand tasks
-task-master analyze-complexity --research
-task-master expand --all --research
+guidant analyze-complexity --research
+guidant expand --all --research
 ```
 
 If tasks already exist, another PRD can be parsed (with new information only!) using parse-prd with --append flag. This will add the generated tasks to the existing list of tasks..
@@ -156,8 +156,8 @@ If tasks already exist, another PRD can be parsed (with new information only!) u
 
 ```bash
 # Start each session
-task-master next                           # Find next available task
-task-master show <id>                     # Review task details
+guidant next                           # Find next available task
+guidant show <id>                     # Review task details
 
 # During implementation, check in code context into the tasks and subtasks
 task-master update-subtask --id=<id> --prompt="implementation notes..."
@@ -190,24 +190,24 @@ Find the next available Task Master task and show its details.
 
 Steps:
 
-1. Run `task-master next` to get the next task
-2. If a task is available, run `task-master show <id>` for full details
+1. Run `guidant next` to get the next task
+2. If a task is available, run `guidant show <id>` for full details
 3. Provide a summary of what needs to be implemented
 4. Suggest the first implementation step
 ```
 
-Create `.claude/commands/taskmaster-complete.md`:
+Create `.claude/commands/guidant-complete.md`:
 
 ```markdown
-Complete a Task Master task: $ARGUMENTS
+Complete a Guidant task: $ARGUMENTS
 
 Steps:
 
-1. Review the current task with `task-master show $ARGUMENTS`
+1. Review the current task with `guidant show $ARGUMENTS`
 2. Verify all implementation is complete
 3. Run any tests related to this task
-4. Mark as complete: `task-master set-status --id=$ARGUMENTS --status=done`
-5. Show the next available task with `task-master next`
+4. Mark as complete: `guidant set-status --id=$ARGUMENTS --status=done`
+5. Show the next available task with `guidant next`
 ```
 
 ## Tool Allowlist Recommendations
@@ -355,10 +355,10 @@ cd ../project-api && claude     # Terminal 2: API work
 cat .env                           # For CLI usage
 
 # Verify model configuration
-task-master models
+guidant models
 
 # Test with different model
-task-master models --set-fallback gpt-4o-mini
+guidant models --set-fallback gpt-4o-mini
 ```
 
 ### MCP Connection Issues
@@ -372,13 +372,13 @@ task-master models --set-fallback gpt-4o-mini
 
 ```bash
 # Regenerate task files from tasks.json
-task-master generate
+guidant generate
 
 # Fix dependency issues
-task-master fix-dependencies
+guidant fix-dependencies
 ```
 
-DO NOT RE-INITIALIZE. That will not do anything beyond re-adding the same Taskmaster core files.
+DO NOT RE-INITIALIZE. That will not do anything beyond re-adding the same Guidant core files.
 
 ## Important Notes
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Task Master Discovery Workflow is an AI-guided system that helps you transform project ideas into comprehensive Product Requirements Documents (PRDs) through structured discovery, research, and requirements synthesis.
+The Guidant Discovery Workflow is an AI-guided system that helps you transform project ideas into comprehensive Product Requirements Documents (PRDs) through structured discovery, research, and requirements synthesis.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ The Task Master Discovery Workflow is an AI-guided system that helps you transfo
 
 ### Prerequisites
 
-- Task Master installed and configured
+- Guidant installed and configured
 - MCP server running with discovery tools enabled
 - AI assistant with access to discovery MCP tools
 

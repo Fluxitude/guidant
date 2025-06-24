@@ -1,6 +1,6 @@
 /**
  * commands.js
- * Command-line interface for the Task Master CLI
+ * Command-line interface for the Guidant CLI
  */
 
 import { program } from 'commander';
@@ -74,8 +74,8 @@ import {
 import {
 	COMPLEXITY_REPORT_FILE,
 	PRD_FILE,
-	TASKMASTER_TASKS_FILE,
-	TASKMASTER_CONFIG_FILE
+	GUIDANT_TASKS_FILE,
+	GUIDANT_CONFIG_FILE
 } from '../../src/constants/paths.js';
 
 import {
@@ -663,7 +663,7 @@ function registerCommands(programInstance) {
 		console.error(chalk.red(`Error: Unknown option '${unknownOption}'`));
 		console.error(
 			chalk.yellow(
-				`Run 'task-master ${commandName} --help' to see available options`
+				`Run 'guidant ${commandName} --help' to see available options`
 			)
 		);
 		process.exit(1);
@@ -678,7 +678,7 @@ function registerCommands(programInstance) {
 			'-i, --input <file>',
 			'Path to the PRD file (alternative to positional argument)'
 		)
-		.option('-o, --output <file>', 'Output file path', TASKMASTER_TASKS_FILE)
+		.option('-o, --output <file>', 'Output file path', GUIDANT_TASKS_FILE)
 		.option('-n, --num-tasks <number>', 'Number of tasks to generate', '10')
 		.option('-f, --force', 'Skip confirmation when overwriting existing tasks')
 		.option(
@@ -782,7 +782,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						boxen(
-							`${chalk.white.bold('Parse PRD Help')}\n\n${chalk.cyan('Usage:')}\n  task-master parse-prd <prd-file.txt> [options]\n\n${chalk.cyan('Options:')}\n  -i, --input <file>       Path to the PRD file (alternative to positional argument)\n  -o, --output <file>      Output file path (default: "${TASKMASTER_TASKS_FILE}")\n  -n, --num-tasks <number> Number of tasks to generate (default: 10)\n  -f, --force              Skip confirmation when overwriting existing tasks\n  --append                 Append new tasks to existing tasks.json instead of overwriting\n  -r, --research           Use Perplexity AI for research-backed task generation\n\n${chalk.cyan('Example:')}\n  task-master parse-prd requirements.txt --num-tasks 15\n  task-master parse-prd --input=requirements.txt\n  task-master parse-prd --force\n  task-master parse-prd requirements_v2.txt --append\n  task-master parse-prd requirements.txt --research\n\n${chalk.yellow('Note: This command will:')}\n  1. Look for a PRD file at ${PRD_FILE} by default\n  2. Use the file specified by --input or positional argument if provided\n  3. Generate tasks from the PRD and either:\n     - Overwrite any existing tasks.json file (default)\n     - Append to existing tasks.json if --append is used`,
+							`${chalk.white.bold('Parse PRD Help')}\n\n${chalk.cyan('Usage:')}\n  guidant parse-prd <prd-file.txt> [options]\n\n${chalk.cyan('Options:')}\n  -i, --input <file>       Path to the PRD file (alternative to positional argument)\n  -o, --output <file>      Output file path (default: "${GUIDANT_TASKS_FILE}")\n  -n, --num-tasks <number> Number of tasks to generate (default: 10)\n  -f, --force              Skip confirmation when overwriting existing tasks\n  --append                 Append new tasks to existing tasks.json instead of overwriting\n  -r, --research           Use Perplexity AI for research-backed task generation\n\n${chalk.cyan('Example:')}\n  guidant parse-prd requirements.txt --num-tasks 15\n  guidant parse-prd --input=requirements.txt\n  guidant parse-prd --force\n  guidant parse-prd requirements_v2.txt --append\n  guidant parse-prd requirements.txt --research\n\n${chalk.yellow('Note: This command will:')}\n  1. Look for a PRD file at ${PRD_FILE} by default\n  2. Use the file specified by --input or positional argument if provided\n  3. Generate tasks from the PRD and either:\n     - Overwrite any existing tasks.json file (default)\n     - Append to existing tasks.json if --append is used`,
 							{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 						)
 					);
@@ -839,7 +839,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'--from <id>',
@@ -856,7 +856,7 @@ function registerCommands(programInstance) {
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const fromId = parseInt(options.from, 10); // Validation happens here
 			const prompt = options.prompt;
 			const useResearch = options.research || false;
@@ -883,7 +883,7 @@ function registerCommands(programInstance) {
 				);
 				console.log(chalk.yellow('\nTo update multiple tasks:'));
 				console.log(
-					`  task-master update --from=${fromId} --prompt="Your prompt here"`
+					`  guidant update --from=${fromId} --prompt="Your prompt here"`
 				);
 				console.log(
 					chalk.yellow(
@@ -891,7 +891,7 @@ function registerCommands(programInstance) {
 					)
 				);
 				console.log(
-					`  task-master update-task --id=<id> --prompt="Your prompt here"`
+					`  guidant update-task --id=<id> --prompt="Your prompt here"`
 				);
 				process.exit(1);
 			}
@@ -937,7 +937,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('-i, --id <id>', 'Task ID to update (required)')
 		.option(
@@ -955,7 +955,7 @@ function registerCommands(programInstance) {
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
 			try {
-				const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+				const tasksPath = options.file || GUIDANT_TASKS_FILE;
 
 				const projectRoot = findProjectRoot();
 				if (!projectRoot) {
@@ -974,7 +974,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: guidant update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -990,7 +990,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: guidant update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -1004,7 +1004,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-task --id=23 --prompt="Update with new information"'
+							'Usage example: guidant update-task --id=23 --prompt="Update with new information"'
 						)
 					);
 					process.exit(1);
@@ -1018,10 +1018,10 @@ function registerCommands(programInstance) {
 					console.error(
 						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
 					);
-					if (tasksPath === TASKMASTER_TASKS_FILE) {
+					if (tasksPath === GUIDANT_TASKS_FILE) {
 						console.log(
 							chalk.yellow(
-								'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+								'Hint: Run guidant init or guidant parse-prd to create tasks.json first'
 							)
 						);
 					} else {
@@ -1085,7 +1085,7 @@ function registerCommands(programInstance) {
 				) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list to see all available task IDs'
+						'  1. Run guidant list to see all available task IDs'
 					);
 					console.log('  2. Use a valid task ID with the --id parameter');
 				} else if (error.message.includes('API key')) {
@@ -1114,7 +1114,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-i, --id <id>',
@@ -1128,7 +1128,7 @@ function registerCommands(programInstance) {
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
 			try {
-				const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+				const tasksPath = options.file || GUIDANT_TASKS_FILE;
 
 				const projectRoot = findProjectRoot();
 				if (!projectRoot) {
@@ -1147,7 +1147,7 @@ function registerCommands(programInstance) {
 					console.error(chalk.red('Error: --id parameter is required'));
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: guidant update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1163,7 +1163,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: guidant update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1177,7 +1177,7 @@ function registerCommands(programInstance) {
 					);
 					console.log(
 						chalk.yellow(
-							'Usage example: task-master update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
+							'Usage example: guidant update-subtask --id=5.2 --prompt="Add more details about the API endpoint"'
 						)
 					);
 					process.exit(1);
@@ -1191,10 +1191,10 @@ function registerCommands(programInstance) {
 					console.error(
 						chalk.red(`Error: Tasks file not found at path: ${tasksPath}`)
 					);
-					if (tasksPath === TASKMASTER_TASKS_FILE) {
+					if (tasksPath === GUIDANT_TASKS_FILE) {
 						console.log(
 							chalk.yellow(
-								'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+								'Hint: Run guidant init or guidant parse-prd to create tasks.json first'
 							)
 						);
 					} else {
@@ -1257,7 +1257,7 @@ function registerCommands(programInstance) {
 				) {
 					console.log(chalk.yellow('\nTo fix this issue:'));
 					console.log(
-						'  1. Run task-master list --with-subtasks to see all available subtask IDs'
+						'  1. Run guidant list --with-subtasks to see all available subtask IDs'
 					);
 					console.log(
 						'  2. Use a valid subtask ID with the --id parameter in format "parentId.subtaskId"'
@@ -1286,16 +1286,16 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-o, --output <dir>',
 			'Output directory',
-			path.dirname(TASKMASTER_TASKS_FILE)
+			path.dirname(GUIDANT_TASKS_FILE)
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const outputDir = options.output;
 			const tag = options.tag;
 
@@ -1328,11 +1328,11 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const taskId = options.id;
 			const status = options.status;
 			const tag = options.tag;
@@ -1377,7 +1377,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-r, --report <report>',
@@ -1394,7 +1394,7 @@ function registerCommands(programInstance) {
 				process.exit(1);
 			}
 
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const reportPath = options.report;
 			const statusFilter = options.status;
 			const withSubtasks = options.withSubtasks || false;
@@ -1445,7 +1445,7 @@ function registerCommands(programInstance) {
 		.option(
 			'--file <file>',
 			'Path to the tasks file (relative to project root)',
-			TASKMASTER_TASKS_FILE // Allow file override
+			GUIDANT_TASKS_FILE // Allow file override
 		) // Allow file override
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
@@ -1539,7 +1539,7 @@ function registerCommands(programInstance) {
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-r, --research',
@@ -1553,7 +1553,7 @@ function registerCommands(programInstance) {
 		.option('--to <id>', 'Ending task ID in a range to analyze')
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const tag = options.tag;
 			const modelOverride = options.model;
 			const thresholdScore = parseFloat(options.threshold);
@@ -1971,7 +1971,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-i, --id <ids>',
@@ -1980,7 +1980,7 @@ ${result.result}
 		.option('--all', 'Clear subtasks from all tasks')
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const taskIds = options.id;
 			const all = options.all;
 			const tag = options.tag;
@@ -2024,7 +2024,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-p, --prompt <prompt>',
@@ -2066,11 +2066,11 @@ ${result.result}
 				process.exit(1);
 			}
 
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 
 			if (!fs.existsSync(tasksPath)) {
 				console.error(
-					`❌ No tasks.json file found. Please run "task-master init" or create a tasks.json file at ${TASKMASTER_TASKS_FILE}`
+					`❌ No tasks.json file found. Please run "guidant init" or create a tasks.json file at ${GUIDANT_TASKS_FILE}`
 				);
 				process.exit(1);
 			}
@@ -2158,7 +2158,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-r, --report <report>',
@@ -2167,7 +2167,7 @@ ${result.result}
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const reportPath = options.report;
 			const tag = options.tag;
 
@@ -2198,7 +2198,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-r, --report <report>',
@@ -2225,7 +2225,7 @@ ${result.result}
 				process.exit(1);
 			}
 
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const reportPath = options.report;
 
 			// Check if multiple IDs are provided (comma-separated)
@@ -2265,11 +2265,11 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const taskId = options.id;
 			const dependencyId = options.dependsOn;
 
@@ -2316,11 +2316,11 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const taskId = options.id;
 			const dependencyId = options.dependsOn;
 
@@ -2372,7 +2372,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
@@ -2388,7 +2388,7 @@ ${result.result}
 			// Show current tag context
 			displayCurrentTagIndicator(tag);
 
-			await validateDependenciesCommand(options.file || TASKMASTER_TASKS_FILE, {
+			await validateDependenciesCommand(options.file || GUIDANT_TASKS_FILE, {
 				context: { projectRoot, tag }
 			});
 		});
@@ -2400,7 +2400,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
@@ -2416,7 +2416,7 @@ ${result.result}
 			// Show current tag context
 			displayCurrentTagIndicator(tag);
 
-			await fixDependenciesCommand(options.file || TASKMASTER_TASKS_FILE, {
+			await fixDependenciesCommand(options.file || GUIDANT_TASKS_FILE, {
 				context: { projectRoot, tag }
 			});
 		});
@@ -2460,7 +2460,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('-p, --parent <id>', 'Parent task ID (required)')
 		.option('-i, --task-id <id>', 'Existing task ID to convert to subtask')
@@ -2484,7 +2484,7 @@ ${result.result}
 				process.exit(1);
 			}
 
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const parentId = options.parent;
 			const existingTaskId = options.taskId;
 			const generateFiles = !options.skipGenerate;
@@ -2582,11 +2582,11 @@ ${result.result}
 								chalk.white.bold('Next Steps:') +
 								'\n' +
 								chalk.cyan(
-									`1. Run ${chalk.yellow(`task-master show ${parentId}`)} to see the parent task with all subtasks`
+									`1. Run ${chalk.yellow(`guidant show ${parentId}`)} to see the parent task with all subtasks`
 								) +
 								'\n' +
 								chalk.cyan(
-									`2. Run ${chalk.yellow(`task-master set-status --id=${parentId}.${subtask.id} --status=in-progress`)} to start working on it`
+									`2. Run ${chalk.yellow(`guidant set-status --id=${parentId}.${subtask.id} --status=in-progress`)} to start working on it`
 								),
 							{
 								padding: 1,
@@ -2607,13 +2607,13 @@ ${result.result}
 								chalk.white('Convert existing task to subtask:') +
 								'\n' +
 								chalk.yellow(
-									`  task-master add-subtask --parent=5 --task-id=8`
+									`  guidant add-subtask --parent=5 --task-id=8`
 								) +
 								'\n\n' +
 								chalk.white('Create new subtask:') +
 								'\n' +
 								chalk.yellow(
-									`  task-master add-subtask --parent=5 --title="Implement login UI" --description="Create the login form"`
+									`  guidant add-subtask --parent=5 --title="Implement login UI" --description="Create the login form"`
 								) +
 								'\n\n',
 							{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
@@ -2637,7 +2637,7 @@ ${result.result}
 	function showAddSubtaskHelp() {
 		console.log(
 			boxen(
-				`${chalk.white.bold('Add Subtask Command Help')}\n\n${chalk.cyan('Usage:')}\n  task-master add-subtask --parent=<id> [options]\n\n${chalk.cyan('Options:')}\n  -p, --parent <id>         Parent task ID (required)\n  -i, --task-id <id>        Existing task ID to convert to subtask\n  -t, --title <title>       Title for the new subtask\n  -d, --description <text>  Description for the new subtask\n  --details <text>          Implementation details for the new subtask\n  --dependencies <ids>      Comma-separated list of dependency IDs\n  -s, --status <status>     Status for the new subtask (default: "pending")\n  -f, --file <file>         Path to the tasks file (default: "${TASKMASTER_TASKS_FILE}")\n  --skip-generate           Skip regenerating task files\n\n${chalk.cyan('Examples:')}\n  task-master add-subtask --parent=5 --task-id=8\n  task-master add-subtask -p 5 -t "Implement login UI" -d "Create the login form"`,
+				`${chalk.white.bold('Add Subtask Command Help')}\n\n${chalk.cyan('Usage:')}\n  guidant add-subtask --parent=<id> [options]\n\n${chalk.cyan('Options:')}\n  -p, --parent <id>         Parent task ID (required)\n  -i, --task-id <id>        Existing task ID to convert to subtask\n  -t, --title <title>       Title for the new subtask\n  -d, --description <text>  Description for the new subtask\n  --details <text>          Implementation details for the new subtask\n  --dependencies <ids>      Comma-separated list of dependency IDs\n  -s, --status <status>     Status for the new subtask (default: "pending")\n  -f, --file <file>         Path to the tasks file (default: "${GUIDANT_TASKS_FILE}")\n  --skip-generate           Skip regenerating task files\n\n${chalk.cyan('Examples:')}\n  guidant add-subtask --parent=5 --task-id=8\n  guidant add-subtask -p 5 -t "Implement login UI" -d "Create the login form"`,
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2650,7 +2650,7 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'-i, --id <id>',
@@ -2663,7 +2663,7 @@ ${result.result}
 		.option('--skip-generate', 'Skip regenerating task files')
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const subtaskIds = options.id;
 			const convertToTask = options.convert || false;
 			const generateFiles = !options.skipGenerate;
@@ -2735,11 +2735,11 @@ ${result.result}
 									chalk.white.bold('Next Steps:') +
 									'\n' +
 									chalk.cyan(
-										`1. Run ${chalk.yellow(`task-master show ${result.id}`)} to see details of the new task`
+										`1. Run ${chalk.yellow(`guidant show ${result.id}`)} to see details of the new task`
 									) +
 									'\n' +
 									chalk.cyan(
-										`2. Run ${chalk.yellow(`task-master set-status --id=${result.id} --status=in-progress`)} to start working on it`
+										`2. Run ${chalk.yellow(`guidant set-status --id=${result.id} --status=in-progress`)} to start working on it`
 									),
 								{
 									padding: 1,
@@ -2786,20 +2786,20 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
+					`  guidant remove-subtask --id=<parentId.subtaskId> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -i, --id <id>       Subtask ID(s) to remove in format "parentId.subtaskId" (can be comma-separated, required)\n' +
 					'  -c, --convert       Convert the subtask to a standalone task instead of deleting it\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
-					TASKMASTER_TASKS_FILE +
+					GUIDANT_TASKS_FILE +
 					'")\n' +
 					'  --skip-generate     Skip regenerating task files\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master remove-subtask --id=5.2\n' +
-					'  task-master remove-subtask --id=5.2,6.3,7.1\n' +
-					'  task-master remove-subtask --id=5.2 --convert',
+					'  guidant remove-subtask --id=5.2\n' +
+					'  guidant remove-subtask --id=5.2,6.3,7.1\n' +
+					'  guidant remove-subtask --id=5.2 --convert',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2813,22 +2813,22 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master tags [options]\n\n` +
+					`  guidant tags [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
-					TASKMASTER_TASKS_FILE +
+					GUIDANT_TASKS_FILE +
 					'")\n' +
 					'  --show-metadata     Show detailed metadata for each tag\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master tags\n' +
-					'  task-master tags --show-metadata\n\n' +
+					'  guidant tags\n' +
+					'  guidant tags --show-metadata\n\n' +
 					chalk.cyan('Related Commands:') +
 					'\n' +
-					'  task-master add-tag <name>      Create a new tag\n' +
-					'  task-master use-tag <name>      Switch to a tag\n' +
-					'  task-master delete-tag <name>   Delete a tag',
+					'  guidant add-tag <name>      Create a new tag\n' +
+					'  guidant use-tag <name>      Switch to a tag\n' +
+					'  guidant delete-tag <name>   Delete a tag',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2842,21 +2842,21 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master add-tag <tagName> [options]\n\n` +
+					`  guidant add-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>        Path to the tasks file (default: "' +
-					TASKMASTER_TASKS_FILE +
+					GUIDANT_TASKS_FILE +
 					'")\n' +
 					'  --copy-from-current      Copy tasks from the current tag to the new tag\n' +
 					'  --copy-from <tag>        Copy tasks from the specified tag to the new tag\n' +
 					'  -d, --description <text> Optional description for the tag\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master add-tag feature-xyz\n' +
-					'  task-master add-tag feature-xyz --copy-from-current\n' +
-					'  task-master add-tag feature-xyz --copy-from master\n' +
-					'  task-master add-tag feature-xyz -d "Feature XYZ development"',
+					'  guidant add-tag feature-xyz\n' +
+					'  guidant add-tag feature-xyz --copy-from-current\n' +
+					'  guidant add-tag feature-xyz --copy-from master\n' +
+					'  guidant add-tag feature-xyz -d "Feature XYZ development"',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2870,17 +2870,17 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master delete-tag <tagName> [options]\n\n` +
+					`  guidant delete-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
-					TASKMASTER_TASKS_FILE +
+					GUIDANT_TASKS_FILE +
 					'")\n' +
 					'  -y, --yes           Skip confirmation prompts\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master delete-tag feature-xyz\n' +
-					'  task-master delete-tag feature-xyz --yes\n\n' +
+					'  guidant delete-tag feature-xyz\n' +
+					'  guidant delete-tag feature-xyz --yes\n\n' +
 					chalk.yellow('Warning:') +
 					'\n' +
 					'  This will permanently delete the tag and all its tasks!',
@@ -2897,20 +2897,20 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master use-tag <tagName> [options]\n\n` +
+					`  guidant use-tag <tagName> [options]\n\n` +
 					chalk.cyan('Options:') +
 					'\n' +
 					'  -f, --file <file>   Path to the tasks file (default: "' +
-					TASKMASTER_TASKS_FILE +
+					GUIDANT_TASKS_FILE +
 					'")\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master use-tag feature-xyz\n' +
-					'  task-master use-tag master\n\n' +
+					'  guidant use-tag feature-xyz\n' +
+					'  guidant use-tag master\n\n' +
 					chalk.cyan('Related Commands:') +
 					'\n' +
-					'  task-master tags                 List all available tags\n' +
-					'  task-master add-tag <name>       Create a new tag',
+					'  guidant tags                 List all available tags\n' +
+					'  guidant add-tag <name>       Create a new tag',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2924,7 +2924,7 @@ ${result.result}
 					'\n\n' +
 					chalk.cyan('Usage:') +
 					'\n' +
-					`  task-master research "<query>" [options]\n\n` +
+					`  guidant research "<query>" [options]\n\n` +
 					chalk.cyan('Required:') +
 					'\n' +
 					'  <query>             Research question or prompt (required)\n\n' +
@@ -2941,10 +2941,10 @@ ${result.result}
 					'  --tag <tag>         Specify tag context for task operations\n\n' +
 					chalk.cyan('Examples:') +
 					'\n' +
-					'  task-master research "How should I implement user authentication?"\n' +
-					'  task-master research "What\'s the best approach?" --id=15,23.2\n' +
-					'  task-master research "How does auth work?" --files=src/auth.js --tree\n' +
-					'  task-master research "Implementation steps?" --save-to=15.2 --detail=high',
+					'  guidant research "How should I implement user authentication?"\n' +
+					'  guidant research "What\'s the best approach?" --id=15,23.2\n' +
+					'  guidant research "How does auth work?" --files=src/auth.js --tree\n' +
+					'  guidant research "Implementation steps?" --save-to=15.2 --detail=high',
 				{ padding: 1, borderColor: 'blue', borderStyle: 'round' }
 			)
 		);
@@ -2961,12 +2961,12 @@ ${result.result}
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('-y, --yes', 'Skip confirmation prompt', false)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const taskIdsString = options.id;
 
 			const projectRoot = findProjectRoot();
@@ -2985,7 +2985,7 @@ ${result.result}
 				console.error(chalk.red('Error: Task ID(s) are required'));
 				console.error(
 					chalk.yellow(
-						'Usage: task-master remove-task --id=<taskId1,taskId2...>'
+						'Usage: guidant remove-task --id=<taskId1,taskId2...>'
 					)
 				);
 				process.exit(1);
@@ -3205,7 +3205,7 @@ ${result.result}
 	// init command (Directly calls the implementation from init.js)
 	programInstance
 		.command('init')
-		.description('Initialize a new project with Task Master structure')
+		.description('Initialize a new project with Guidant structure')
 		.option('-y, --yes', 'Skip prompts and use default values')
 		.option('-n, --name <name>', 'Project name')
 		.option('-d, --description <description>', 'Project description')
@@ -3270,15 +3270,15 @@ ${result.result}
 			'after',
 			`
 Examples:
-  $ task-master models                              # View current configuration
-  $ task-master models --set-main gpt-4o             # Set main model (provider inferred)
-  $ task-master models --set-research sonar-pro       # Set research model
-  $ task-master models --set-fallback claude-3-5-sonnet-20241022 # Set fallback
-  $ task-master models --set-main my-custom-model --ollama  # Set custom Ollama model for main role
-  $ task-master models --set-main anthropic.claude-3-sonnet-20240229-v1:0 --bedrock # Set custom Bedrock model for main role
-  $ task-master models --set-main some/other-model --openrouter # Set custom OpenRouter model for main role
-  $ task-master models --set-main gemini-2.5-flash --vertex # Set custom VertexAI model for main role
-  $ task-master models --setup                            # Run interactive setup`
+  $ guidant models                              # View current configuration
+  $ guidant models --set-main gpt-4o             # Set main model (provider inferred)
+  $ guidant models --set-research sonar-pro       # Set research model
+  $ guidant models --set-fallback claude-3-5-sonnet-20241022 # Set fallback
+  $ guidant models --set-main my-custom-model --ollama  # Set custom Ollama model for main role
+  $ guidant models --set-main anthropic.claude-3-sonnet-20240229-v1:0 --bedrock # Set custom Bedrock model for main role
+  $ guidant models --set-main some/other-model --openrouter # Set custom OpenRouter model for main role
+  $ guidant models --set-main gemini-2.5-flash --vertex # Set custom VertexAI model for main role
+  $ guidant models --setup                            # Run interactive setup`
 		)
 		.action(async (options) => {
 			const projectRoot = findProjectRoot();
@@ -3478,7 +3478,7 @@ Examples:
 			if (!configExists) {
 				console.log(
 					chalk.yellow(
-						"\\nHint: Run 'task-master models --setup' to create or update your configuration."
+						"\\nHint: Run 'guidant models --setup' to create or update your configuration."
 					)
 				);
 			}
@@ -3493,7 +3493,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'--from <id>',
@@ -3505,7 +3505,7 @@ Examples:
 		)
 		.option('--tag <tag>', 'Specify tag context for task operations')
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const sourceId = options.from;
 			const destinationId = options.to;
 			const tag = options.tag;
@@ -3516,7 +3516,7 @@ Examples:
 				);
 				console.log(
 					chalk.yellow(
-						'Usage: task-master move --from=<sourceId> --to=<destinationId>'
+						'Usage: guidant move --from=<sourceId> --to=<destinationId>'
 					)
 				);
 				process.exit(1);
@@ -3541,7 +3541,7 @@ Examples:
 					)
 				);
 				console.log(
-					chalk.yellow('Example: task-master move --from=5,6,7 --to=10,11,12')
+					chalk.yellow('Example: guidant move --from=5,6,7 --to=10,11,12')
 				);
 				process.exit(1);
 			}
@@ -3633,7 +3633,7 @@ Examples:
 	programInstance
 		.command('migrate')
 		.description(
-			'Migrate existing project to use the new .taskmaster directory structure'
+			'Migrate existing project to use the new .guidant directory structure'
 		)
 		.option(
 			'-f, --force',
@@ -3670,7 +3670,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--with-subtasks', 'Include subtasks in the README output')
 		.option(
@@ -3678,7 +3678,7 @@ Examples:
 			'Show only tasks matching this status (e.g., pending, done)'
 		)
 		.action(async (options) => {
-			const tasksPath = options.file || TASKMASTER_TASKS_FILE;
+			const tasksPath = options.file || GUIDANT_TASKS_FILE;
 			const withSubtasks = options.withSubtasks || false;
 			const status = options.status || null;
 
@@ -3687,7 +3687,7 @@ Examples:
 			if (!projectRoot) {
 				console.error(
 					chalk.red(
-						'Error: Could not find project root. Make sure you are in a Task Master project directory.'
+						'Error: Could not find project root. Make sure you are in a Guidant project directory.'
 					)
 				);
 				process.exit(1);
@@ -3724,7 +3724,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option(
 			'--copy-from-current',
@@ -3756,7 +3756,7 @@ Examples:
 					);
 					console.log(
 						chalk.yellow(
-							'Hint: Run task-master init or task-master parse-prd to create tasks.json first'
+							'Hint: Run guidant init or guidant parse-prd to create tasks.json first'
 						)
 					);
 					process.exit(1);
@@ -3770,8 +3770,8 @@ Examples:
 						)
 					);
 					console.log(chalk.yellow('Usage examples:'));
-					console.log(chalk.cyan('  task-master add-tag my-tag'));
-					console.log(chalk.cyan('  task-master add-tag --from-branch'));
+					console.log(chalk.cyan('  guidant add-tag my-tag'));
+					console.log(chalk.cyan('  guidant add-tag --from-branch'));
 					process.exit(1);
 				}
 
@@ -3866,7 +3866,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('-y, --yes', 'Skip confirmation prompts')
 		.action(async (tagName, options) => {
@@ -3917,7 +3917,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('--show-metadata', 'Show detailed metadata for each tag')
 		.action(async (options) => {
@@ -3970,7 +3970,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.action(async (tagName, options) => {
 			try {
@@ -4018,7 +4018,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.action(async (oldName, newName, options) => {
 			try {
@@ -4064,7 +4064,7 @@ Examples:
 		.option(
 			'-f, --file <file>',
 			'Path to the tasks file',
-			TASKMASTER_TASKS_FILE
+			GUIDANT_TASKS_FILE
 		)
 		.option('-d, --description <text>', 'Optional description for the new tag')
 		.action(async (sourceName, targetName, options) => {
@@ -4167,7 +4167,7 @@ function setupCLI() {
 }
 
 /**
- * Check for newer version of task-master-ai
+ * Check for newer version of guidant-ai
  * @returns {Promise<{currentVersion: string, latestVersion: string, needsUpdate: boolean}>}
  */
 async function checkForUpdate() {
@@ -4178,7 +4178,7 @@ async function checkForUpdate() {
 		// Get the latest version from npm registry
 		const options = {
 			hostname: 'registry.npmjs.org',
-			path: '/task-master-ai',
+			path: '/guidant-ai',
 			method: 'GET',
 			headers: {
 				Accept: 'application/vnd.npm.install-v1+json' // Lightweight response
@@ -4270,7 +4270,7 @@ function compareVersions(v1, v2) {
 function displayUpgradeNotification(currentVersion, latestVersion) {
 	const message = boxen(
 		`${chalk.blue.bold('Update Available!')} ${chalk.dim(currentVersion)} → ${chalk.green(latestVersion)}\n\n` +
-			`Run ${chalk.cyan('npm i task-master-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
+			`Run ${chalk.cyan('npm i guidant-ai@latest -g')} to update to the latest version with new features and bug fixes.`,
 		{
 			padding: 1,
 			margin: { top: 1, bottom: 1 },
@@ -4372,7 +4372,7 @@ async function runCLI(argv = process.argv) {
 						chalk.white('. No worries though.\n\n') +
 						chalk.cyan.bold('To create this file, run the interactive setup:') +
 						'\n' +
-						chalk.green('   task-master models --setup') +
+						chalk.green('   guidant models --setup') +
 						'\n\n' +
 						chalk.white.bold('Key Points:') +
 						'\n' +
@@ -4387,10 +4387,10 @@ async function runCLI(argv = process.argv) {
 						chalk.red.bold('only') +
 						chalk.white(' for your AI provider API keys.\n\n') +
 						chalk.cyan(
-							'`task-master models` to check your config & available models\n'
+							'`guidant models` to check your config & available models\n'
 						) +
 						chalk.cyan(
-							'`task-master models --setup` to adjust the AI models used by Taskmaster'
+							'`guidant models --setup` to adjust the AI models used by Taskmaster'
 						),
 					{
 						padding: 1,

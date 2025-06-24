@@ -5,14 +5,14 @@ globs: scripts/modules/ai-services-unified.js, scripts/modules/task-manager/*.js
 
 # AI Services Layer Guidelines
 
-This document outlines the architecture and usage patterns for interacting with Large Language Models (LLMs) via Task Master's unified AI service layer (`ai-services-unified.js`). The goal is to centralize configuration, provider selection, API key management, fallback logic, and error handling.
+This document outlines the architecture and usage patterns for interacting with Large Language Models (LLMs) via Guidant's unified AI service layer (`ai-services-unified.js`). The goal is to centralize configuration, provider selection, API key management, fallback logic, and error handling.
 
 **Core Components:**
 
-*   **Configuration (`.taskmasterconfig` & [`config-manager.js`](mdc:scripts/modules/config-manager.js)):**
+*   **Configuration (`.guidantconfig` & [`config-manager.js`](mdc:scripts/modules/config-manager.js)):**
     *   Defines the AI provider and model ID for different **roles** (`main`, `research`, `fallback`).
     *   Stores parameters like `maxTokens` and `temperature` per role.
-    *   Managed via the `task-master models --setup` CLI command.
+    *   Managed via the `guidant models --setup` CLI command.
     *   [`config-manager.js`](mdc:scripts/modules/config-manager.js) provides **getters** (e.g., `getMainProvider()`, `getParametersForRole()`) to access these settings. Core logic should **only** use these getters for *non-AI related application logic* (e.g., `getDefaultSubtasks`). The unified service fetches necessary AI parameters internally based on the `role`.
     *   **API keys** are **NOT** stored here; they are resolved via `resolveEnvVariable` (in [`utils.js`](mdc:scripts/modules/utils.js)) from `.env` (for CLI) or the MCP `session.env` object (for MCP calls). See [`utilities.md`](mdc:.roo/rules/utilities.md) and [`dev_workflow.md`](mdc:.roo/rules/dev_workflow.md).
 
@@ -92,7 +92,7 @@ This document outlines the architecture and usage patterns for interacting with 
 *   ✅ **DO**: Determine the appropriate `role` (`main`, `research`, `fallback`) in your core logic and pass it to the service.
 *   ✅ **DO**: Pass the `session` object (received in the `context` parameter, especially from direct function wrappers) to the service call when in MCP context.
 *   ✅ **DO**: Ensure API keys are correctly configured in `.env` (for CLI) or `.roo/mcp.json` (for MCP).
-*   ✅ **DO**: Ensure `.taskmasterconfig` exists and has valid provider/model IDs for the roles you intend to use (manage via `task-master models --setup`).
+*   ✅ **DO**: Ensure `.guidantconfig` exists and has valid provider/model IDs for the roles you intend to use (manage via `guidant models --setup`).
 *   ✅ **DO**: Use `generateTextService` and implement robust manual JSON parsing (with Zod validation *after* parsing) when structured output is needed, as `generateObjectService` has shown unreliability with some providers/schemas.
 *   ❌ **DON'T**: Import or call anything from the old `ai-services.js`, `ai-client-factory.js`, or `ai-client-utils.js` files.
 *   ❌ **DON'T**: Initialize AI clients (Anthropic, Perplexity, etc.) directly within core logic (`task-manager/`) or MCP direct functions.

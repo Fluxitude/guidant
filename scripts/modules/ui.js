@@ -1,6 +1,6 @@
 /**
  * ui.js
- * User interface functions for the Task Master CLI
+ * User interface functions for the Guidant CLI
  */
 
 import chalk from 'chalk';
@@ -25,8 +25,8 @@ import {
 import { getProjectName, getDefaultSubtasks } from './config-manager.js';
 import { TASK_STATUS_OPTIONS } from '../../src/constants/task-status.js';
 import {
-	TASKMASTER_CONFIG_FILE,
-	TASKMASTER_TASKS_FILE
+	GUIDANT_CONFIG_FILE,
+	GUIDANT_TASKS_FILE
 } from '../../src/constants/paths.js';
 import { getTaskMasterVersion } from '../../src/utils/getVersion.js';
 
@@ -89,7 +89,7 @@ function displayBanner() {
 	if (isSilentMode()) return;
 
 	// console.clear(); // Removing this to avoid clearing the terminal per command
-	const bannerText = figlet.textSync('Task Master', {
+	const bannerText = figlet.textSync('Guidant', {
 		font: 'Standard',
 		horizontalLayout: 'default',
 		verticalLayout: 'default'
@@ -497,7 +497,7 @@ function displayHelp() {
 	const terminalWidth = process.stdout.columns || 100; // Default to 100 if can't detect
 
 	console.log(
-		boxen(chalk.white.bold('Task Master CLI'), {
+		boxen(chalk.white.bold('Guidant CLI'), {
 			padding: 1,
 			borderColor: 'blue',
 			borderStyle: 'round',
@@ -514,7 +514,7 @@ function displayHelp() {
 				{
 					name: 'init',
 					args: '[--name=<name>] [--description=<desc>] [-y]',
-					desc: 'Initialize a new project with Task Master structure'
+					desc: 'Initialize a new project with Guidant structure'
 				},
 				{
 					name: 'models',
@@ -844,7 +844,7 @@ function displayHelp() {
 
 	configTable.push(
 		[
-			`${chalk.yellow(TASKMASTER_CONFIG_FILE)}${chalk.reset('')}`,
+			`${chalk.yellow(GUIDANT_CONFIG_FILE)}${chalk.reset('')}`,
 			`${chalk.white('AI model configuration file (project root)')}${chalk.reset('')}`,
 			`${chalk.dim('Managed by models cmd')}${chalk.reset('')}`
 		],
@@ -869,19 +869,19 @@ function displayHelp() {
 			chalk.white.bold('Quick Start:') +
 				'\n\n' +
 				chalk.cyan('1. Create Project: ') +
-				chalk.white('task-master init') +
+				chalk.white('guidant init') +
 				'\n' +
 				chalk.cyan('2. Setup Models: ') +
-				chalk.white('task-master models --setup') +
+				chalk.white('guidant models --setup') +
 				'\n' +
 				chalk.cyan('3. Parse PRD: ') +
-				chalk.white('task-master parse-prd --input=<prd-file>') +
+				chalk.white('guidant parse-prd --input=<prd-file>') +
 				'\n' +
 				chalk.cyan('4. List Tasks: ') +
-				chalk.white('task-master list') +
+				chalk.white('guidant list') +
 				'\n' +
 				chalk.cyan('5. Find Next Task: ') +
-				chalk.white('task-master next'),
+				chalk.white('guidant next'),
 			{
 				padding: 1,
 				borderColor: 'yellow',
@@ -1148,7 +1148,7 @@ async function displayNextTask(
 				chalk.yellow('No subtasks found. Consider breaking down this task:') +
 					'\n' +
 					chalk.white(
-						`Run: ${chalk.cyan(`task-master expand --id=${nextTask.id}`)}`
+						`Run: ${chalk.cyan(`guidant expand --id=${nextTask.id}`)}`
 					),
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -1165,17 +1165,17 @@ async function displayNextTask(
 	if (isSubtask) {
 		// Suggested actions for a subtask
 		suggestedActionsContent +=
-			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=in-progress`)}\n` +
-			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=done`)}\n` +
-			`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`task-master show --id=${nextTask.parentId}`)}`;
+			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`guidant set-status --id=${nextTask.id} --status=in-progress`)}\n` +
+			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`guidant set-status --id=${nextTask.id} --status=done`)}\n` +
+			`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`guidant show --id=${nextTask.parentId}`)}`;
 	} else {
 		// Suggested actions for a parent task
 		suggestedActionsContent +=
-			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=in-progress`)}\n` +
-			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${nextTask.id} --status=done`)}\n` +
+			`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`guidant set-status --id=${nextTask.id} --status=in-progress`)}\n` +
+			`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`guidant set-status --id=${nextTask.id} --status=done`)}\n` +
 			(nextTask.subtasks && nextTask.subtasks.length > 0
-				? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`task-master set-status --id=${nextTask.id}.1 --status=done`)}` // Example: first subtask
-				: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`task-master expand --id=${nextTask.id}`)}`);
+				? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`guidant set-status --id=${nextTask.id}.1 --status=done`)}` // Example: first subtask
+				: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`guidant expand --id=${nextTask.id}`)}`);
 	}
 
 	console.log(
@@ -1311,9 +1311,9 @@ async function displayTaskById(
 			boxen(
 				chalk.white.bold('Suggested Actions:') +
 					'\n' +
-					`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.parentTask.id}.${task.id} --status=in-progress`)}\n` +
-					`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${task.parentTask.id}.${task.id} --status=done`)}\n` +
-					`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`task-master show --id=${task.parentTask.id}`)}`,
+					`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`guidant set-status --id=${task.parentTask.id}.${task.id} --status=in-progress`)}\n` +
+					`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`guidant set-status --id=${task.parentTask.id}.${task.id} --status=done`)}\n` +
+					`${chalk.cyan('3.')} View parent task: ${chalk.yellow(`guidant show --id=${task.parentTask.id}`)}`,
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
 					borderColor: 'green',
@@ -1552,7 +1552,7 @@ async function displayTaskById(
 					chalk.yellow('No subtasks found. Consider breaking down this task:') +
 						'\n' +
 						chalk.white(
-							`Run: ${chalk.cyan(`task-master expand --id=${task.id}`)}`
+							`Run: ${chalk.cyan(`guidant expand --id=${task.id}`)}`
 						),
 					{
 						padding: { top: 0, bottom: 0, left: 1, right: 1 },
@@ -1643,12 +1643,12 @@ async function displayTaskById(
 		boxen(
 			chalk.white.bold('Suggested Actions:') +
 				'\n' +
-				`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.id} --status=in-progress`)}\n` +
-				`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`task-master set-status --id=${task.id} --status=done`)}\n` +
+				`${chalk.cyan('1.')} Mark as in-progress: ${chalk.yellow(`guidant set-status --id=${task.id} --status=in-progress`)}\n` +
+				`${chalk.cyan('2.')} Mark as done when completed: ${chalk.yellow(`guidant set-status --id=${task.id} --status=done`)}\n` +
 				// Determine action 3 based on whether subtasks *exist* (use the source list for progress)
 				(subtasksForProgress && subtasksForProgress.length > 0
-					? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`task-master set-status --id=${task.id}.1 --status=done`)}` // Example uses .1
-					: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`task-master expand --id=${task.id}`)}`),
+					? `${chalk.cyan('3.')} Update subtask status: ${chalk.yellow(`guidant set-status --id=${task.id}.1 --status=done`)}` // Example uses .1
+					: `${chalk.cyan('3.')} Break down into subtasks: ${chalk.yellow(`guidant expand --id=${task.id}`)}`),
 			{
 				padding: { top: 0, bottom: 0, left: 1, right: 1 },
 				borderColor: 'green',
@@ -1701,7 +1701,7 @@ async function displayComplexityReport(reportPath) {
 			const tasksPath = TASKMASTER_TASKS_FILE;
 			if (!fs.existsSync(tasksPath)) {
 				console.error(
-					'❌ No tasks.json file found. Please run "task-master init" or create a tasks.json file.'
+					'❌ No tasks.json file found. Please run "guidant init" or create a tasks.json file.'
 				);
 				return null;
 			}
@@ -1847,7 +1847,7 @@ async function displayComplexityReport(reportPath) {
 
 	// When adding rows, don't truncate the expansion command
 	tasksNeedingExpansion.forEach((task) => {
-		const expansionCommand = `task-master expand --id=${task.taskId} --num=${task.recommendedSubtasks}${task.expansionPrompt ? ` --prompt="${task.expansionPrompt}"` : ''}`;
+		const expansionCommand = `guidant expand --id=${task.taskId} --num=${task.recommendedSubtasks}${task.expansionPrompt ? ` --prompt="${task.expansionPrompt}"` : ''}`;
 
 		complexTable.push([
 			task.taskId,
@@ -1899,9 +1899,9 @@ async function displayComplexityReport(reportPath) {
 		boxen(
 			chalk.white.bold('Suggested Actions:') +
 				'\n\n' +
-				`${chalk.cyan('1.')} Expand all complex tasks: ${chalk.yellow(`task-master expand --all`)}\n` +
-				`${chalk.cyan('2.')} Expand a specific task: ${chalk.yellow(`task-master expand --id=<id>`)}\n` +
-				`${chalk.cyan('3.')} Regenerate with research: ${chalk.yellow(`task-master analyze-complexity --research`)}`,
+				`${chalk.cyan('1.')} Expand all complex tasks: ${chalk.yellow(`guidant expand --all`)}\n` +
+				`${chalk.cyan('2.')} Expand a specific task: ${chalk.yellow(`guidant expand --id=<id>`)}\n` +
+				`${chalk.cyan('3.')} Regenerate with research: ${chalk.yellow(`guidant analyze-complexity --research`)}`,
 			{
 				padding: 1,
 				borderColor: 'cyan',
@@ -2172,23 +2172,23 @@ function displayAvailableModels(availableModels) {
 			chalk.white.bold('Next Steps:') +
 				'\n' +
 				chalk.cyan(
-					`1. Set main model: ${chalk.yellow('task-master models --set-main <model_id>')}`
+					`1. Set main model: ${chalk.yellow('guidant models --set-main <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`2. Set research model: ${chalk.yellow('task-master models --set-research <model_id>')}`
+					`2. Set research model: ${chalk.yellow('guidant models --set-research <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`3. Set fallback model: ${chalk.yellow('task-master models --set-fallback <model_id>')}`
+					`3. Set fallback model: ${chalk.yellow('guidant models --set-fallback <model_id>')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`4. Run interactive setup: ${chalk.yellow('task-master models --setup')}`
+					`4. Run interactive setup: ${chalk.yellow('guidant models --setup')}`
 				) +
 				'\n' +
 				chalk.cyan(
-					`5. Use custom ollama/openrouter models: ${chalk.yellow('task-master models --openrouter|ollama --set-main|research|fallback <model_id>')}`
+					`5. Use custom ollama/openrouter models: ${chalk.yellow('guidant models --openrouter|ollama --set-main|research|fallback <model_id>')}`
 				),
 			{
 				padding: 1,
@@ -2525,7 +2525,7 @@ async function displayMultipleTasksSummary(
 				case '1':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master set-status --id=${taskIdList} --status=in-progress`
+							`\n→ Command: guidant set-status --id=${taskIdList} --status=in-progress`
 						)
 					);
 					console.log(
@@ -2537,7 +2537,7 @@ async function displayMultipleTasksSummary(
 				case '2':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master set-status --id=${taskIdList} --status=done`
+							`\n→ Command: guidant set-status --id=${taskIdList} --status=done`
 						)
 					);
 					console.log(
@@ -2545,7 +2545,7 @@ async function displayMultipleTasksSummary(
 					);
 					break;
 				case '3':
-					console.log(chalk.blue(`\n→ Command: task-master next`));
+					console.log(chalk.blue(`\n→ Command: guidant next`));
 					console.log(
 						chalk.green(
 							'✓ Copy and run this command to see the next available task'
@@ -2555,7 +2555,7 @@ async function displayMultipleTasksSummary(
 				case '4':
 					console.log(
 						chalk.blue(
-							`\n→ Command: task-master expand --id=${taskIdList} --research`
+							`\n→ Command: guidant expand --id=${taskIdList} --research`
 						)
 					);
 					console.log(
@@ -2584,7 +2584,7 @@ async function displayMultipleTasksSummary(
 					break;
 				}
 				case '6':
-					console.log(chalk.blue(`\n→ Command: task-master generate`));
+					console.log(chalk.blue(`\n→ Command: guidant generate`));
 					console.log(
 						chalk.green('✓ Copy and run this command to generate task files')
 					);
@@ -2613,9 +2613,9 @@ async function displayMultipleTasksSummary(
 			boxen(
 				chalk.white.bold('Suggested Actions:') +
 					'\n' +
-					`${chalk.cyan('1.')} View full details: ${chalk.yellow(`task-master show ${task.id}`)}\n` +
-					`${chalk.cyan('2.')} Mark as in-progress: ${chalk.yellow(`task-master set-status --id=${task.id} --status=in-progress`)}\n` +
-					`${chalk.cyan('3.')} Mark as done: ${chalk.yellow(`task-master set-status --id=${task.id} --status=done`)}`,
+					`${chalk.cyan('1.')} View full details: ${chalk.yellow(`guidant show ${task.id}`)}\n` +
+					`${chalk.cyan('2.')} Mark as in-progress: ${chalk.yellow(`guidant set-status --id=${task.id} --status=in-progress`)}\n` +
+					`${chalk.cyan('3.')} Mark as done: ${chalk.yellow(`guidant set-status --id=${task.id} --status=done`)}`,
 				{
 					padding: { top: 0, bottom: 0, left: 1, right: 1 },
 					borderColor: 'green',

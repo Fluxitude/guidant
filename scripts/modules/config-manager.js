@@ -60,7 +60,7 @@ const DEFAULTS = {
 		debug: false,
 		defaultSubtasks: 5,
 		defaultPriority: 'medium',
-		projectName: 'Task Master',
+		projectName: 'Guidant',
 		ollamaBaseURL: 'http://localhost:11434/api',
 		bedrockBaseURL: 'https://bedrock.us-east-1.amazonaws.com'
 	}
@@ -132,7 +132,7 @@ function _loadAndValidateConfig(explicitRoot = null) {
 			if (isLegacy) {
 				console.warn(
 					chalk.yellow(
-						`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .taskmaster/config.json. Run 'task-master migrate' to automatically migrate your project.`
+						`⚠️  DEPRECATION WARNING: Found configuration in legacy location '${configPath}'. Please migrate to .guidant/config.json. Run 'guidant migrate' to automatically migrate your project.`
 					)
 				);
 			}
@@ -183,7 +183,7 @@ function _loadAndValidateConfig(explicitRoot = null) {
 			// Only warn if an explicit root was *expected*.
 			console.warn(
 				chalk.yellow(
-					`Warning: Configuration file not found at provided project root (${explicitRoot}). Using default configuration. Run 'task-master models --setup' to configure.`
+					`Warning: Configuration file not found at provided project root (${explicitRoot}). Using default configuration. Run 'guidant models --setup' to configure.`
 				)
 			);
 		} else {
@@ -569,9 +569,9 @@ function getMcpApiKeyStatus(providerName, projectRoot = null) {
 		const mcpConfigRaw = fs.readFileSync(mcpConfigPath, 'utf-8');
 		const mcpConfig = JSON.parse(mcpConfigRaw);
 
-		const mcpEnv = mcpConfig?.mcpServers?.['task-master-ai']?.env;
+		const mcpEnv = mcpConfig?.mcpServers?.['guidant-ai']?.env;
 		if (!mcpEnv) {
-			// console.warn(chalk.yellow('Warning: Could not find task-master-ai env in mcp.json.'));
+			// console.warn(chalk.yellow('Warning: Could not find guidant-ai env in mcp.json.'));
 			return false; // Structure missing
 		}
 
@@ -719,12 +719,12 @@ function writeConfig(config, explicitRoot = null) {
 	}
 	// ---> End determine root path logic <---
 
-	// Use new config location: .taskmaster/config.json
-	const taskmasterDir = path.join(rootPath, '.taskmaster');
+	// Use new config location: .guidant/config.json
+	const taskmasterDir = path.join(rootPath, '.guidant');
 	const configPath = path.join(taskmasterDir, 'config.json');
 
 	try {
-		// Ensure .taskmaster directory exists
+		// Ensure .guidant directory exists
 		if (!fs.existsSync(taskmasterDir)) {
 			fs.mkdirSync(taskmasterDir, { recursive: true });
 		}

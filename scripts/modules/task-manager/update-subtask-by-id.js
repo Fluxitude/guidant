@@ -392,7 +392,7 @@ Output Requirements:
 					'  1. Set your Perplexity API key: export PERPLEXITY_API_KEY=your_api_key_here'
 				);
 				console.log(
-					'  2. Or run without the research flag: task-master update-subtask --id=<id> --prompt="..."'
+					'  2. Or run without the research flag: guidant update-subtask --id=<id> --prompt="..."'
 				);
 			} else if (error.message?.includes('overloaded')) {
 				console.log(
@@ -405,7 +405,7 @@ Output Requirements:
 			} else if (error.message?.includes('not found')) {
 				console.log(chalk.yellow('\nTo fix this issue:'));
 				console.log(
-					'  1. Run task-master list --with-subtasks to see all available subtask IDs'
+					'  1. Run guidant list --with-subtasks to see all available subtask IDs'
 				);
 				console.log(
 					'  2. Use a valid subtask ID with the --id parameter in format "parentId.subtaskId"'

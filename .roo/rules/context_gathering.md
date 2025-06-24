@@ -1,11 +1,11 @@
 ---
-description: Standardized patterns for gathering and processing context from multiple sources in Task Master commands, particularly for AI-powered features.
+description: Standardized patterns for gathering and processing context from multiple sources in Guidant commands, particularly for AI-powered features.
 globs: 
 alwaysApply: false
 ---
 # Context Gathering Patterns and Utilities
 
-This document outlines the standardized patterns for gathering and processing context from multiple sources in Task Master commands, particularly for AI-powered features.
+This document outlines the standardized patterns for gathering and processing context from multiple sources in Guidant commands, particularly for AI-powered features.
 
 ## Core Context Gathering Utility
 

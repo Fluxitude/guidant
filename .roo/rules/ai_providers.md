@@ -1,17 +1,17 @@
 ---
-description: Guidelines for managing Task Master AI providers and models.
+description: Guidelines for managing Guidant AI providers and models.
 globs: 
 alwaysApply: false
 ---
-# Task Master AI Provider Management
+# Guidant AI Provider Management
 
-This rule guides AI assistants on how to view, configure, and interact with the different AI providers and models supported by Task Master. For internal implementation details of the service layer, see [`ai_services.md`](mdc:.roo/rules/ai_services.md).
+This rule guides AI assistants on how to view, configure, and interact with the different AI providers and models supported by Guidant. For internal implementation details of the service layer, see [`ai_services.md`](mdc:.roo/rules/ai_services.md).
 
 -   **Primary Interaction:**
-    -   Use the `models` MCP tool or the `task-master models` CLI command to manage AI configurations. See [`taskmaster.md`](mdc:.roo/rules/taskmaster.md) for detailed command/tool usage.
+    -   Use the `models` MCP tool or the `guidant models` CLI command to manage AI configurations. See [`taskmaster.md`](mdc:.roo/rules/taskmaster.md) for detailed command/tool usage.
 
 -   **Configuration Roles:**
-    -   Task Master uses three roles for AI models:
+    -   Guidant uses three roles for AI models:
         -   `main`: Primary model for general tasks (generation, updates).
         -   `research`: Model used when the `--research` flag or `research: true` parameter is used (typically models with web access or specialized knowledge).
         -   `fallback`: Model used if the primary (`main`) model fails.
@@ -20,16 +20,16 @@ This rule guides AI assistants on how to view, configure, and interact with the 
 -   **Viewing Configuration & Available Models:**
     -   To see the current model assignments for each role and list all models available for assignment:
         -   **MCP Tool:** `models` (call with no arguments or `listAvailableModels: true`)
-        -   **CLI Command:** `task-master models`
+        -   **CLI Command:** `guidant models`
     -   The output will show currently assigned models and a list of others, prefixed with their provider (e.g., `google:gemini-2.5-pro-exp-03-25`).
 
 -   **Setting Models for Roles:**
     -   To assign a model to a role:
         -   **MCP Tool:** `models` with `setMain`, `setResearch`, or `setFallback` parameters.
-        -   **CLI Command:** `task-master models` with `--set-main`, `--set-research`, or `--set-fallback` flags.
+        -   **CLI Command:** `guidant models` with `--set-main`, `--set-research`, or `--set-fallback` flags.
     -   **Crucially:** When providing the model ID to *set*, **DO NOT include the `provider:` prefix**. Use only the model ID itself.
-        -   ✅ **DO:** `models(setMain='gpt-4o')` or `task-master models --set-main=gpt-4o`
-        -   ❌ **DON'T:** `models(setMain='openai:gpt-4o')` or `task-master models --set-main=openai:gpt-4o`
+        -   ✅ **DO:** `models(setMain='gpt-4o')` or `guidant models --set-main=gpt-4o`
+        -   ❌ **DON'T:** `models(setMain='openai:gpt-4o')` or `guidant models --set-main=openai:gpt-4o`
     -   The tool/command will automatically determine the provider based on the model ID.
 
 -   **Setting Custom Models (Ollama/OpenRouter):**
@@ -37,15 +37,15 @@ This rule guides AI assistants on how to view, configure, and interact with the 
         -   **MCP Tool:** Use `models` with `set<Role>` and **also** `ollama: true` or `openrouter: true`.
             -   Example: `models(setMain='my-custom-ollama-model', ollama=true)`
             -   Example: `models(setMain='some-openrouter-model', openrouter=true)`
-        -   **CLI Command:** Use `task-master models` with `--set-<role>` and **also** `--ollama` or `--openrouter`.
-            -   Example: `task-master models --set-main=my-custom-ollama-model --ollama`
-            -   Example: `task-master models --set-main=some-openrouter-model --openrouter`
-        -   **Interactive Setup:** Use `task-master models --setup` and select the `Ollama (Enter Custom ID)` or `OpenRouter (Enter Custom ID)` options.
+        -   **CLI Command:** Use `guidant models` with `--set-<role>` and **also** `--ollama` or `--openrouter`.
+            -   Example: `guidant models --set-main=my-custom-ollama-model --ollama`
+            -   Example: `guidant models --set-main=some-openrouter-model --openrouter`
+        -   **Interactive Setup:** Use `guidant models --setup` and select the `Ollama (Enter Custom ID)` or `OpenRouter (Enter Custom ID)` options.
     -   **OpenRouter Validation:** When setting a custom OpenRouter model, Taskmaster attempts to validate the ID against the live OpenRouter API.
     -   **Ollama:** No live validation occurs for custom Ollama models; ensure the model is available on your Ollama server.
 
 -   **Supported Providers & Required API Keys:**
-    -   Task Master integrates with various providers via the Vercel AI SDK.
+    -   Guidant integrates with various providers via the Vercel AI SDK.
     -   **API keys are essential** for most providers and must be configured correctly.
     -   **Key Locations** (See [`dev_workflow.md`](mdc:.roo/rules/dev_workflow.md) - Configuration Management):
         -   **MCP/Roo Code:** Set keys in the `env` section of `.roo/mcp.json`.
@@ -64,7 +64,7 @@ This rule guides AI assistants on how to view, configure, and interact with the 
 -   **Troubleshooting:**
     -   If AI commands fail (especially in MCP context):
         1.  **Verify API Key:** Ensure the correct API key for the *selected provider* (check `models` output) exists in the appropriate location (`.roo/mcp.json` env or `.env`).
-        2.  **Check Model ID:** Ensure the model ID set for the role is valid (use `models` listAvailableModels/`task-master models`).
+        2.  **Check Model ID:** Ensure the model ID set for the role is valid (use `models` listAvailableModels/`guidant models`).
         3.  **Provider Status:** Check the status of the external AI provider's service.
         4.  **Restart MCP:** If changes were made to configuration or provider code, restart the MCP server.
 

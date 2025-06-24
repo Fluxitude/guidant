@@ -3,15 +3,15 @@
  */
 
 // .guidant directory structure paths
-export const TASKMASTER_DIR = '.guidant';
-export const TASKMASTER_TASKS_DIR = '.guidant/tasks';
-export const TASKMASTER_DOCS_DIR = '.guidant/docs';
-export const TASKMASTER_REPORTS_DIR = '.guidant/reports';
-export const TASKMASTER_TEMPLATES_DIR = '.guidant/templates';
+export const GUIDANT_DIR = '.guidant';
+export const GUIDANT_TASKS_DIR = '.guidant/tasks';
+export const GUIDANT_DOCS_DIR = '.guidant/docs';
+export const GUIDANT_REPORTS_DIR = '.guidant/reports';
+export const GUIDANT_TEMPLATES_DIR = '.guidant/templates';
 
 // Guidant configuration files
-export const TASKMASTER_CONFIG_FILE = '.guidant/config.json';
-export const TASKMASTER_STATE_FILE = '.guidant/state.json';
+export const GUIDANT_CONFIG_FILE = '.guidant/config.json';
+export const GUIDANT_STATE_FILE = '.guidant/state.json';
 export const LEGACY_CONFIG_FILE = '.taskmasterconfig';
 
 // Guidant report files
@@ -29,7 +29,7 @@ export const EXAMPLE_PRD_FILE = '.guidant/templates/example_prd.txt';
 export const LEGACY_EXAMPLE_PRD_FILE = 'scripts/example_prd.txt';
 
 // Guidant task file paths
-export const TASKMASTER_TASKS_FILE = '.guidant/tasks/tasks.json';
+export const GUIDANT_TASKS_FILE = '.guidant/tasks/tasks.json';
 export const LEGACY_TASKS_FILE = 'tasks/tasks.json';
 
 // General project files (not Task Master specific but commonly used)
@@ -49,7 +49,7 @@ export const PROJECT_MARKERS = [
 	LEGACY_CONFIG_FILE, // .taskmasterconfig
 	'tasks.json', // Generic tasks file
 	LEGACY_TASKS_FILE, // tasks/tasks.json (legacy location)
-	TASKMASTER_TASKS_FILE, // .guidant/tasks/tasks.json (new location)
+	GUIDANT_TASKS_FILE, // .guidant/tasks/tasks.json (new location)
 	'.git', // Git repository
 	'.svn' // SVN repository
 ];

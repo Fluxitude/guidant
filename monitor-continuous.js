@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Continuous Task Master Monitoring
+ * Continuous Guidant Monitoring
  * Runs monitoring cycles every 30 seconds and tracks trends
  */
 

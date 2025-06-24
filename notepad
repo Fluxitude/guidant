@@ -1,0 +1,4 @@
+
+2. Use prd pdf to assess prd(quality-assessor)
+
+3. check if our generate prd works seamlessly with parse prd, also when our prd is generated, where is it stored? is it stored in the place parse prd expects it?
