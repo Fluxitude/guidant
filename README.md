@@ -17,6 +17,30 @@ An AI-powered task management system with discovery workflows, MCP integration, 
 - **📚 Knowledge Sharing**: Built-in documentation, handoff systems, and research capabilities
 - **🏷️ Tagged Task Lists**: Multi-context task management with branch-based workflows
 - **📊 Analytics & Reporting**: Progress tracking, performance metrics, and comprehensive dashboards
+- **🧠 Strategic Agent Synthesis**: Optimized research operations with specialized AI agents for complex tasks
+
+## Strategic Agent Synthesis Architecture
+
+Guidant now features a powerful Agent Synthesis Architecture that optimizes complex operations with specialized AI agents while preserving direct tool calls for simple operations.
+
+### Key Benefits
+
+- **Intelligent Routing**: Automatically routes complex research queries to specialized agents
+- **Specialized Expertise**: Domain-specific agents for technical, market, and UI/UX research
+- **Efficient Processing**: Simple operations remain fast direct tool calls
+- **Enhanced Research Quality**: Comprehensive synthesis of multi-source information
+- **Scalable Cloud Deployment**: Deployed on Google Cloud Run for high availability
+
+### Architecture Components
+
+- **Strategic Router**: Analyzes request complexity and routes to appropriate agents
+- **Specialized Agents**:
+  - **Technical Research Agent**: Library documentation and architecture recommendations
+  - **Market Research Agent**: Competitive intelligence and market trends
+  - **UI/UX Research Agent**: Competitor UI analysis using browser automation
+  - **General Research Agent**: Orchestrates complex multi-domain research
+
+For more details, see the `cloud/mastra` directory documentation.
 
 ## Installation
 

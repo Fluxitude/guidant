@@ -1,0 +1,81 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: AlertPolicy
+metadata:
+  name: guidant-mastra-service-error-rate
+  displayName: "Guidant Mastra Service Error Rate"
+spec:
+  conditions:
+  - displayName: "Error rate exceeds 5% over 5 minutes"
+    conditionThreshold:
+      filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/request_count\" AND metric.labels.response_code_class = \"5xx\""
+      aggregations:
+      - alignmentPeriod: 300s
+        perSeriesAligner: ALIGN_RATE
+        crossSeriesReducer: REDUCE_SUM
+      comparison: COMPARISON_GT
+      thresholdValue: 0.05
+      duration: 300s
+      trigger:
+        count: 1
+  - displayName: "High response latency (>30s)"
+    conditionThreshold:
+      filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/request_latencies\""
+      aggregations:
+      - alignmentPeriod: 300s
+        perSeriesAligner: ALIGN_PERCENTILE_99
+      comparison: COMPARISON_GT
+      thresholdValue: 30000
+      duration: 300s
+      trigger:
+        count: 1
+  combiner: OR
+  notificationChannels:
+  - "projects/PROJECT_ID/notificationChannels/CHANNEL_ID"
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: Dashboard
+metadata:
+  name: guidant-mastra-service-dashboard
+  displayName: "Guidant Mastra Service Dashboard"
+spec:
+  displayName: "Guidant Mastra Service Dashboard"
+  gridLayout:
+    widgets:
+    - title: "Request Count"
+      xyChart:
+        dataSets:
+        - timeSeriesQuery:
+            timeSeriesFilter:
+              filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/request_count\""
+              aggregation:
+                alignmentPeriod: 60s
+                perSeriesAligner: ALIGN_RATE
+                crossSeriesReducer: REDUCE_SUM
+    - title: "Error Rate"
+      xyChart:
+        dataSets:
+        - timeSeriesQuery:
+            timeSeriesFilter:
+              filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/request_count\" AND metric.labels.response_code_class = \"5xx\""
+              aggregation:
+                alignmentPeriod: 60s
+                perSeriesAligner: ALIGN_RATE
+                crossSeriesReducer: REDUCE_SUM
+    - title: "Response Latency (p99)"
+      xyChart:
+        dataSets:
+        - timeSeriesQuery:
+            timeSeriesFilter:
+              filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/request_latencies\""
+              aggregation:
+                alignmentPeriod: 60s
+                perSeriesAligner: ALIGN_PERCENTILE_99
+    - title: "Instance Count"
+      xyChart:
+        dataSets:
+        - timeSeriesQuery:
+            timeSeriesFilter:
+              filter: "resource.type = \"cloud_run_revision\" AND resource.labels.service_name = \"guidant-mastra-service\" AND metric.type = \"run.googleapis.com/container/instance_count\""
+              aggregation:
+                alignmentPeriod: 60s
+                perSeriesAligner: ALIGN_MEAN 

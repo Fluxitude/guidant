@@ -1,0 +1,31 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Mastra MCP Tools for Cloud Directory
+
+When working in the `cloud/mastra` directory, always use Mastra MCP tools as a north star and single authoritave source of how to implement
+
+## Key Components
+
+- **Strategic Agent Synthesis Router** ([router.ts](mdc:cloud/mastra/src/synthesis/router.ts)) - Routes operations to specialized agents or direct tool calls
+- **Technical Research Agent** ([technical-research.ts](mdc:cloud/mastra/src/agents/technical-research.ts)) - Specialized for library documentation and technical analysis
+- **Market Research Agent** ([market-research.ts](mdc:cloud/mastra/src/agents/market-research.ts)) - Specialized for market analysis and competitive intelligence
+- **UI/UX Research Agent** ([uiux-research.ts](mdc:cloud/mastra/src/agents/uiux-research.ts)) - Specialized for interface analysis and design patterns
+- **General Research Agent** ([general-research.ts](mdc:cloud/mastra/src/agents/general-research.ts)) - Orchestrates complex multi-domain research
+
+## Architecture
+
+The architecture follows a strategic approach where complex operations use agent synthesis while simple operations remain direct calls. The system intelligently routes requests to specialized agents based on complexity analysis and domain requirements.
+
+## Integration
+
+Use the Guidant Mastra Integration ([index.ts](mdc:cloud/mastra/src/integration/index.ts)) to connect with Guidant task management system.
+
+
+## Deployment
+
+
+
+The system is deployed on Google Cloud Run using the configuration in [cloud-run-service.yaml](mdc:cloud/mastra/cloud-run-service.yaml).

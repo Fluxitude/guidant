@@ -1,0 +1,74 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: guidant-mastra-service
+  annotations:
+    run.googleapis.com/ingress: internal
+spec:
+  template:
+    metadata:
+      annotations:
+        autoscaling.knative.dev/minScale: "1"
+        autoscaling.knative.dev/maxScale: "10"
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 10
+      containers:
+      - image: gcr.io/PROJECT_ID/guidant-mastra-service:latest
+        resources:
+          limits:
+            cpu: "2"
+            memory: "4Gi"
+        env:
+        - name: NODE_ENV
+          value: "production"
+        - name: PORT
+          value: "8080"
+        - name: LOG_LEVEL
+          value: "info"
+        - name: REDIS_URL
+          valueFrom:
+            secretKeyRef:
+              name: redis-config
+              key: url
+        - name: MASTRA_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: mastra-config
+              key: api-key
+        - name: ORCHESTRATOR_MODEL_ID
+          value: "gemini-2.5-pro"
+        - name: TECH_AGENT_MODEL_ID
+          value: "gemini-2.5-flash"
+        - name: MARKET_AGENT_MODEL_ID
+          value: "gemini-2.5-flash"
+        - name: UX_AGENT_MODEL_ID
+          value: "gemini-2.5-flash"
+        - name: CONTEXT7_ENABLED
+          value: "true"
+        - name: TAVILY_ENABLED
+          value: "true"
+        - name: FIRECRAWL_ENABLED
+          value: "true"
+        - name: STAGEHAND_ENABLED
+          value: "true"
+        - name: CONTEXT7_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: integration-config
+              key: context7-api-key
+        - name: TAVILY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: integration-config
+              key: tavily-api-key
+        - name: FIRECRAWL_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: integration-config
+              key: firecrawl-api-key
+        - name: STAGEHAND_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: integration-config
+              key: stagehand-api-key 

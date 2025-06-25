@@ -1,0 +1,43 @@
+{
+  "name": "guidant-mastra-service",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Autonomous research agents for Guidant, powered by Mastra AI.",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "@ai-sdk/vertexai": "^1.0.0",
+    "@mastra/core": "latest",
+    "@mastra/loggers": "latest",
+    "@mastra/mcp": "latest",
+    "compression": "^1.8.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "firebase": "^11.9.1",
+    "helmet": "^8.1.0",
+    "redis": "^5.5.6",
+    "winston": "^3.17.0",
+    "zod": "^3.22.4"
+  },
+  "devDependencies": {
+    "@types/compression": "^1.8.1",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^20.11.24",
+    "@types/supertest": "^6.0.2",
+    "@vitest/coverage-v8": "^1.4.0",
+    "supertest": "^6.3.4",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.4.0"
+  }
+}

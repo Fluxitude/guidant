@@ -6800,20 +6800,122 @@
         ],
         "priority": "medium",
         "subtasks": []
+      },
+      {
+        "id": 118,
+        "title": "Guidant: Strategic Agent Synthesis for Complex Operations",
+        "description": "Transform Guidant into a more intelligent and efficient platform by implementing a 'Strategic Agent Synthesis Architecture'. This initiative focuses on selectively integrating intelligent AI agents for complex research and analysis operations (approximately 10 out of 48 Mastra Communication Protocol (MCP) tool calls). Simple CRUD operations (approximately 38 tools) will continue to use direct MCP calls. The goal is to leverage AI agents to synthesize accurate, actionable, and comprehensive results for complex tasks, while maintaining efficiency for simpler operations, thereby significantly streamlining the software development lifecycle (SDLC) process. This approach provides a balanced, efficient, scalable, and intelligent system.",
+        "status": "pending",
+        "dependencies": [
+          2,
+          3,
+          4,
+          5
+        ],
+        "priority": "high",
+        "details": "This task involves a strategic refinement of how Guidant processes information and generates outputs. Instead of a full replacement, a 'Strategic Agent Synthesis Architecture' will be implemented. This means:\n*   **Complex Operations (approx. 10 tools):** For operations requiring deep research, analysis, and synthesis (e.g., market research, technical planning, user flow analysis), specialized Mastra AI agents will internally manage multiple tool interactions to produce consolidated, high-quality results.\n*   **Simple CRUD Operations (approx. 38 tools):** For straightforward data retrieval, creation, update, or deletion, Guidant will continue to make direct Mastra Communication Protocol (MCP) tool calls, ensuring efficiency for these common tasks.\n\n**Key Implementation Strategy:**\n1.  **Integrate Mastra AI Framework:** Incorporate the Mastra AI framework directly into the existing Guidant codebase to support the new synthesis agents.\n2.  **Agent Creation & Synthesis Strategy:** Develop specialized synthesis agents designed to handle multiple internal tool calls and return single, comprehensive results:\n    *   **Research Synthesis Agent:** Handles market research, competitive analysis, and technical research internally.\n    *   **Technical Planning Agent:** Synthesizes architecture decisions, technology validation, and implementation strategies.\n    *   **User Flow Agent:** Maps complete user journeys, UI/UX patterns, and workflow analysis.\n    *   **Implementation Agent:** Creates detailed development plans with accurate context.\n3.  **Service Integration & Categorization:** Integrate these synthesis agents with existing Guidant services where complex synthesis is required. For services handling simple CRUD, maintain direct MCP calls. Agents will expose simplified interfaces to reduce complexity for calling services, while maintaining backward compatibility with current Guidant workflows.\n4.  **Workflow Orchestration:** Leverage Mastra AI's native workflow orchestration capabilities to manage complex interactions and sequencing between different synthesis agents within the Guidant application.\n5.  **External Tool Integration (Categorized):** Agents will internally utilize the existing ~10 complex MCP tools as needed to gather raw data, with synthesis and consolidation occurring within the agent. The remaining ~38 simple MCP tools will be called directly by Guidant services.\n6.  **Cloud Storage Migration & Architecture:** Implement a new storage architecture:\n    *   **Development:** Utilize LibSQL/JSON files, ensuring backward compatibility with existing JSON data structures.\n    *   **Production:** Implement PostgreSQL for structured data storage (Firestore-like capabilities) and Upstash Redis for caching and transient data (Memorystore-compatible).\n    *   A clear migration path to GCP Firestore + Memorystore will be established for future scalability.\n7.  **Deployment:** The enhanced Guidant application, now containing the integrated synthesis Mastra AI agents, will be deployed as a single unit. Optimal deployment strategies will leverage platforms like Mastra Cloud or Google Cloud Run.\n\n**Benefits of this approach include:**\n*   **Optimized Tool Usage:** Efficiently leverages AI agents for complex synthesis while maintaining direct, performant calls for simple operations.\n*   **Synthesized Results:** Production of accurate, non-generic, and actionable plans and insights for complex tasks.\n*   **Cloud Scalability:** Enhanced scalability and reliability with the new PostgreSQL/Redis storage, and a clear migration path to GCP native services.\n*   **Intelligent Platform:** Transforms Guidant into a more intelligent platform by strategically applying AI synthesis.\n*   **Maintains Existing Architecture:** Integrates intelligence while preserving the core Guidant architecture and workflows, and optimizing for different types of operations.\n\nThe technical stack will primarily involve the Mastra AI framework, TypeScript, PostgreSQL, Upstash Redis, LibSQL, Google Cloud Run, and MCP for both internal agent tool interactions and direct tool calls.",
+        "testStrategy": "1.  **Unit Tests:** Develop unit tests for each individual synthesis agent's logic, focusing on their internal processing, data consolidation, and interaction with internal *complex* MCP tools. Also, test the new storage layer components (PostgreSQL, Redis, LibSQL) and utility functions within the Guidant codebase.\n2.  **Integration Tests:** Verify the seamless integration of synthesis agents with existing Guidant services *where applicable*, ensuring they expose simplified interfaces and maintain backward compatibility. Crucially, test the agents' ability to internally call multiple *complex* MCP tools and synthesize their outputs into a single, comprehensive result. Also, verify that services making *direct* calls to *simple* MCP tools continue to function correctly. Validate data flow and persistence with the new PostgreSQL and Redis storage solutions.\n3.  **End-to-End Tests:** Simulate complete SDLC workflows, verifying correct agent instantiation, sequencing, data synthesis, and the quality of the final synthesized output within the single Guidant application for complex operations. For simple operations, verify correct direct MCP tool invocation and result handling. Test scenarios covering market research, technical planning, user journey mapping, and detailed development plan generation, as well as common CRUD operations.\n4.  **Performance and Scalability Testing:** Assess the Guidant application's performance under various loads, focusing on the efficiency gains from optimized tool usage (agents for complex, direct for simple) and the scalability of the new storage architecture (PostgreSQL, Redis). Ensure the single application scales efficiently and maintains responsiveness.\n5.  **Observability Validation:** Verify that comprehensive logging, metrics collection, and alerting mechanisms are correctly implemented and functioning for the integrated Guidant application, especially for agent synthesis processes, direct MCP calls, and storage interactions.\n6.  **Security Testing:** Conduct checks for secure communication within the application, proper access control to the new PostgreSQL/Redis data stores, and secure internal interactions with both agent-orchestrated and direct MCP tools.",
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Integrate Mastra AI Framework Core",
+            "description": "Set up the foundational Mastra AI framework within the Guidant codebase. This involves adding necessary dependencies, configuring core AI services, and establishing the environment for agent development.",
+            "dependencies": [],
+            "details": "Add Mastra AI SDK/libraries to `package.json` (TypeScript project). Configure initial AI service endpoints and authentication. Create a base `src/framework/mastraAI.ts` module for framework initialization. Ensure basic framework components can be imported and initialized without errors. This step focuses solely on framework setup, not agent logic.",
+            "status": "pending",
+            "testStrategy": "Verify successful installation of dependencies. Write a simple test script (e.g., `test/framework.test.ts`) to initialize the Mastra AI framework and confirm no errors, logging successful connection to Mastra AI services."
+          },
+          {
+            "id": 2,
+            "title": "Implement New Storage Architecture (LibSQL/PostgreSQL/Redis)",
+            "description": "Establish the new data storage architecture for Guidant, including LibSQL for development, PostgreSQL for production structured data, and Upstash Redis for caching and transient data.",
+            "dependencies": [
+              1
+            ],
+            "details": "Configure `LibSQL` for local JSON file storage in development (e.g., `data/guidant_dev.json`), ensuring backward compatibility with existing JSON data structures. Set up `TypeORM` or `Prisma` with `PostgreSQL` for production, defining initial schemas for agent-generated outputs (e.g., `AgentOutput` table with a `jsonb` column). Integrate `Upstash Redis` client for caching. Update `src/config/database.ts` and `src/utils/cache.ts` to abstract storage access.",
+            "status": "pending",
+            "testStrategy": "Implement unit tests for each storage layer (LibSQL, PostgreSQL, Redis) to verify connection, basic CRUD operations, and JSON data handling. Ensure data persistence and retrieval work as expected for both development and production configurations."
+          },
+          {
+            "id": 3,
+            "title": "Develop Research Synthesis Agent",
+            "description": "Create the Mastra AI agent responsible for synthesizing market research, competitive analysis, and technical research. This agent will internally utilize existing MCP tools to gather raw data and then synthesize it.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/agents/ResearchSynthesisAgent.ts`. Implement methods like `synthesizeMarketResearch(topic: string)`, `analyzeCompetitors(industry: string)`, `researchTechnicalTopic(topic: string)`. Internally, these methods will orchestrate calls to relevant MCP tools (e.g., `mcp.callTool('market_data_fetcher', ...)`) and then use Mastra AI capabilities to synthesize raw outputs into a comprehensive result. Define the structured output format for synthesized research.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each agent method, mocking MCP tool calls and asserting the synthesized output structure and content. Verify that the agent correctly processes raw MCP data into a consolidated, actionable insight."
+          },
+          {
+            "id": 4,
+            "title": "Develop Technical Planning Agent",
+            "description": "Create the Mastra AI agent responsible for synthesizing architecture decisions, technology validation, and implementation strategies.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/agents/TechnicalPlanningAgent.ts`. Implement methods like `synthesizeArchitecture(requirements: string)`, `validateTechnology(techStack: string)`, `generateImplementationStrategy(projectScope: string)`. Internally, these methods will call relevant MCP tools (e.g., `mcp.callTool('architecture_evaluator', ...)`) and synthesize the results. Define the structured output format for synthesized technical plans.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each agent method, mocking MCP tool calls and asserting the synthesized output structure and content. Focus on the accuracy and completeness of the generated technical plans."
+          },
+          {
+            "id": 5,
+            "title": "Develop User Flow Agent",
+            "description": "Create the Mastra AI agent responsible for mapping complete user journeys, UI/UX patterns, and workflow analysis.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/agents/UserFlowAgent.ts`. Implement methods like `mapUserJourney(userStory: string)`, `analyzeUIPatterns(feature: string)`, `optimizeWorkflow(currentWorkflow: string)`. Internally, these methods will call relevant MCP tools (e.g., `mcp.callTool('user_journey_mapper', ...)`) and synthesize the results. Define the structured output format for synthesized user flow insights.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each agent method, mocking MCP tool calls and asserting the synthesized output structure and content. Verify the agent's ability to generate coherent and actionable user flow insights."
+          },
+          {
+            "id": 6,
+            "title": "Develop Implementation Agent",
+            "description": "Create the Mastra AI agent responsible for generating detailed development plans with accurate context.",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "Create `src/agents/ImplementationAgent.ts`. Implement methods like `generateDevelopmentPlan(featureDescription: string, context: any)`, `estimateEffort(plan: any)`. Internally, these methods will call relevant MCP tools (e.g., `mcp.callTool('code_generator', ...)`) and synthesize the results into a structured development plan. Define the structured output format for synthesized implementation plans.",
+            "status": "pending",
+            "testStrategy": "Unit tests for each agent method, mocking MCP tool calls and asserting the synthesized output structure and content. Ensure the generated plans are detailed, accurate, and contextually relevant."
+          },
+          {
+            "id": 7,
+            "title": "Integrate Agents with Existing Guidant Services",
+            "description": "Integrate the newly developed synthesis agents into Guidant services for complex operations, while ensuring existing direct MCP tool calls for simple CRUD operations remain functional. This involves exposing simplified interfaces for agent interactions and maintaining backward compatibility across all workflows.",
+            "dependencies": [
+              3,
+              4,
+              5,
+              6
+            ],
+            "details": "Identify Guidant service endpoints (e.g., `src/services/projectService.ts`, `src/controllers/planningController.ts`). For services handling complex research/analysis, refactor them to import and utilize the new agents (e.g., `ResearchSynthesisAgent`). Example: Replace `mcp.callTool('market_data_fetcher', req.body.topic)` with `await researchAgent.synthesizeMarketResearch(req.body.topic)`. For services handling simple CRUD operations, verify that direct `mcp.callTool(...)` invocations continue to function as expected. Ensure backward compatibility by mapping agent outputs to the expected format of existing Guidant workflows and by preserving the expected behavior of direct MCP calls. Implement robust error handling and logging for both agent interactions and direct MCP calls.",
+            "status": "pending",
+            "testStrategy": "Integration tests for Guidant service endpoints, verifying that services correctly invoke agents for complex operations and correctly make direct MCP calls for simple operations. Verify that both types of interactions process their respective outputs correctly. Conduct end-to-end tests for key workflows, covering both agent-driven synthesis and direct MCP calls, to ensure seamless integration and correct data flow."
+          },
+          {
+            "id": 8,
+            "title": "Comprehensive Testing & Deployment Preparation",
+            "description": "Perform comprehensive end-to-end testing of the enhanced Guidant application, covering both agent-driven synthesis and direct MCP tool interactions, and prepare for deployment to a cloud environment (Mastra Cloud or Google Cloud Run).",
+            "dependencies": [
+              7
+            ],
+            "details": "Conduct full regression and end-to-end tests covering all major Guidant workflows, specifically validating both agent-driven synthesis for complex operations and direct MCP tool calls for simple operations. Perform performance testing to ensure optimized latency and improved efficiency across all interaction types. Conduct a security review of agent interactions, direct MCP calls, and overall data handling. Prepare deployment artifacts (e.g., Docker images, environment configurations for Google Cloud Run/Mastra Cloud). Update CI/CD pipelines to include new build steps and deployment targets. Document deployment procedures and rollback plans.",
+            "status": "pending",
+            "testStrategy": "Execute the full automated test suite. Conduct manual user acceptance testing (UAT) with stakeholders. Monitor application performance metrics (latency, CPU/memory usage) in a staging environment. Verify successful deployment to a test environment and validate all functionalities post-deployment."
+          }
+        ]
       }
     ],
     "metadata": {
       "created": "2025-06-13T23:52:56.848Z",
-      "updated": "2025-06-22T21:15:58.741Z",
+      "updated": "2025-06-25T18:32:06.618Z",
       "description": "Main tag for the taskmaster project"
-    }
-  },
-  "e2e-testing": {
-    "tasks": [],
-    "metadata": {
-      "created": "2025-06-22T19:40:57.608Z",
-      "updated": "2025-06-22T19:40:57.608Z",
-      "description": "Tag for end-to-end testing workflow validation"
     }
   }
 }

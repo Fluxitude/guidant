@@ -1,0 +1,999 @@
+TITLE: Install CocoIndex Python Library
+DESCRIPTION: This command installs the CocoIndex Python library using pip. It's the first step to setting up CocoIndex for development and data transformation tasks. Ensure you have Python and pip installed before running this command.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/README.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+pip install -U cocoindex
+```
+
+----------------------------------------
+
+TITLE: Install CocoIndex Python Package
+DESCRIPTION: Installs the CocoIndex library using pip, ensuring the latest version is used for development.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+pip install -U cocoindex
+```
+
+----------------------------------------
+
+TITLE: Define a reusable transformation flow with @cocoindex.transform_flow
+DESCRIPTION: This Python snippet defines a `text_to_embedding` function decorated with `@cocoindex.transform_flow()`. This decorator makes the function a reusable transformation flow, enabling consistent embedding computation between indexing and querying. It takes a `DataSlice[str]` as input and returns `DataSlice[NDArray[np.float32]]` by applying a SentenceTransformer model.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/query.mdx#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.transform_flow()
+def text_to_embedding(text: cocoindex.DataSlice[str]) -> cocoindex.DataSlice[NDArray[np.float32]]:
+    return text.transform(
+        cocoindex.functions.SentenceTransformerEmbed(
+            model="sentence-transformers/all-MiniLM-L6-v2"))
+```
+
+----------------------------------------
+
+TITLE: Install or Upgrade CocoIndex Python Package
+DESCRIPTION: Installs or upgrades the CocoIndex Python package using pip. This command ensures you have the latest version of the library installed in your Python environment.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/installation.md#_snippet_0
+
+LANGUAGE: bash
+CODE:
+```
+pip install -U cocoindex
+```
+
+----------------------------------------
+
+TITLE: Define a CocoIndex Flow in Python
+DESCRIPTION: This snippet demonstrates how to define a CocoIndex flow named 'DemoFlow' using the `@cocoindex.flow_def` decorator. It creates a `demo_flow` object of type `cocoindex.Flow`.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_methods.mdx#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="DemoFlow")
+def demo_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    ...
+```
+
+----------------------------------------
+
+TITLE: Import CocoIndex Library
+DESCRIPTION: Imports the main 'cocoindex' library into a Python script, making its functionalities available for defining data flows and operations.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+import cocoindex
+```
+
+----------------------------------------
+
+TITLE: Define Cocoindex Text Embedding Flow
+DESCRIPTION: Defines the main `cocoindex.flow_def` named 'TextEmbedding'. This flow orchestrates the process of sourcing markdown files, splitting their content into manageable chunks, embedding each chunk using the `text_to_embedding` function, and exporting the resulting embeddings to a PostgreSQL database with a cosine similarity vector index.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_6
+
+LANGUAGE: python
+CODE:
+```
+%%writefile -a main.py
+
+@cocoindex.flow_def(name="TextEmbedding")
+def text_embedding_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    """
+    Define a flow that embeds text into a vector database.
+    """
+    data_scope["documents"] = flow_builder.add_source(
+        cocoindex.sources.LocalFile(path="markdown_files"))
+
+    doc_embeddings = data_scope.add_collector()
+
+    with data_scope["documents"].row() as doc:
+        doc["chunks"] = doc["content"].transform(
+            cocoindex.functions.SplitRecursively(),
+            language="markdown", chunk_size=2000, chunk_overlap=500)
+
+        with doc["chunks"].row() as chunk:
+            chunk["embedding"] = text_to_embedding(chunk["text"])
+            doc_embeddings.collect(filename=doc["filename"], location=chunk["location"],
+                                   text=chunk["text"], embedding=chunk["embedding"])
+
+    doc_embeddings.export(
+        "doc_embeddings",
+        cocoindex.storages.Postgres(),
+        primary_key_fields=["filename", "location"],
+        vector_indexes=[
+            cocoindex.VectorIndexDef(
+                field_name="embedding",
+                metric=cocoindex.VectorSimilarityMetric.COSINE_SIMILARITY)])
+
+```
+
+----------------------------------------
+
+TITLE: Define CocoIndex Flow with Decorator
+DESCRIPTION: This snippet demonstrates how to define a CocoIndex flow using the @cocoindex.flow_def decorator. The decorated function serves as the flow's entry point, receiving flow_builder to construct the flow and data_scope to manage top-level data. This method simplifies flow definition.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_def.mdx#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="DemoFlow")
+def demo_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    ...
+```
+
+----------------------------------------
+
+TITLE: EmbedText Spec for Text Embedding Configuration
+DESCRIPTION: Defines the specification for the `EmbedText` function, used to convert text into a vector space. It includes fields for API type, model, address, output dimension, and task type.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ai/llm.mdx#_snippet_2
+
+LANGUAGE: APIDOC
+CODE:
+```
+cocoindex.functions.EmbedText Spec:
+  api_type: cocoindex.LlmApiType (required)
+  model: str (required)
+  address: str (optional)
+  output_dimension: int (optional)
+  task_type: str (optional)
+```
+
+----------------------------------------
+
+TITLE: Define Text Embedding Data Flow in Python with CocoIndex
+DESCRIPTION: This Python code defines a `cocoindex` data flow named 'TextEmbedding'. It sets up a pipeline to read markdown files from a local directory, split their content into manageable chunks, and then generate embeddings for each chunk using a Sentence Transformer model. Finally, the collected document embeddings are exported to a PostgreSQL database, configured with a cosine similarity vector index for efficient semantic search.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/README.md#_snippet_2
+
+LANGUAGE: Python
+CODE:
+```
+@cocoindex.flow_def(name="TextEmbedding")
+def text_embedding_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    # Add a data source to read files from a directory
+    data_scope["documents"] = flow_builder.add_source(cocoindex.sources.LocalFile(path="markdown_files"))
+
+    # Add a collector for data to be exported to the vector index
+    doc_embeddings = data_scope.add_collector()
+
+    # Transform data of each document
+    with data_scope["documents"].row() as doc:
+        # Split the document into chunks, put into `chunks` field
+        doc["chunks"] = doc["content"].transform(
+            cocoindex.functions.SplitRecursively(),
+            language="markdown", chunk_size=2000, chunk_overlap=500)
+
+        # Transform data of each chunk
+        with doc["chunks"].row() as chunk:
+            # Embed the chunk, put into `embedding` field
+            chunk["embedding"] = chunk["text"].transform(
+                cocoindex.functions.SentenceTransformerEmbed(
+                    model="sentence-transformers/all-MiniLM-L6-v2"))
+
+            # Collect the chunk into the collector.
+            doc_embeddings.collect(filename=doc["filename"], location=chunk["location"],
+                                   text=chunk["text"], embedding=chunk["embedding"])
+
+    # Export collected data to a vector index.
+    doc_embeddings.export(
+        "doc_embeddings",
+        cocoindex.targets.Postgres(),
+        primary_key_fields=["filename", "location"],
+        vector_indexes=[
+            cocoindex.VectorIndexDef(
+                field_name="embedding",
+                metric=cocoindex.VectorSimilarityMetric.COSINE_SIMILARITY)])
+```
+
+----------------------------------------
+
+TITLE: Build CocoIndex
+DESCRIPTION: Executes the CocoIndex update process to build or refresh the data index. This command processes the defined data flows and populates the index with transformed data.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_7
+
+LANGUAGE: bash
+CODE:
+```
+cocoindex update quickstart.py
+```
+
+----------------------------------------
+
+TITLE: Call a transform flow directly within an indexing flow
+DESCRIPTION: This Python snippet demonstrates how to integrate a previously defined transform flow, `text_to_embedding`, directly into an indexing flow. The `text_to_embedding` function is called with `chunk["text"]` to compute and assign embeddings to `chunk["embedding"]`.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/query.mdx#_snippet_1
+
+LANGUAGE: python
+CODE:
+```
+with doc["chunks"].row() as chunk:
+    chunk["embedding"] = text_to_embedding(chunk["text"])
+```
+
+----------------------------------------
+
+TITLE: Python: Implement Main Script Logic for Interactive Queries
+DESCRIPTION: This Python script implements the main application logic for the CocoIndex quickstart. It initializes the CocoIndex library and a database connection pool, then enters a loop to accept user queries. For each query, it calls the `search()` function (defined in a previous step) to retrieve and display results from the database. The script handles user input and allows graceful exit via empty input or KeyboardInterrupt.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_12
+
+LANGUAGE: python
+CODE:
+```
+if __name__ == "__main__":
+    # Initialize CocoIndex library states
+    cocoindex.init()
+
+    # Initialize the database connection pool.
+    pool = ConnectionPool(os.getenv("COCOINDEX_DATABASE_URL"))
+    # Run queries in a loop to demonstrate the query capabilities.
+    while True:
+        try:
+            query = input("Enter search query (or Enter to quit): ")
+            if query == '':
+                break
+            # Run the query function with the database connection pool and the query.
+            results = search(pool, query)
+            print("\nSearch results:")
+            for result in results:
+                print(f"[{result['score']:.3f}] {result['filename']}")
+                print(f"    {result['text']}")
+                print("---")
+            print()
+        except KeyboardInterrupt:
+            break
+```
+
+----------------------------------------
+
+TITLE: Define Data Transformation Flow in Python
+DESCRIPTION: This Python snippet illustrates the core dataflow programming model in CocoIndex. It shows how to define data sources, apply a series of transformations to create new fields, and then collect and export the processed data to various target stores like databases, vector databases, or graph databases. The framework handles data operations implicitly based on these definitions.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/README.md#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+# import
+data['content'] = flow_builder.add_source(...)
+
+# transform
+data['out'] = data['content']
+    .transform(...)
+    .transform(...)
+
+# collect data
+collector.collect(...)
+
+# export to db, vector db, graph db ...
+collector.export(...)
+```
+
+----------------------------------------
+
+TITLE: Define CocoIndex Text Embedding Flow
+DESCRIPTION: Defines a CocoIndex data flow named 'TextEmbedding'. This flow reads local markdown files, splits them into chunks, embeds each chunk using a Sentence Transformer model, and exports the collected embeddings to a PostgreSQL vector index. It demonstrates how to configure data sources, transformations, and targets within CocoIndex.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_4
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="TextEmbedding")
+def text_embedding_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    # Add a data source to read files from a directory
+    data_scope["documents"] = flow_builder.add_source(
+        cocoindex.sources.LocalFile(path="markdown_files"))
+
+    # Add a collector for data to be exported to the vector index
+    doc_embeddings = data_scope.add_collector()
+
+    # Transform data of each document
+    with data_scope["documents"].row() as doc:
+        # Split the document into chunks, put into `chunks` field
+        doc["chunks"] = doc["content"].transform(
+            cocoindex.functions.SplitRecursively(),
+            language="markdown", chunk_size=2000, chunk_overlap=500)
+
+        # Transform data of each chunk
+        with doc["chunks"].row() as chunk:
+            # Embed the chunk, put into `embedding` field
+            chunk["embedding"] = chunk["text"].transform(
+                cocoindex.functions.SentenceTransformerEmbed(
+                    model="sentence-transformers/all-MiniLM-L6-v2"))
+
+            # Collect the chunk into the collector.
+            doc_embeddings.collect(filename=doc["filename"], location=chunk["location"],
+                                   text=chunk["text"], embedding=chunk["embedding"])
+
+    # Export collected data to a vector index.
+    doc_embeddings.export(
+        "doc_embeddings",
+        cocoindex.targets.Postgres(),
+        primary_key_fields=["filename", "location"],
+        vector_indexes=[
+            cocoindex.VectorIndexDef(
+                field_name="embedding",
+                metric=cocoindex.VectorSimilarityMetric.COSINE_SIMILARITY)])
+```
+
+----------------------------------------
+
+TITLE: Install Cocoindex and Dependencies
+DESCRIPTION: Installs the necessary Python packages including `cocoindex`, `numpy`, `python-dotenv`, `psycopg`, and `pgvector` using pip, preparing the environment for embedding tasks.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+%pip install cocoindex numpy python-dotenv psycopg[binary,pool] pgvector
+```
+
+----------------------------------------
+
+TITLE: Amazon S3 Data Source Specification
+DESCRIPTION: Defines the configuration parameters for importing files from an Amazon S3 bucket. It includes options for specifying the bucket name, an optional prefix for file filtering, binary reading, and glob patterns for including or excluding files. It also supports integrating with an SQS queue for change event notifications.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/sources.md#_snippet_4
+
+LANGUAGE: APIDOC
+CODE:
+```
+Spec:
+  bucket_name:
+    type: str
+    required: true
+    description: Amazon S3 bucket name.
+  prefix:
+    type: str
+    optional: true
+    description: If provided, only files with path starting with this prefix will be imported.
+  binary:
+    type: bool
+    optional: true
+    description: Whether reading files as binary (instead of text).
+  included_patterns:
+    type: list[str]
+    optional: true
+    description: A list of glob patterns to include files, e.g. ["*.txt", "docs/**/*.md"]. If not specified, all files will be included.
+  excluded_patterns:
+    type: list[str]
+    optional: true
+    description: A list of glob patterns to exclude files, e.g. ["*.tmp", "**/*.log"]. Any file or directory matching these patterns will be excluded even if they match included_patterns. If not specified, no files will be excluded.
+  sqs_queue_url:
+    type: str
+    optional: true
+    description: If provided, the source will receive change event notifications from Amazon S3 via this SQS queue.
+```
+
+----------------------------------------
+
+TITLE: Illustrative Data Transformation Flow in CocoIndex Python
+DESCRIPTION: This Python snippet demonstrates the fundamental data transformation process within CocoIndex. It outlines the steps from adding a data source, applying a series of transformations, collecting the processed data, to finally exporting it to various destinations such as databases, vector databases, or graph databases.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/overview.md#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+# import
+data['content'] = flow_builder.add_source(...)
+
+# transform
+data['out'] = data['content']
+    .transform(...)
+    .transform(...)
+
+# collect data
+collector.collect(...)
+
+# export to db, vector db, graph db ...
+collector.export(...)
+```
+
+----------------------------------------
+
+TITLE: Setup CocoIndex Pipeline
+DESCRIPTION: Initializes the CocoIndex database by creating necessary tables for the indexing pipeline. This command sets up the foundational database structure required for CocoIndex operations.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_6
+
+LANGUAGE: bash
+CODE:
+```
+cocoindex setup quickstart.py
+```
+
+----------------------------------------
+
+TITLE: Import Data from Source using FlowBuilder
+DESCRIPTION: This snippet illustrates how to import initial data into a CocoIndex flow using flow_builder.add_source(). It emphasizes that data import must occur at the top level of the flow definition, populating a field within the top-level DataScope with data from an external source specified by a SourceSpec.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_def.mdx#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="DemoFlow")
+def demo_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    data_scope["documents"] = flow_builder.add_source(DemoSourceSpec(...))
+    ......
+```
+
+----------------------------------------
+
+TITLE: Defining a Standalone Custom Function in Python
+DESCRIPTION: This method is suitable for simple functions that do not require additional configuration or setup logic. The function is decorated with `@cocoindex.op.function()` and requires type annotations for arguments and return values to inform CocoIndex about data types.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/custom_function.mdx#_snippet_0
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.op.function(...)
+def compute_something(arg1: str, arg2: int | None = None) -> str:
+    """
+    Documentation for the function.
+    """
+    ...
+```
+
+----------------------------------------
+
+TITLE: Synchronously evaluate a transform flow with .eval()
+DESCRIPTION: This Python snippet demonstrates how to synchronously execute a transform flow, `text_to_embedding`, with specific input data using the `.eval()` method. It directly computes and prints the embedding for the string "Hello, world!".
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/query.mdx#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+print(text_to_embedding.eval("Hello, world!"))
+```
+
+----------------------------------------
+
+TITLE: Get or Add Field to Data Scope
+DESCRIPTION: This snippet demonstrates how to interact with a DataScope to add or retrieve data fields using the [] operator. It shows adding a 'documents' field from a source and then processing individual rows within that field, transforming 'content' and adding a 'summary' to a child scope.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_def.mdx#_snippet_2
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="DemoFlow")
+def demo_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+
+    # Add "documents" to the top-level data scope.
+    data_scope["documents"] = flow_builder.add_source(DemoSourceSpec(...))
+
+    # Each row of "documents" is a child scope.
+    with data_scope["documents"].row() as document:
+
+        # Get "content" from the document scope, transform, and add "summary" to scope.
+        document["summary"] = field1_row["content"].transform(DemoFunctionSpec(...))
+```
+
+----------------------------------------
+
+TITLE: Implement Search Query Logic
+DESCRIPTION: Defines a `search` function that takes a database connection pool and a query string. It first embeds the input query using the `text_to_embedding` function, then executes a vector similarity search against the `doc_embeddings` table in PostgreSQL to retrieve the top `k` most relevant documents, returning their filename, text, and similarity score.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_7
+
+LANGUAGE: python
+CODE:
+```
+%%writefile -a main.py
+
+def search(pool: ConnectionPool, query: str, top_k: int = 5):
+    # Get the table name, for the export target in the text_embedding_flow above.
+    table_name = cocoindex.utils.get_target_default_name(text_embedding_flow, "doc_embeddings")
+    # Evaluate the transform flow defined above with the input query, to get the embedding.
+    query_vector = text_to_embedding.eval(query);
+    # Run the query and get the results.
+    with pool.connection() as conn:
+        register_vector(conn);
+        with conn.cursor() as cur:
+            cur.execute(f"""
+                SELECT filename, text, embedding <=> %s AS distance
+                FROM {table_name} ORDER BY distance LIMIT %s
+            """, (query_vector, top_k));
+            return [
+                {"filename": row[0], "text": row[1], "score": 1.0 - row[2]}
+                for row in cur.fetchall()
+            ]
+
+```
+
+----------------------------------------
+
+TITLE: Define CocoIndex Text to Embedding Transform Flow (Python)
+DESCRIPTION: Defines `text_to_embedding`, a reusable CocoIndex transform flow function. This function uses `SentenceTransformerEmbed` to convert text data slices into float32 embeddings, serving as a shared transformation logic between indexing and querying.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_9
+
+LANGUAGE: python
+CODE:
+```
+from numpy.typing import NDArray
+import numpy as np
+
+@cocoindex.transform_flow()
+def text_to_embedding(text: cocoindex.DataSlice[str]) -> cocoindex.DataSlice[NDArray[np.float32]]:
+    return text.transform(
+        cocoindex.functions.SentenceTransformerEmbed(
+            model="sentence-transformers/all-MiniLM-L6-v2"))
+```
+
+----------------------------------------
+
+TITLE: Start Postgres Database with pgvector using Docker Compose
+DESCRIPTION: Launches a PostgreSQL database instance with the pgvector extension enabled, using a provided Docker Compose configuration file. This is an easy way to set up the required database for CocoIndex if you don't have one already.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+docker compose -f <(curl -L https://raw.githubusercontent.com/cocoindex-io/cocoindex/refs/heads/main/dev/postgres.yaml) up -d
+```
+
+----------------------------------------
+
+TITLE: Exporting Collected Data with CocoIndex Python
+DESCRIPTION: Demonstrates how to use the `export()` method within a `cocoindex.flow_def` to export data to a specified target, including configuration for primary key and vector indexes.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_def.mdx#_snippet_9
+
+LANGUAGE: python
+CODE:
+```
+@cocoindex.flow_def(name="DemoFlow")
+def demo_flow(flow_builder: cocoindex.FlowBuilder, data_scope: cocoindex.DataScope):
+    ...
+    demo_collector = data_scope.add_collector()
+    ...
+    demo_collector.export(
+        "demo_target", DemoTargetSpec(...),
+        primary_key_fields=["field1"],
+        vector_indexes=[cocoindex.VectorIndexDef("field2", cocoindex.VectorSimilarityMetric.COSINE_SIMILARITY)])
+```
+
+----------------------------------------
+
+TITLE: Define and Run Main Search Loop in Python
+DESCRIPTION: This Python snippet defines the `_main` function, which initializes a database connection pool using `COCOINDEX_DATABASE_URL`. It then enters an interactive loop, prompting the user for search queries, executing the `search` function, and printing formatted results. The script also handles environment variable loading and `cocoindex` initialization before calling `_main`.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_8
+
+LANGUAGE: python
+CODE:
+```
+%%writefile -a main.py
+
+def _main():
+    # Initialize the database connection pool.
+    pool = ConnectionPool(os.getenv("COCOINDEX_DATABASE_URL"))
+    # Run queries in a loop to demonstrate the query capabilities.
+    while True:
+        try:
+            query = input("Enter search query (or Enter to quit): ")
+            if query == '':
+                break
+            # Run the query function with the database connection pool and the query.
+            results = search(pool, query)
+            print("\nSearch results:")
+            for result in results:
+                print(f"[{result['score']:.3f}] {result['filename']}")
+                print(f"    {result['text']}")
+                print("---")
+            print()
+        except KeyboardInterrupt:
+            break
+
+if __name__ == "__main__":
+    load_dotenv(override=True)
+    cocoindex.init()
+    _main()
+```
+
+----------------------------------------
+
+TITLE: SentenceTransformerEmbed Function API
+DESCRIPTION: Embeds a text into a vector space using the SentenceTransformer library. It requires a model name and can accept additional arguments for the SentenceTransformer constructor.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/functions.md#_snippet_2
+
+LANGUAGE: APIDOC
+CODE:
+```
+SentenceTransformerEmbed:
+  description: Embeds a text into a vector space using the SentenceTransformer library.
+  parameters:
+    model:
+      type: str
+      required: true
+      description: The name of the SentenceTransformer model to use.
+    args:
+      type: dict[str, Any]
+      optional: true
+      description: Additional arguments to pass to the SentenceTransformer constructor. e.g. '{"trust_remote_code": True}'
+  input_data:
+    text:
+      type: str
+      required: true
+      description: The text to embed.
+  returns:
+    type: vector[float32; N]
+    description: Where 'N' is determined by the model.
+```
+
+----------------------------------------
+
+TITLE: Python Example: OpenAI EmbedText Spec for Text Embedding
+DESCRIPTION: Example Python code demonstrating how to configure `cocoindex.functions.EmbedText` to use OpenAI's `text-embedding-3-small` model for text embedding tasks.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ai/llm.mdx#_snippet_4
+
+LANGUAGE: python
+CODE:
+```
+cocoindex.functions.EmbedText(
+    api_type=cocoindex.LlmApiType.OPENAI,
+    model="text-embedding-3-small",
+)
+```
+
+----------------------------------------
+
+TITLE: Setup CocoIndex Project
+DESCRIPTION: Initializes the CocoIndex project, setting up the necessary configurations and structures based on the provided main Python file.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/product_recommendation/README.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+cocoindex setup main.py
+```
+
+----------------------------------------
+
+TITLE: Configure Voyage LLM for Text Embedding in Python
+DESCRIPTION: This snippet shows how to create a cocoindex.functions.EmbedText specification for text embedding with Voyage AI. It sets the API type to VOYAGE, specifies an embedding model like voyage-code-3, and includes an optional task_type such as document. The VOYAGE_API_KEY environment variable must be configured.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ai/llm.mdx#_snippet_10
+
+LANGUAGE: python
+CODE:
+```
+cocoindex.functions.EmbedText(
+    api_type=cocoindex.LlmApiType.VOYAGE,
+    model="voyage-code-3",
+    task_type="document",
+)
+```
+
+----------------------------------------
+
+TITLE: LocalFile Source Specification
+DESCRIPTION: Defines the configuration parameters for the LocalFile source, including the root directory path, binary read option, and glob patterns for file inclusion and exclusion.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/sources.md#_snippet_0
+
+LANGUAGE: APIDOC
+CODE:
+```
+LocalFile Spec:
+  path: str (required) - full path of the root directory to import files from
+  binary: bool (optional) - whether reading files as binary (instead of text)
+  included_patterns: list[str] (optional) - a list of glob patterns to include files, e.g. ["*.txt", "docs/**/*.md"]. If not specified, all files will be included.
+  excluded_patterns: list[str] (optional) - a list of glob patterns to exclude files, e.g. ["tmp", "**/node_modules"]. Any file or directory matching these patterns will be excluded even if they match included_patterns. If not specified, no files will be excluded.
+```
+
+----------------------------------------
+
+TITLE: Start Postgres Database with Docker Compose
+DESCRIPTION: Starts a PostgreSQL database with the pgvector extension using Docker Compose. This command fetches the official CocoIndex Postgres Docker Compose configuration from GitHub and runs it in detached mode, providing a local database instance for CocoIndex. Requires Docker Compose to be installed.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/installation.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+docker compose -f <(curl -L https://raw.githubusercontent.com/cocoindex-io/cocoindex/refs/heads/main/dev/postgres.yaml) up -d
+```
+
+----------------------------------------
+
+TITLE: Export Collected Data as Graph Relationships to Neo4j in Python
+DESCRIPTION: This Python example demonstrates how to use `doc_place_collector.export` with `cocoindex.targets.Neo4j` to map collected data rows into graph relationships of type `MENTION`. It shows how to specify source and target nodes using `NodeFromFields`, mapping `doc_filename` to `Document.filename` and `place_name`/`place_embedding` to `Place.name`/`Place.embedding` respectively, with unmapped fields becoming relationship properties.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/targets.md#_snippet_8
+
+LANGUAGE: python
+CODE:
+```
+doc_place_collector.export(
+    ...
+    cocoindex.targets.Neo4j(
+        ...
+        mapping=cocoindex.targets.Relationships(
+            rel_type="MENTION",
+            source=cocoindex.targets.NodeFromFields(
+                label="Document",
+                fields=[cocoindex.targets.TargetFieldMapping(source="doc_filename", target="filename")],
+            ),
+            target=cocoindex.targets.NodeFromFields(
+                label="Place",
+                fields=[
+                    cocoindex.targets.TargetFieldMapping(source="place_name", target="name"),
+                    cocoindex.targets.TargetFieldMapping(source="place_embedding", target="embedding"),
+                ],
+            ),
+        ),
+    ),
+    ...
+)
+```
+
+----------------------------------------
+
+TITLE: Implement CocoIndex Query Logic (Python)
+DESCRIPTION: Provides a Python function `search` for querying the built CocoIndex. It connects to the PostgreSQL database, retrieves the target table name dynamically, evaluates the `text_to_embedding` flow for the input query, and performs a vector similarity search to retrieve relevant documents.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_11
+
+LANGUAGE: python
+CODE:
+```
+from psycopg_pool import ConnectionPool
+from pgvector.psycopg import register_vector
+
+def search(pool: ConnectionPool, query: str, top_k: int = 5):
+    # Get the table name, for the export target in the text_embedding_flow above.
+    table_name = cocoindex.utils.get_target_default_name(text_embedding_flow, "doc_embeddings")
+    # Evaluate the transform flow defined above with the input query, to get the embedding.
+    query_vector = text_to_embedding.eval(query)
+    # Run the query and get the results.
+    with pool.connection() as conn:
+        register_vector(conn)
+        with conn.cursor() as cur:
+            cur.execute(f"""
+                SELECT filename, text, embedding <=> %s AS distance
+                FROM {table_name} ORDER BY distance LIMIT %s
+            """, (query_vector, top_k))
+            return [
+                {"filename": row[0], "text": row[1], "score": 1.0 - row[2]}
+                for row in cur.fetchall()
+            ]
+```
+
+----------------------------------------
+
+TITLE: Configure Anthropic LLM for Text Generation in Python
+DESCRIPTION: This snippet illustrates how to define a cocoindex.LlmSpec for text generation using Anthropic models. It sets the API type to ANTHROPIC and specifies a model like claude-3-5-sonnet-latest. Before use, ensure the ANTHROPIC_API_KEY environment variable is properly set.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ai/llm.mdx#_snippet_9
+
+LANGUAGE: python
+CODE:
+```
+cocoindex.LlmSpec(
+    api_type=cocoindex.LlmApiType.ANTHROPIC,
+    model="claude-3-5-sonnet-latest",
+)
+```
+
+----------------------------------------
+
+TITLE: Setup CocoIndex Project
+DESCRIPTION: Initializes the CocoIndex project by running the setup command, preparing the environment and configurations based on the specified main Python file.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/pdf_embedding/README.md#_snippet_1
+
+LANGUAGE: bash
+CODE:
+```
+cocoindex setup main.py
+```
+
+----------------------------------------
+
+TITLE: Exporting Collected Rows to Graph Nodes with CocoIndex
+DESCRIPTION: Example demonstrating how to export collected rows from a `document_collector` to nodes with the label 'Document' in a Neo4j graph database using `cocoindex.targets.Nodes`. It specifies 'filename' as the primary key field for node deduplication.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/targets.md#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+document_collector.export(
+    ...
+    cocoindex.targets.Neo4j(
+        ...
+        mapping=cocoindex.targets.Nodes(label="Document"),
+    ),
+    primary_key_fields=["filename"],
+)
+```
+
+----------------------------------------
+
+TITLE: Declare Target Configurations with FlowBuilder in Python
+DESCRIPTION: Explains how to declare target configurations (e.g., for Neo4j nodes) using `FlowBuilder.declare()` when they are not directly tied to a specific data collector. This allows specifying configurations for shared nodes referenced by multiple relationships.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_def.mdx#_snippet_13
+
+LANGUAGE: python
+CODE:
+```
+flow_builder.declare(
+    cocoindex.targets.Neo4jDeclarations(...)
+)
+```
+
+----------------------------------------
+
+TITLE: Python Example: OpenAI LlmSpec for Text Generation
+DESCRIPTION: Example Python code demonstrating how to configure `cocoindex.LlmSpec` to use OpenAI's `gpt-4o` model for text generation tasks.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ai/llm.mdx#_snippet_3
+
+LANGUAGE: python
+CODE:
+```
+cocoindex.LlmSpec(
+    api_type=cocoindex.LlmApiType.OPENAI,
+    model="gpt-4o",
+)
+```
+
+----------------------------------------
+
+TITLE: Postgres Target Specification
+DESCRIPTION: Details the configuration fields for exporting data to a Postgres database (with pgvector extension). CocoIndex data elements map to Postgres elements as follows: an export target to a unique table, a collected row to a row, and a field to a column.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/targets.md#_snippet_0
+
+LANGUAGE: APIDOC
+CODE:
+```
+Postgres Target Spec:
+  database:
+    type: auth reference to DatabaseConnectionSpec
+    optional: true
+    description: The connection to the Postgres database. See DatabaseConnectionSpec for its specific fields. If not provided, will use the same database as the internal storage.
+  table_name:
+    type: str
+    optional: true
+    description: The name of the table to store to. If unspecified, will use the table name [${AppNamespace}__]${FlowName}__${TargetName}, e.g. DemoFlow__doc_embeddings or Staging__DemoFlow__doc_embeddings.
+```
+
+----------------------------------------
+
+TITLE: Python: Control `FlowLiveUpdater` Lifecycle
+DESCRIPTION: Shows a typical sequence of operations for managing a `cocoindex.FlowLiveUpdater` object, including starting the updater, performing other logic, printing update statistics, aborting the updater, and waiting for it to finish.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_methods.mdx#_snippet_7
+
+LANGUAGE: python
+CODE:
+```
+my_updater = cocoindex.FlowLiveUpdater(demo_flow)
+# Start the updater.
+my_updater.start()
+
+# Perform your own logic (e.g. a query loop).
+...
+
+# Print the update stats.
+print(my_updater.update_stats())
+# Abort the updater.
+my_updater.abort()
+# Wait for the updater to finish.
+my_updater.wait()
+```
+
+----------------------------------------
+
+TITLE: Configure Database URL in .env
+DESCRIPTION: Writes the PostgreSQL connection string to a `.env` file. This environment variable (`COCOINDEX_DATABASE_URL`) will be used by the Cocoindex application to establish a connection with the PostgreSQL database.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_3
+
+LANGUAGE: shell
+CODE:
+```
+%%writefile .env
+COCOINDEX_DATABASE_URL="postgresql://cocoindex:cocoindex@localhost:5432/cocoindex"
+```
+
+----------------------------------------
+
+TITLE: Python: `cocoindex.FlowLiveUpdater` Methods
+DESCRIPTION: Describes the core methods supported by `cocoindex.FlowLiveUpdater` objects for controlling the update process: `start()` to begin capturing changes, `abort()` to stop, `wait()` to block until completion or abortion, and `update_stats()` to retrieve current statistics.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/core/flow_methods.mdx#_snippet_6
+
+LANGUAGE: APIDOC
+CODE:
+```
+cocoindex.FlowLiveUpdater Methods:
+  start(): Start the updater. CocoIndex continuously captures changes and updates target data in background threads.
+  abort(): Abort the updater.
+  wait(): Wait for the updater to finish (unblocks on abort, or one-time update completion if live update is not enabled).
+  update_stats(): Returns the statistics of the updater.
+```
+
+----------------------------------------
+
+TITLE: Call a transform flow using the chainable .call() method
+DESCRIPTION: This Python snippet shows an alternative, chainable way to invoke a transform flow within an indexing flow. By using the `.call()` method on the input `chunk["text"]`, the `text_to_embedding` transform flow is applied, and its output is assigned to `chunk["embedding"]`.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/query.mdx#_snippet_2
+
+LANGUAGE: python
+CODE:
+```
+with doc["chunks"].row() as chunk:
+    chunk["embedding"] = chunk["text"].call(text_to_embedding)
+```
+
+----------------------------------------
+
+TITLE: Configure Local Postgres URL for CocoIndex
+DESCRIPTION: This snippet shows the configuration for the `COCOINDEX_DATABASE_URL` in the `.env` file, pointing to a local PostgreSQL instance. This setting is crucial for running the CocoIndex application without Docker.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/fastapi_server_docker/README.md#_snippet_0
+
+LANGUAGE: text
+CODE:
+```
+COCOINDEX_DATABASE_URL=postgres://cocoindex:cocoindex@localhost/cocoindex
+```
+
+----------------------------------------
+
+TITLE: Define CocoIndex Relationship Mapping with `cocoindex.targets.Relationships`
+DESCRIPTION: This API documentation describes the `cocoindex.targets.Relationships` class and its nested components (`NodeFromFields`, `TargetFieldMapping`) used to define how collected data rows are mapped to relationships, source nodes, and target nodes in a graph database like Neo4j. It details the fields required for relationship type, node labels, and property mappings from source fields.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/ops/targets.md#_snippet_7
+
+LANGUAGE: APIDOC
+CODE:
+```
+cocoindex.targets.Relationships:
+  rel_type (type: str): The type of the relationship.
+  source (type: cocoindex.targets.NodeFromFields): Specify how to extract source node information from specific fields in the collected row.
+  target (type: cocoindex.targets.NodeFromFields): Specify how to extract target node information from specific fields in the collected row.
+
+cocoindex.targets.NodeFromFields:
+  label (type: str): The label of the node.
+  fields (type: Sequence[cocoindex.targets.TargetFieldMapping]): Specify field mappings from the collected rows to node properties.
+
+cocoindex.targets.TargetFieldMapping:
+  source (type: str): The name of the field in the collected row.
+  target (type: str, optional): The name of the field to use as the node field. If unspecified, will use the same as source.
+```
+
+----------------------------------------
+
+TITLE: Define Text Embedding Transformation Function
+DESCRIPTION: Defines a `cocoindex.transform_flow` function, `text_to_embedding`, which takes a slice of text and transforms it into a NumPy array of float32 embeddings. This function utilizes a SentenceTransformer model and is designed to be reusable for both indexing and querying operations.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/text_embedding/Text_Embedding.ipynb#_snippet_5
+
+LANGUAGE: python
+CODE:
+```
+%%writefile -a main.py
+
+@cocoindex.transform_flow()
+def text_to_embedding(text: cocoindex.DataSlice[str]) -> cocoindex.DataSlice[NDArray[np.float32]]:
+    """
+    Embed the text using a SentenceTransformer model.
+    This is shared logic between indexing and querying.
+    """
+    return text.transform(
+        cocoindex.functions.SentenceTransformerEmbed(
+            model="sentence-transformers/all-MiniLM-L6-v2"))
+
+```
+
+----------------------------------------
+
+TITLE: Install Python Dependencies for CocoIndex Queries
+DESCRIPTION: Installs the required Python libraries, including `numpy`, `psycopg`, and `pgvector`, to enable database connectivity and vector operations for querying the CocoIndex.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/docs/docs/getting_started/quickstart.md#_snippet_8
+
+LANGUAGE: bash
+CODE:
+```
+pip install numpy "psycopg[binary,pool]" pgvector
+```
+
+----------------------------------------
+
+TITLE: Update CocoIndex Data Index
+DESCRIPTION: Updates the data index for the CocoIndex project based on changes or new data processed by the main Python file. This command ensures the index is current.
+SOURCE: https://github.com/cocoindex-io/cocoindex/blob/main/examples/manuals_llm_extraction/README.md#_snippet_2
+
+LANGUAGE: bash
+CODE:
+```
+cocoindex update main.py
+```
